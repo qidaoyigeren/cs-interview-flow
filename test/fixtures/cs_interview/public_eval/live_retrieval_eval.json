@@ -1,0 +1,29 @@
+{
+  "cases": [
+    {"id": "go-leak", "dataset": "interview_experience", "query": "Go 聚合接口超时返回后 goroutine 数量持续增长，如何定位 channel 阻塞和取消传播？", "expected_question_id": "public-go-leak-001"},
+    {"id": "mysql-order", "dataset": "interview_experience", "query": "订单列表按 user_id 和 status 过滤并按 created_at 倒序，单列索引都有但 P95 很慢", "expected_question_id": "public-mysql-slow-001"},
+    {"id": "cache-expiry", "dataset": "interview_experience", "query": "大量热点缓存同一时刻过期导致数据库连接池被打满，怎样治理？", "expected_question_id": "public-cache-stampede-001"},
+    {"id": "rag-regression", "dataset": "interview_experience", "query": "RAG 升级后延迟从两秒涨到八秒，而且回答引用与结论不一致", "expected_question_id": "public-rag-latency-001"},
+    {"id": "agent-tool-retry", "dataset": "interview_experience", "query": "Agent 调用工单工具超时重试后创建了两张工单，怎样设计幂等键和执行状态恢复？", "expected_question_id": "public-agent-tool-reliability-001"},
+    {"id": "rag-online-regression", "dataset": "interview_experience", "query": "离线 Recall@5 上涨但 RAG 上线后差评更多且延迟变高，应怎样验证和灰度回滚？", "expected_question_id": "public-rag-eval-regression-001"},
+    {"id": "k8s-release", "dataset": "interview_experience", "query": "Kubernetes 滚动发布 Go 服务出现 502 和重复消费任务，如何优雅下线？", "expected_question_id": "public-k8s-shutdown-001"},
+    {"id": "lru", "dataset": "leetcode", "query": "设计 Get Put 都是 O(1) 且淘汰最久未访问元素的固定容量缓存", "expected_question_id": "public-algo-lru-001"},
+    {"id": "window", "dataset": "leetcode", "query": "求 UTF-8 字符串不含重复字符的最长连续片段，注意 Go rune", "expected_question_id": "public-algo-window-001"},
+    {"id": "interval", "dataset": "leetcode", "query": "合并相交或端点相接的闭区间并按起点排序", "expected_question_id": "public-algo-interval-001"},
+    {"id": "topk", "dataset": "leetcode", "query": "返回事件流里出现频率最高的 K 个整数，频率相同按数值排序", "expected_question_id": "public-algo-topk-001"},
+    {"id": "dag", "dataset": "leetcode", "query": "部署任务存在依赖，判断能否全部执行并输出拓扑顺序或环", "expected_question_id": "public-algo-dag-001"},
+    {"id": "context", "dataset": "fundamentals", "query": "解释 context 取消传播 deadline value 使用边界以及为什么要调用 cancel", "expected_question_id": "public-fund-context-001"},
+    {"id": "sync-map", "dataset": "fundamentals", "query": "普通 Go map 并发读写为什么不安全，sync.Map 和分片锁如何选择？", "expected_question_id": "public-fund-syncmap-001"},
+    {"id": "mvcc", "dataset": "fundamentals", "query": "InnoDB Read View undo 版本链怎样实现 MVCC，为什么还需要 next-key lock？", "expected_question_id": "public-fund-mvcc-001"},
+    {"id": "outbox", "dataset": "fundamentals", "query": "数据库事务成功但消息发送失败如何处理，消费者怎样做到幂等？", "expected_question_id": "public-fund-outbox-001"},
+    {"id": "hybrid", "dataset": "fundamentals", "query": "生产 RAG 为什么混合关键词和向量检索，重排与证据校验分别做什么？", "expected_question_id": "public-fund-rag-retrieval-001"},
+    {"id": "agent-idempotency", "dataset": "fundamentals", "query": "有副作用的 Agent 工具为什么不能靠模型避免重复，如何实现 exactly-once effect？", "expected_question_id": "public-fund-agent-idempotency-001"},
+    {"id": "rag-layered-eval", "dataset": "fundamentals", "query": "如何分层评测 RAG 的召回、重排、生成、引用和端到端体验，并构造 hard negative？", "expected_question_id": "public-fund-rag-evaluation-001"},
+
+    {"id": "hard-go-leak", "kind": "hard", "dataset": "interview_experience", "query": "接口早就返回了，可进程里的执行单元只增不减，应该从哪里找到是谁没退出？", "expected_question_id": "public-go-leak-001"},
+    {"id": "hard-mysql-order", "kind": "hard", "dataset": "interview_experience", "query": "一个筛选加倒序分页接口数据越多尾延迟越高，单字段看起来都有优化结构，下一步查什么？", "expected_question_id": "public-mysql-slow-001"},
+    {"id": "hard-cache-expiry", "kind": "hard", "dataset": "interview_experience", "query": "每天固定时刻总流量没明显增长，数据库连接却瞬间耗尽，几分钟后又恢复。如何治理？", "expected_question_id": "public-cache-stampede-001"},
+    {"id": "hard-rag-regression", "kind": "hard", "dataset": "interview_experience", "query": "改完召回链路后系统又慢又经常答非所问，应该怎样拆指标而不是直接换大模型？", "expected_question_id": "public-rag-latency-001"},
+    {"id": "hard-k8s-release", "kind": "hard", "dataset": "interview_experience", "query": "新版本切流时短暂出现坏请求，后台工作还被执行两次，服务退出顺序应怎样设计？", "expected_question_id": "public-k8s-shutdown-001"}
+  ]
+}

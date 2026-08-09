@@ -1,0 +1,70 @@
+{{- if .Values.csInterviewWorker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ragflow.fullname" . }}-cs-interview-worker
+  labels:
+    {{- include "ragflow.labels" . | nindent 4 }}
+    app.kubernetes.io/component: cs-interview-worker
+spec:
+  replicas: {{ .Values.csInterviewWorker.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ragflow.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: cs-interview-worker
+  template:
+    metadata:
+      labels:
+        {{- include "ragflow.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: cs-interview-worker
+      annotations:
+        checksum/config-env: {{ include (print $.Template.BasePath "/env.yaml") . | sha256sum }}
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: {{ .Values.csInterviewWorker.terminationGracePeriodSeconds }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/component: cs-interview-worker
+      containers:
+        - name: worker
+          image: {{ include "ragflow.imageRepo" (dict "root" . "repo" .Values.ragflow.image.repository) }}:{{ .Values.ragflow.image.tag }}
+          imagePullPolicy: {{ .Values.ragflow.image.pullPolicy }}
+          command: ["python3", "-m", "api.apps.services.cs_interview.worker"]
+          envFrom:
+            - secretRef:
+                name: {{ include "ragflow.fullname" . }}-env-config
+          resources:
+            {{- .Values.csInterviewWorker.resources | toYaml | nindent 12 }}
+          volumeMounts:
+            {{- with .Values.ragflow.service_conf }}
+            - mountPath: /ragflow/conf/local.service_conf.yaml
+              subPath: local.service_conf.yaml
+              name: service-conf-volume
+            {{- end }}
+            {{- with .Values.ragflow.llm_factories }}
+            - mountPath: /ragflow/conf/llm_factories.json
+              subPath: llm_factories.json
+              name: service-conf-volume
+            {{- end }}
+      volumes:
+        - name: service-conf-volume
+          configMap:
+            name: ragflow-service-config
+{{- if .Values.csInterviewWorker.pdb.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "ragflow.fullname" . }}-cs-interview-worker
+spec:
+  minAvailable: {{ .Values.csInterviewWorker.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "ragflow.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: cs-interview-worker
+{{- end }}
+{{- end }}

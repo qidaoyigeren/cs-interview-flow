@@ -1,0 +1,168 @@
+{{- if .Values.csInterviewRunner.enabled }}
+{{- if eq (toString .Values.csInterviewRunner.image.tag) "latest" }}
+{{- fail "csInterviewRunner.image.tag must be versioned; latest is forbidden" }}
+{{- end }}
+{{- $runnerRepo := include "ragflow.imageRepo" (dict "root" . "repo" .Values.csInterviewRunner.image.repository) }}
+{{- $runnerImage := printf "%s:%s" $runnerRepo .Values.csInterviewRunner.image.tag }}
+{{- if .Values.csInterviewRunner.image.digest }}
+{{- $runnerImage = printf "%s@%s" $runnerRepo .Values.csInterviewRunner.image.digest }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ragflow.fullname" . }}-cs-interview-runner
+  labels:
+    {{- include "ragflow.labels" . | nindent 4 }}
+    app.kubernetes.io/component: cs-interview-runner
+spec:
+  {{- if not .Values.csInterviewRunner.autoscaling.enabled }}
+  replicas: {{ .Values.csInterviewRunner.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "ragflow.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: cs-interview-runner
+  template:
+    metadata:
+      labels:
+        {{- include "ragflow.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: cs-interview-runner
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: {{ .Values.csInterviewRunner.terminationGracePeriodSeconds }}
+      {{- with .Values.csInterviewRunner.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: {{ .Values.csInterviewRunner.seccomp.type }}
+          {{- if eq .Values.csInterviewRunner.seccomp.type "Localhost" }}
+          localhostProfile: {{ required "csInterviewRunner.seccomp.localhostProfile is required" .Values.csInterviewRunner.seccomp.localhostProfile }}
+          {{- end }}
+      containers:
+        - name: runner
+          image: {{ $runnerImage }}
+          imagePullPolicy: {{ .Values.csInterviewRunner.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 9390
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          lifecycle:
+            preStop:
+              httpGet:
+                path: /drain
+                port: http
+          resources:
+            {{- .Values.csInterviewRunner.resources | toYaml | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 2
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ .Values.csInterviewRunner.tmpfsSizeLimit }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ragflow.fullname" . }}-cs-interview-runner
+  labels:
+    {{- include "ragflow.labels" . | nindent 4 }}
+    app.kubernetes.io/component: cs-interview-runner
+spec:
+  # Execution state is intentionally Pod-local. Affinity keeps a Worker's
+  # execute and process-group cancellation requests on the same Runner Pod.
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 3600
+  selector:
+    {{- include "ragflow.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: cs-interview-runner
+  ports:
+    - name: http
+      port: 9390
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ragflow.fullname" . }}-cs-interview-runner
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "ragflow.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: cs-interview-runner
+  policyTypes: ["Ingress", "Egress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "ragflow.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: ragflow
+        - podSelector:
+            matchLabels:
+              {{- include "ragflow.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: cs-interview-worker
+      ports:
+        - protocol: TCP
+          port: 9390
+  egress: []
+{{- if .Values.csInterviewRunner.pdb.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "ragflow.fullname" . }}-cs-interview-runner
+spec:
+  minAvailable: {{ .Values.csInterviewRunner.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "ragflow.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: cs-interview-runner
+{{- end }}
+{{- if .Values.csInterviewRunner.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "ragflow.fullname" . }}-cs-interview-runner
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "ragflow.fullname" . }}-cs-interview-runner
+  minReplicas: {{ .Values.csInterviewRunner.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.csInterviewRunner.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.csInterviewRunner.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}
+{{- end }}

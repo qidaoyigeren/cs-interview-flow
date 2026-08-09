@@ -1,0 +1,10 @@
+ARG BASE_IMAGE=swr.cn-north-4.myhuaweicloud.com/infiniflow/ragflow:v0.26.4
+FROM ${BASE_IMAGE}
+
+USER root
+WORKDIR /ragflow
+
+COPY pyproject.toml uv.lock ./
+
+RUN --mount=type=cache,id=ragflow_cs_interview_uv,target=/root/.cache/uv,sharing=locked \
+    uv sync --python 3.13 --frozen

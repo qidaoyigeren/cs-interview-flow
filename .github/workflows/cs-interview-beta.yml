@@ -1,0 +1,237 @@
+name: cs-interview-beta
+
+on:
+  pull_request:
+    paths:
+      - "api/apps/restful_apis/cs_interview_api.py"
+      - "api/apps/services/cs_interview/**"
+      - "api/db/db_models.py"
+      - "api/db/services/interview_*.py"
+      - "docker/cs-interview-runner/**"
+      - "helm/templates/cs-interview-*.yaml"
+      - "helm/values.yaml"
+      - "test/fixtures/cs_interview/**"
+      - "test/unit_test/api/db/test_cs_interview_*.py"
+      - "tools/cs_interview_*.py"
+      - "web/src/**/cs-interview*"
+      - "web/src/pages/cs-interview/**"
+      - "web/jest.cs-interview.config.ts"
+      - "web/scripts/type-check-cs-interview.mjs"
+      - "web/package*.json"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/cs-interview-beta.yml"
+  push:
+    branches: [main]
+    paths:
+      - "api/apps/restful_apis/cs_interview_api.py"
+      - "api/apps/services/cs_interview/**"
+      - "api/db/db_models.py"
+      - "api/db/services/interview_*.py"
+      - "docker/cs-interview-runner/**"
+      - "helm/templates/cs-interview-*.yaml"
+      - "helm/values.yaml"
+      - "test/fixtures/cs_interview/**"
+      - "test/unit_test/api/db/test_cs_interview_*.py"
+      - "tools/cs_interview_*.py"
+      - "web/src/**/cs-interview*"
+      - "web/src/pages/cs-interview/**"
+      - "web/jest.cs-interview.config.ts"
+      - "web/scripts/type-check-cs-interview.mjs"
+      - "web/package*.json"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/cs-interview-beta.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-offline:
+    name: Python 3.13 unit, migration, DTO, offline eval
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install pinned uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.32"
+          enable-cache: true
+      - name: Reproduce Python 3.13 environment
+        run: uv sync --python 3.13 --group test --frozen
+      - name: Run CS interview unit and migration tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: >-
+          uv run pytest -q
+          test/unit_test/api/db/test_cs_interview_agentic_domain.py
+          test/unit_test/api/db/test_cs_interview_domain.py
+          test/unit_test/api/db/test_cs_interview_evaluation.py
+          test/unit_test/api/db/test_cs_interview_eval_runs.py
+          test/unit_test/api/db/test_cs_interview_experiments.py
+          test/unit_test/api/db/test_cs_interview_migration_smoke.py
+          test/unit_test/api/db/test_cs_interview_ops_api.py
+          test/unit_test/api/db/test_cs_interview_persistence.py
+          test/unit_test/api/db/test_cs_interview_pipeline.py
+          test/unit_test/api/db/test_cs_interview_reliability.py
+          test/unit_test/api/db/test_cs_interview_replay.py
+          test/unit_test/api/db/test_cs_interview_resume.py
+          test/unit_test/api/db/test_cs_interview_runner_contract.py
+          test/unit_test/api/db/test_cs_interview_slo.py
+          test/unit_test/api/db/test_cs_interview_trace.py
+      - name: Assert the agentic scenario suite is byte-identical to the generator
+        run: uv run python tools/cs_interview_scenarios_generate.py --check
+      - name: Run deterministic offline evaluation
+        run: uv run python tools/cs_interview_eval.py --labeled --json-output cs-interview-offline-eval.json
+      - name: Upload evaluation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cs-interview-offline-eval
+          path: cs-interview-offline-eval.json
+          if-no-files-found: error
+
+  frontend-owning-path:
+    name: Frontend lint, local type-check, Jest coverage
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22.18.0"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run lint:cs-interview
+      - run: npm run type-check:cs-interview
+      - run: npm run test:cs-interview -- --watch=false
+
+  runner-linux-kubernetes:
+    name: Runner seccomp, attacks, restart, scan, SBOM
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      RUNNER_IMAGE: ragflow-cs-interview-runner:${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build immutable runner image
+        run: |
+          set -euo pipefail
+          docker build --pull=false -t "${RUNNER_IMAGE}" docker/cs-interview-runner
+          IMAGE_ID=$(docker image inspect --format '{{.Id}}' "${RUNNER_IMAGE}")
+          [[ "${IMAGE_ID}" == sha256:* ]]
+          printf '%s\n' "${IMAGE_ID}" | tee runner-image-digest.txt
+      - name: Vulnerability gate and SBOM
+        run: |
+          set -euo pipefail
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.64.0 image \
+            --exit-code 1 --ignore-unfixed --severity CRITICAL "${RUNNER_IMAGE}"
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            --mount type=bind,source="${PWD}",destination=/workspace \
+            aquasec/trivy:0.64.0 image \
+            --format spdx-json --output /workspace/runner.spdx.json \
+            "${RUNNER_IMAGE}"
+      - name: Docker seccomp self-test and fault injection
+        run: |
+          set -euo pipefail
+          docker run -d --name cs-interview-runner \
+            --security-opt seccomp="${PWD}/docker/cs-interview-runner/seccomp.json" \
+            --security-opt no-new-privileges:true \
+            --cap-drop ALL --read-only --pids-limit 64 --memory 384m --cpus 1 \
+            --tmpfs /tmp:rw,exec,nosuid,nodev,size=256m,mode=1777 \
+            -p 127.0.0.1:19390:9390 "${RUNNER_IMAGE}"
+          for attempt in $(seq 1 30); do
+            curl --fail --silent http://127.0.0.1:19390/readyz && break
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:19390/readyz
+          python3 tools/cs_interview_runner_smoke.py --base-url http://127.0.0.1:19390
+          python3 tools/cs_interview_runner_fault_injection.py --base-url http://127.0.0.1:19390 --drain
+          docker restart cs-interview-runner
+          for attempt in $(seq 1 30); do
+            curl --fail --silent http://127.0.0.1:19390/readyz && break
+            sleep 1
+          done
+          python3 tools/cs_interview_runner_smoke.py --base-url http://127.0.0.1:19390
+          docker rm -f cs-interview-runner
+      - name: Prepare Kind Localhost seccomp profile
+        run: |
+          set -euo pipefail
+          PROFILE_ROOT="${RUNNER_TEMP}/cs-interview-seccomp"
+          mkdir -p "${PROFILE_ROOT}"
+          cp docker/cs-interview-runner/seccomp.json "${PROFILE_ROOT}/ragflow-cs-interview.json"
+          sed "s|__SECCOMP_PROFILE_ROOT__|${PROFILE_ROOT}|" \
+            docker/cs-interview-runner/kind-config-ci.yaml > "${RUNNER_TEMP}/cs-interview-kind.yaml"
+      - name: Create Linux Kubernetes cluster
+        uses: helm/kind-action@v1.14.0
+        with:
+          cluster_name: cs-interview
+          config: ${{ runner.temp }}/cs-interview-kind.yaml
+      - name: Run Kubernetes sandbox self-test and Pod recovery
+        run: |
+          set -euo pipefail
+          kind load docker-image --name cs-interview "${RUNNER_IMAGE}"
+          helm template cs-interview helm \
+            --show-only templates/cs-interview-runner.yaml \
+            --set csInterviewRunner.enabled=true \
+            --set csInterviewRunner.image.repository=ragflow-cs-interview-runner \
+            --set csInterviewRunner.image.tag="${GITHUB_SHA}" \
+            --set csInterviewRunner.image.pullPolicy=Never \
+            --set csInterviewRunner.seccomp.type=Localhost \
+            --set csInterviewRunner.seccomp.localhostProfile=profiles/ragflow-cs-interview.json \
+            > "${RUNNER_TEMP}/cs-interview-runner.yaml"
+          kubectl apply -f "${RUNNER_TEMP}/cs-interview-runner.yaml"
+          kubectl rollout status deployment/cs-interview-ragflow-cs-interview-runner --timeout=180s
+          SERVICE=cs-interview-ragflow-cs-interview-runner
+          PORT_FORWARD_PID=""
+          start_port_forward() {
+            kubectl port-forward "service/${SERVICE}" 19390:9390 >"${RUNNER_TEMP}/runner-port-forward.log" 2>&1 &
+            PORT_FORWARD_PID=$!
+          }
+          stop_port_forward() {
+            if [ -n "${PORT_FORWARD_PID}" ]; then
+              kill "${PORT_FORWARD_PID}" 2>/dev/null || true
+              wait "${PORT_FORWARD_PID}" 2>/dev/null || true
+              PORT_FORWARD_PID=""
+            fi
+          }
+          wait_ready() {
+            for attempt in $(seq 1 30); do
+              curl --fail --silent http://127.0.0.1:19390/readyz && return 0
+              sleep 1
+            done
+            return 1
+          }
+          trap 'stop_port_forward' EXIT
+          start_port_forward
+          wait_ready
+          python3 tools/cs_interview_runner_smoke.py --base-url http://127.0.0.1:19390
+          python3 tools/cs_interview_runner_fault_injection.py --base-url http://127.0.0.1:19390
+          POD=$(kubectl get pod -l app.kubernetes.io/component=cs-interview-runner -o jsonpath='{.items[0].metadata.name}')
+          kubectl delete pod "${POD}" --wait=true
+          kubectl rollout status deployment/cs-interview-ragflow-cs-interview-runner --timeout=180s
+          test "$(kubectl get pod -l app.kubernetes.io/component=cs-interview-runner --field-selector=status.phase=Running --no-headers | wc -l)" -eq 2
+          # kubectl port-forward pins to one backend at startup; after the Pod
+          # deletion above the tunnel still points at the dead Pod, so rebuild it
+          # before re-running smoke against the replacement Pod.
+          stop_port_forward
+          start_port_forward
+          wait_ready
+          python3 tools/cs_interview_runner_smoke.py --base-url http://127.0.0.1:19390
+      - name: Upload runner provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: cs-interview-runner-provenance
+          path: |
+            runner-image-digest.txt
+            runner.spdx.json
+          if-no-files-found: error

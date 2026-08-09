@@ -1,0 +1,33 @@
+services:
+  mysql:
+    ports: !override
+      - ${CS_INTERVIEW_MYSQL_PORT:-13306}:3306
+
+  ragflow-cpu:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.cs-interview-dev
+      args:
+        BASE_IMAGE: ${CS_INTERVIEW_RAGFLOW_BASE_IMAGE:-swr.cn-north-4.myhuaweicloud.com/infiniflow/ragflow:v0.26.4}
+    image: ${CS_INTERVIEW_RAGFLOW_IMAGE:-ragflow-local-cs-interview-runtime:dev}
+    depends_on:
+      cs-interview-runner:
+        condition: service_healthy
+    environment:
+      CS_INTERVIEW_RUNNER_URL: http://cs-interview-runner:9390
+      SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+    volumes:
+      - ../admin:/ragflow/admin:ro
+      - ../api:/ragflow/api:ro
+      - ../agent:/ragflow/agent:ro
+      - ../common:/ragflow/common:ro
+      - ../conf/llm_factories.json:/ragflow/conf/llm_factories.json:ro
+      - ../conf/models:/ragflow/conf/models:ro
+      - ../deepdoc:/ragflow/deepdoc:ro
+      - ../mcp:/ragflow/mcp:ro
+      - ../memory:/ragflow/memory:ro
+      - ../rag:/ragflow/rag:ro
+      - ../tools/scripts:/ragflow/tools/scripts:ro
+      - ../web/dist:/ragflow/web/dist:ro
+      - ../test/fixtures/cs_interview:/ragflow/test/fixtures/cs_interview:ro

@@ -1,0 +1,1555 @@
+{
+  "version": 2,
+  "name": "CS Interview 100-document public-source evaluation corpus",
+  "created_at": "2026-08-08",
+  "provenance": "Original technical summaries derived from publicly accessible Nowcoder career posts and job descriptions. No personal names, contact details, verbatim resumes, or copied answer banks are included.",
+  "license": "CC-BY-4.0 for original summaries; linked third-party pages remain under their owners' terms",
+  "datasets": {
+    "interview_experience": {
+      "name": "CS面试-公开面经实测",
+      "description": "匿名化、改写后的真实岗位场景题与追问链。",
+      "documents": [
+        {
+          "path": "docs/interview_experience/go_goroutine_leak.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "go_backend",
+            "topic": "go.runtime",
+            "difficulty": "medium",
+            "question_id": "public-go-leak-001",
+            "source": "https://www.nowcoder.com/discuss/603841169302245376",
+            "source_date": "2024-04-01",
+            "quality_score": 0.93,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/mysql_slow_query.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "go_backend",
+            "topic": "database.mysql",
+            "difficulty": "medium",
+            "question_id": "public-mysql-slow-001",
+            "source": "https://www.nowcoder.com/jobs/detail/447247",
+            "source_date": "2026-08-08",
+            "quality_score": 0.92,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/cache_stampede.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "go_backend",
+            "topic": "backend.distributed",
+            "difficulty": "medium",
+            "question_id": "public-cache-stampede-001",
+            "source": "https://www.nowcoder.com/jobs/detail/431220",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/rag_latency_grounding.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "ai_backend",
+            "topic": "ai.rag",
+            "difficulty": "advanced",
+            "question_id": "public-rag-latency-001",
+            "source": "https://www.nowcoder.com/jobs/detail/447247",
+            "source_date": "2026-08-08",
+            "quality_score": 0.96,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/agent_tool_reliability.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "ai_backend",
+            "topic": "ai.agent",
+            "difficulty": "medium",
+            "question_id": "public-agent-tool-reliability-001",
+            "source": "https://www.nowcoder.com/jobs/detail/447247",
+            "source_date": "2026-08-08",
+            "quality_score": 0.96,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/rag_evaluation_regression.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "ai_backend",
+            "topic": "ai.evaluation",
+            "difficulty": "medium",
+            "question_id": "public-rag-eval-regression-001",
+            "source": "https://www.nowcoder.com/jobs/detail/339192",
+            "source_date": "2026-08-08",
+            "quality_score": 0.96,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/k8s_graceful_shutdown.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "go_backend",
+            "topic": "backend.distributed",
+            "difficulty": "advanced",
+            "question_id": "public-k8s-shutdown-001",
+            "source": "https://www.nowcoder.com/jobs/detail/443574",
+            "source_date": "2026-08-08",
+            "quality_score": 0.93,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/go_grpc_deadline.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "go_backend",
+            "topic": "go.runtime",
+            "difficulty": "medium",
+            "question_id": "scale-inte-go_grpc_deadline-001",
+            "source": "https://www.nowcoder.com/discuss/603841169302245376",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/go_redis_hotkey.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "go_backend",
+            "topic": "backend.distributed",
+            "difficulty": "advanced",
+            "question_id": "scale-inte-go_redis_hotkey-001",
+            "source": "https://www.nowcoder.com/jobs/detail/434217",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/go_mysql_deadlock.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "go_backend",
+            "topic": "database.mysql",
+            "difficulty": "medium",
+            "question_id": "scale-inte-go_mysql_deadlock-001",
+            "source": "https://www.nowcoder.com/discuss/603841169302245376",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/go_mq_backlog.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "go_backend",
+            "topic": "backend.distributed",
+            "difficulty": "advanced",
+            "question_id": "scale-inte-go_mq_backlog-001",
+            "source": "https://www.nowcoder.com/jobs/detail/434217",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/java_heap_oom.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "java_backend",
+            "topic": "java.jvm",
+            "difficulty": "medium",
+            "question_id": "scale-inte-java_heap_oom-001",
+            "source": "https://blog.nowcoder.net/n/18665b426d354fba9064db4f2af43863",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/java_spring_tx_async.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "java_backend",
+            "topic": "java.spring",
+            "difficulty": "medium",
+            "question_id": "scale-inte-java_spring_tx_async-001",
+            "source": "https://blog.nowcoder.net/n/18665b426d354fba9064db4f2af43863",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/java_threadpool_rejection.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "java_backend",
+            "topic": "java.jvm",
+            "difficulty": "medium",
+            "question_id": "scale-inte-java_threadpool_rejection-001",
+            "source": "https://blog.nowcoder.net/n/18665b426d354fba9064db4f2af43863",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/java_gc_pause.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "java_backend",
+            "topic": "java.jvm",
+            "difficulty": "advanced",
+            "question_id": "scale-inte-java_gc_pause-001",
+            "source": "https://blog.nowcoder.net/n/18665b426d354fba9064db4f2af43863",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/python_async_blocking.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "python_backend",
+            "topic": "python.web",
+            "difficulty": "beginner",
+            "question_id": "scale-inte-python_async_blocking-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/python_gil_cpu.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "python_backend",
+            "topic": "python.runtime",
+            "difficulty": "medium",
+            "question_id": "scale-inte-python_gil_cpu-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/python_celery_idempotency.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "python_backend",
+            "topic": "backend.distributed",
+            "difficulty": "medium",
+            "question_id": "scale-inte-python_celery_idempotency-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/python_sse_backpressure.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "python_backend",
+            "topic": "python.web",
+            "difficulty": "advanced",
+            "question_id": "scale-inte-python_sse_backpressure-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/frontend_react_rerender.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "frontend",
+            "topic": "frontend.react",
+            "difficulty": "beginner",
+            "question_id": "scale-inte-frontend_react_rerender-001",
+            "source": "https://www.nowcoder.com/discuss/353148953426337792",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/frontend_hydration.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "frontend",
+            "topic": "frontend.javascript",
+            "difficulty": "medium",
+            "question_id": "scale-inte-frontend_hydration-001",
+            "source": "https://www.nowcoder.com/discuss/353148953426337792",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/frontend_web_vitals.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "frontend",
+            "topic": "frontend.performance",
+            "difficulty": "medium",
+            "question_id": "scale-inte-frontend_web_vitals-001",
+            "source": "https://www.nowcoder.com/discuss/353148953426337792",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/frontend_release_incident.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "frontend",
+            "topic": "frontend.performance",
+            "difficulty": "advanced",
+            "question_id": "scale-inte-frontend_release_incident-001",
+            "source": "https://www.nowcoder.com/discuss/353148953426337792",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/ml_training_serving_skew.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "ml_engineer",
+            "topic": "ml.system",
+            "difficulty": "medium",
+            "question_id": "scale-inte-ml_training_serving_skew-001",
+            "source": "https://www.nowcoder.com/jobs/detail/439390",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/ml_feature_drift.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "ml_engineer",
+            "topic": "ml.evaluation",
+            "difficulty": "medium",
+            "question_id": "scale-inte-ml_feature_drift-001",
+            "source": "https://www.nowcoder.com/jobs/detail/439390",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/ml_gpu_oom.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "ml_engineer",
+            "topic": "ml.system",
+            "difficulty": "advanced",
+            "question_id": "scale-inte-ml_gpu_oom-001",
+            "source": "https://www.nowcoder.com/jobs/detail/439390",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/ai_tenant_leak.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "ai_backend",
+            "topic": "ai.rag",
+            "difficulty": "advanced",
+            "question_id": "scale-inte-ai_tenant_leak-001",
+            "source": "https://www.nowcoder.com/jobs/detail/447247",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/ai_prompt_injection.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "ai_backend",
+            "topic": "ai.agent",
+            "difficulty": "medium",
+            "question_id": "scale-inte-ai_prompt_injection-001",
+            "source": "https://www.nowcoder.com/jobs/detail/447247",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/ai_index_freshness.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "ai_backend",
+            "topic": "ai.rag",
+            "difficulty": "medium",
+            "question_id": "scale-inte-ai_index_freshness-001",
+            "source": "https://www.nowcoder.com/jobs/detail/339192",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/sdet_flaky_tests.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "sdet",
+            "topic": "testing.automation",
+            "difficulty": "medium",
+            "question_id": "scale-inte-sdet_flaky_tests-001",
+            "source": "https://www.nowcoder.com/jobs/detail/442106",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/sdet_load_bottleneck.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "sdet",
+            "topic": "testing.performance",
+            "difficulty": "medium",
+            "question_id": "scale-inte-sdet_load_bottleneck-001",
+            "source": "https://www.nowcoder.com/jobs/detail/442106",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/sdet_env_contamination.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "sdet",
+            "topic": "testing.strategy",
+            "difficulty": "beginner",
+            "question_id": "scale-inte-sdet_env_contamination-001",
+            "source": "https://www.nowcoder.com/jobs/detail/442106",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/network_ephemeral_ports.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "cs_general",
+            "topic": "network.core",
+            "difficulty": "advanced",
+            "question_id": "scale-inte-network_ephemeral_ports-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/interview_experience/generated/os_disk_io.md",
+          "metadata": {
+            "content_type": "interview_experience",
+            "role": "cs_general",
+            "topic": "os.core",
+            "difficulty": "medium",
+            "question_id": "scale-inte-os_disk_io-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        }
+      ]
+    },
+    "leetcode": {
+      "name": "CS面试-原创算法实测",
+      "description": "原创改写的算法题、评分点和隐藏测试说明。",
+      "documents": [
+        {
+          "path": "docs/leetcode/lru_cache.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "public-algo-lru-001",
+            "source": "original://cs-interview/lru-cache",
+            "source_date": "2026-08-08",
+            "quality_score": 0.97,
+            "verified": true,
+            "license": "CC-BY-4.0"
+          }
+        },
+        {
+          "path": "docs/leetcode/longest_unique_window.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "public-algo-window-001",
+            "source": "original://cs-interview/unique-window",
+            "source_date": "2026-08-08",
+            "quality_score": 0.96,
+            "verified": true,
+            "license": "CC-BY-4.0"
+          }
+        },
+        {
+          "path": "docs/leetcode/merge_intervals.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "public-algo-interval-001",
+            "source": "original://cs-interview/merge-intervals",
+            "source_date": "2026-08-08",
+            "quality_score": 0.96,
+            "verified": true,
+            "license": "CC-BY-4.0"
+          }
+        },
+        {
+          "path": "docs/leetcode/top_k_frequencies.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "advanced",
+            "question_id": "public-algo-topk-001",
+            "source": "original://cs-interview/top-k-frequency",
+            "source_date": "2026-08-08",
+            "quality_score": 0.95,
+            "verified": true,
+            "license": "CC-BY-4.0"
+          }
+        },
+        {
+          "path": "docs/leetcode/dependency_schedule.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "advanced",
+            "question_id": "public-algo-dag-001",
+            "source": "original://cs-interview/dependency-schedule",
+            "source_date": "2026-08-08",
+            "quality_score": 0.96,
+            "verified": true,
+            "license": "CC-BY-4.0"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/two_sum.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "beginner",
+            "question_id": "scale-leet-two_sum-001",
+            "source": "original://cs-interview/two-sum",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/valid_parentheses.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "beginner",
+            "question_id": "scale-leet-valid_parentheses-001",
+            "source": "original://cs-interview/valid-parentheses",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/reverse_list.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "beginner",
+            "question_id": "scale-leet-reverse_list-001",
+            "source": "original://cs-interview/reverse-list",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/binary_search.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "beginner",
+            "question_id": "scale-leet-binary_search-001",
+            "source": "original://cs-interview/binary-search",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/max_subarray.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "beginner",
+            "question_id": "scale-leet-max_subarray-001",
+            "source": "original://cs-interview/max-subarray",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/tree_depth.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "beginner",
+            "question_id": "scale-leet-tree_depth-001",
+            "source": "original://cs-interview/tree-depth",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/queue_stacks.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "beginner",
+            "question_id": "scale-leet-queue_stacks-001",
+            "source": "original://cs-interview/queue-stacks",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/remove_duplicates.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "beginner",
+            "question_id": "scale-leet-remove_duplicates-001",
+            "source": "original://cs-interview/remove-duplicates",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/first_unique.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "beginner",
+            "question_id": "scale-leet-first_unique-001",
+            "source": "original://cs-interview/first-unique",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/merge_two_lists.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "beginner",
+            "question_id": "scale-leet-merge_two_lists-001",
+            "source": "original://cs-interview/merge-two-lists",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/group_anagrams.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-group_anagrams-001",
+            "source": "original://cs-interview/group-anagrams",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/product_except_self.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-product_except_self-001",
+            "source": "original://cs-interview/product-except-self",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/kth_largest.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-kth_largest-001",
+            "source": "original://cs-interview/kth-largest",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/level_order.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-level_order-001",
+            "source": "original://cs-interview/level-order",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/validate_bst.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-validate_bst-001",
+            "source": "original://cs-interview/validate-bst",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/num_islands.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-num_islands-001",
+            "source": "original://cs-interview/number-islands",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/coin_change.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-coin_change-001",
+            "source": "original://cs-interview/coin-change",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/lis.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-lis-001",
+            "source": "original://cs-interview/lis",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/rotated_search.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-rotated_search-001",
+            "source": "original://cs-interview/rotated-search",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/trie.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-trie-001",
+            "source": "original://cs-interview/trie",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/min_stack.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-min_stack-001",
+            "source": "original://cs-interview/min-stack",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/linked_cycle_entry.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "medium",
+            "question_id": "scale-leet-linked_cycle_entry-001",
+            "source": "original://cs-interview/cycle-entry",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/median_stream.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "advanced",
+            "question_id": "scale-leet-median_stream-001",
+            "source": "original://cs-interview/median-stream",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/lfu_cache.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "advanced",
+            "question_id": "scale-leet-lfu_cache-001",
+            "source": "original://cs-interview/lfu-cache",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/word_ladder.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "advanced",
+            "question_id": "scale-leet-word_ladder-001",
+            "source": "original://cs-interview/word-ladder",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/min_window.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "advanced",
+            "question_id": "scale-leet-min_window-001",
+            "source": "original://cs-interview/min-window",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/merge_k_lists.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "advanced",
+            "question_id": "scale-leet-merge_k_lists-001",
+            "source": "original://cs-interview/merge-k-lists",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/leetcode/generated/trap_rain.md",
+          "metadata": {
+            "content_type": "leetcode",
+            "role": "cs_general",
+            "topic": "algorithm.core",
+            "difficulty": "advanced",
+            "question_id": "scale-leet-trap_rain-001",
+            "source": "original://cs-interview/trap-rain",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        }
+      ]
+    },
+    "fundamentals": {
+      "name": "CS面试-八股原理实测",
+      "description": "围绕 Go、MySQL、分布式与生产 RAG 的原创问答。",
+      "documents": [
+        {
+          "path": "docs/fundamentals/go_context_cancel.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "go_backend",
+            "topic": "go.runtime",
+            "difficulty": "medium",
+            "question_id": "public-fund-context-001",
+            "source": "https://www.nowcoder.com/discuss/603841169302245376",
+            "source_date": "2024-04-01",
+            "quality_score": 0.95,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/go_concurrent_map.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "go_backend",
+            "topic": "go.runtime",
+            "difficulty": "advanced",
+            "question_id": "public-fund-syncmap-001",
+            "source": "https://www.nowcoder.com/discuss/603841169302245376",
+            "source_date": "2024-04-01",
+            "quality_score": 0.95,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/mysql_mvcc.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "go_backend",
+            "topic": "database.mysql",
+            "difficulty": "advanced",
+            "question_id": "public-fund-mvcc-001",
+            "source": "https://www.nowcoder.com/jobs/detail/447247",
+            "source_date": "2026-08-08",
+            "quality_score": 0.96,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/idempotency_outbox.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "go_backend",
+            "topic": "backend.distributed",
+            "difficulty": "advanced",
+            "question_id": "public-fund-outbox-001",
+            "source": "https://www.nowcoder.com/jobs/detail/431220",
+            "source_date": "2026-08-08",
+            "quality_score": 0.95,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/rag_hybrid_retrieval.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "ai_backend",
+            "topic": "ai.rag",
+            "difficulty": "advanced",
+            "question_id": "public-fund-rag-retrieval-001",
+            "source": "https://www.nowcoder.com/jobs/detail/339192",
+            "source_date": "2026-08-08",
+            "quality_score": 0.97,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/agent_idempotency.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "ai_backend",
+            "topic": "ai.agent",
+            "difficulty": "advanced",
+            "question_id": "public-fund-agent-idempotency-001",
+            "source": "https://www.nowcoder.com/jobs/detail/447247",
+            "source_date": "2026-08-08",
+            "quality_score": 0.97,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/rag_evaluation.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "ai_backend",
+            "topic": "ai.evaluation",
+            "difficulty": "medium",
+            "question_id": "public-fund-rag-evaluation-001",
+            "source": "https://www.nowcoder.com/jobs/detail/339192",
+            "source_date": "2026-08-08",
+            "quality_score": 0.97,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/go_scheduler.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "go_backend",
+            "topic": "go.runtime",
+            "difficulty": "beginner",
+            "question_id": "scale-fund-go_scheduler-001",
+            "source": "https://www.nowcoder.com/discuss/603841169302245376",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/go_gc_escape.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "go_backend",
+            "topic": "go.runtime",
+            "difficulty": "medium",
+            "question_id": "scale-fund-go_gc_escape-001",
+            "source": "https://www.nowcoder.com/discuss/603841169302245376",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/go_interface_nil.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "go_backend",
+            "topic": "go.runtime",
+            "difficulty": "medium",
+            "question_id": "scale-fund-go_interface_nil-001",
+            "source": "https://www.nowcoder.com/discuss/603841169302245376",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/java_jmm.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "java_backend",
+            "topic": "java.jvm",
+            "difficulty": "medium",
+            "question_id": "scale-fund-java_jmm-001",
+            "source": "https://blog.nowcoder.net/n/18665b426d354fba9064db4f2af43863",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/java_gc_roots.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "java_backend",
+            "topic": "java.jvm",
+            "difficulty": "advanced",
+            "question_id": "scale-fund-java_gc_roots-001",
+            "source": "https://blog.nowcoder.net/n/18665b426d354fba9064db4f2af43863",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/java_classloading.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "java_backend",
+            "topic": "java.jvm",
+            "difficulty": "beginner",
+            "question_id": "scale-fund-java_classloading-001",
+            "source": "https://blog.nowcoder.net/n/18665b426d354fba9064db4f2af43863",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/spring_proxy.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "java_backend",
+            "topic": "java.spring",
+            "difficulty": "medium",
+            "question_id": "scale-fund-spring_proxy-001",
+            "source": "https://blog.nowcoder.net/n/18665b426d354fba9064db4f2af43863",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/python_gil.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "python_backend",
+            "topic": "python.runtime",
+            "difficulty": "beginner",
+            "question_id": "scale-fund-python_gil-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/python_event_loop.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "python_backend",
+            "topic": "python.web",
+            "difficulty": "medium",
+            "question_id": "scale-fund-python_event_loop-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/python_memory.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "python_backend",
+            "topic": "python.runtime",
+            "difficulty": "medium",
+            "question_id": "scale-fund-python_memory-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/python_wsgi_asgi.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "python_backend",
+            "topic": "python.web",
+            "difficulty": "beginner",
+            "question_id": "scale-fund-python_wsgi_asgi-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/js_event_loop.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "frontend",
+            "topic": "frontend.javascript",
+            "difficulty": "beginner",
+            "question_id": "scale-fund-js_event_loop-001",
+            "source": "https://www.nowcoder.com/discuss/353148953426337792",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/react_reconciliation.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "frontend",
+            "topic": "frontend.react",
+            "difficulty": "medium",
+            "question_id": "scale-fund-react_reconciliation-001",
+            "source": "https://www.nowcoder.com/discuss/353148953426337792",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/browser_render.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "frontend",
+            "topic": "frontend.performance",
+            "difficulty": "medium",
+            "question_id": "scale-fund-browser_render-001",
+            "source": "https://www.nowcoder.com/discuss/353148953426337792",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/http_cache.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "frontend",
+            "topic": "frontend.performance",
+            "difficulty": "beginner",
+            "question_id": "scale-fund-http_cache-001",
+            "source": "https://www.nowcoder.com/discuss/353148953426337792",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/ml_bias_variance.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "ml_engineer",
+            "topic": "ml.fundamentals",
+            "difficulty": "beginner",
+            "question_id": "scale-fund-ml_bias_variance-001",
+            "source": "https://www.nowcoder.com/jobs/detail/439390",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/ml_regularization.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "ml_engineer",
+            "topic": "ml.fundamentals",
+            "difficulty": "medium",
+            "question_id": "scale-fund-ml_regularization-001",
+            "source": "https://www.nowcoder.com/jobs/detail/439390",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/ml_data_leakage.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "ml_engineer",
+            "topic": "ml.evaluation",
+            "difficulty": "medium",
+            "question_id": "scale-fund-ml_data_leakage-001",
+            "source": "https://www.nowcoder.com/jobs/detail/439390",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/ml_online_metrics.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "ml_engineer",
+            "topic": "ml.evaluation",
+            "difficulty": "advanced",
+            "question_id": "scale-fund-ml_online_metrics-001",
+            "source": "https://www.nowcoder.com/jobs/detail/439390",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/rag_chunking.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "ai_backend",
+            "topic": "ai.rag",
+            "difficulty": "medium",
+            "question_id": "scale-fund-rag_chunking-001",
+            "source": "https://www.nowcoder.com/jobs/detail/339192",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/agent_injection_defense.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "ai_backend",
+            "topic": "ai.agent",
+            "difficulty": "advanced",
+            "question_id": "scale-fund-agent_injection_defense-001",
+            "source": "https://www.nowcoder.com/jobs/detail/447247",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/test_pyramid.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "sdet",
+            "topic": "testing.strategy",
+            "difficulty": "beginner",
+            "question_id": "scale-fund-test_pyramid-001",
+            "source": "https://www.nowcoder.com/jobs/detail/442106",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/property_testing.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "sdet",
+            "topic": "testing.automation",
+            "difficulty": "medium",
+            "question_id": "scale-fund-property_testing-001",
+            "source": "https://www.nowcoder.com/jobs/detail/442106",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/load_model.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "sdet",
+            "topic": "testing.performance",
+            "difficulty": "advanced",
+            "question_id": "scale-fund-load_model-001",
+            "source": "https://www.nowcoder.com/jobs/detail/442106",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/tcp_congestion.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "cs_general",
+            "topic": "network.core",
+            "difficulty": "medium",
+            "question_id": "scale-fund-tcp_congestion-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        },
+        {
+          "path": "docs/fundamentals/generated/process_thread.md",
+          "metadata": {
+            "content_type": "fundamentals",
+            "role": "cs_general",
+            "topic": "os.core",
+            "difficulty": "beginner",
+            "question_id": "scale-fund-process_thread-001",
+            "source": "https://www.nowcoder.com/discuss/353156046011179008",
+            "source_date": "2026-08-08",
+            "quality_score": 0.94,
+            "verified": true,
+            "license": "CC-BY-4.0-original-summary"
+          }
+        }
+      ]
+    }
+  },
+  "resumes": [
+    {
+      "id": "anonymous_go_candidate",
+      "path": "resumes/anonymous_go_candidate.md",
+      "target_role": "go_backend",
+      "job_id": "nowcoder-go-intern-434217",
+      "kind": "anonymized_synthetic_profile"
+    },
+    {
+      "id": "ragflow_project_candidate",
+      "path": "resumes/ragflow_project_candidate.md",
+      "target_role": "ai_backend",
+      "job_id": "nowcoder-ai-backend-447247",
+      "kind": "project_based_test_profile"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "nowcoder-go-intern-434217",
+      "path": "jobs/go_backend_intern.md",
+      "source": "https://www.nowcoder.com/jobs/detail/434217"
+    },
+    {
+      "id": "nowcoder-ai-backend-447247",
+      "path": "jobs/ai_backend_rag_intern.md",
+      "source": "https://www.nowcoder.com/jobs/detail/447247"
+    }
+  ]
+}

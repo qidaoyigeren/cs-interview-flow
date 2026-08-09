@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "kinds": [
+    "query_evidence_relevance",
+    "question_jd_relevance",
+    "question_answer_leakage",
+    "judge_human_score",
+    "followup_reasonableness",
+    "report_evidential_support"
+  ],
+  "annotator_review": {
+    "annotators": ["op-1", "op-2"],
+    "reviewers": ["rev-1"],
+    "adjudicator": "rev-1"
+  },
+  "items": [
+    {
+      "id": "lq-0001",
+      "kind": "query_evidence_relevance",
+      "input": {"query": "Go channel close", "evidence": {"evidence_id": "chunk-go-channel-001", "document_name": "go_channel_close.md", "content_sha256": "e3b0c44298fc1c149afbf4c8996fb924"}},
+      "label": 1,
+      "rationale": "The query asks about Go channel close semantics and the evidence chunk documents exactly that.",
+      "annotator": "op-1",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 1
+    },
+    {
+      "id": "lq-0002",
+      "kind": "query_evidence_relevance",
+      "input": {"query": "MySQL composite index", "evidence": {"evidence_id": "chunk-mysql-index-001", "document_name": "mysql_composite_index.md", "content_sha256": "9f86d081884c7d659a2feaa0c55ad015"}},
+      "label": 1,
+      "rationale": "Evidence covers composite index leftmost-prefix rules, matching the query.",
+      "annotator": "op-2",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 1
+    },
+    {
+      "id": "lq-0003",
+      "kind": "query_evidence_relevance",
+      "input": {"query": "two sum linear time", "evidence": {"evidence_id": "chunk-lc-two-sum-001", "document_name": "two_sum.md", "content_sha256": "a7ffc6f8bf1ed76651c14756a061d662"}},
+      "label": 1,
+      "rationale": "Evidence gives the O(n) hash-map solution for two sum.",
+      "annotator": "op-1",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 1
+    },
+    {
+      "id": "lq-0004",
+      "kind": "question_jd_relevance",
+      "input": {"question_id": "go-channel-001", "jd_requirement": "req-go", "question": "关闭 Go channel 后，发送与接收操作分别会发生什么？"},
+      "label": 1,
+      "rationale": "Question directly probes the JD requirement on Go channel semantics.",
+      "annotator": "op-1",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 1
+    },
+    {
+      "id": "lq-0005",
+      "kind": "question_jd_relevance",
+      "input": {"question_id": "lc-two-sum-001", "jd_requirement": "req-algorithm", "question": "返回数组中和为目标值的两个下标。"},
+      "label": 1,
+      "rationale": "Question matches the JD requirement to implement core algorithms.",
+      "annotator": "op-2",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 1
+    },
+    {
+      "id": "lq-0006",
+      "kind": "question_answer_leakage",
+      "input": {"question_id": "go-channel-001", "question": "关闭 channel 后发送会发生什么？", "candidate_response": "Sending to a closed channel panics."},
+      "label": 0,
+      "rationale": "The candidate response restates the private reference answer, which is leakage.",
+      "annotator": "op-1",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 0
+    },
+    {
+      "id": "lq-0007",
+      "kind": "question_answer_leakage",
+      "input": {"question_id": "lc-two-sum-001", "question": "如何在线性时间内找到两数之和？", "candidate_response": "I would use a hash map."},
+      "label": 0,
+      "rationale": "The response leaks the hash-map approach that the question intends to test.",
+      "annotator": "op-2",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 0
+    },
+    {
+      "id": "lq-0008",
+      "kind": "judge_human_score",
+      "input": {"question_id": "go-channel-001", "question": "关闭 channel 的语义", "candidate_answer": "Sending panics; receivers drain then get zero value with ok false."},
+      "human_score": 4,
+      "label": 4,
+      "rationale": "Complete and accurate covering all rubric points.",
+      "annotator": "op-1",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 4
+    },
+    {
+      "id": "lq-0009",
+      "kind": "judge_human_score",
+      "input": {"question_id": "mysql-index-001", "question": "联合索引最左前缀", "candidate_answer": "提到索引顺序但漏掉范围查询后的列。"},
+      "human_score": 2,
+      "label": 2,
+      "rationale": "Some core points covered, boundary condition missing.",
+      "annotator": "op-2",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 2
+    },
+    {
+      "id": "lq-0010",
+      "kind": "followup_reasonableness",
+      "input": {"question_id": "mysql-index-001", "score": 2, "proposed_followup": "范围查询后的列为什么无法参与索引查找？"},
+      "label": 1,
+      "rationale": "A precise probe that distinguishes a misconception from a wording gap.",
+      "annotator": "op-1",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 1
+    },
+    {
+      "id": "lq-0011",
+      "kind": "followup_reasonableness",
+      "input": {"question_id": "go-channel-001", "score": 4, "proposed_followup": "再详细解释一遍发送语义。"},
+      "label": 0,
+      "rationale": "The answer was already excellent; a follow-up would be redundant.",
+      "annotator": "op-2",
+      "reviewer": "rev-1",
+      "disagreement": true,
+      "adjudicated": true,
+      "final_label": 0
+    },
+    {
+      "id": "lq-0012",
+      "kind": "report_evidential_support",
+      "input": {"report_claim": "整体 3.5 分", "evidence": [{"score": 4}, {"score": 3}], "supported": true},
+      "label": 1,
+      "rationale": "The overall score is consistent with the round scores.",
+      "annotator": "op-1",
+      "reviewer": "rev-1",
+      "disagreement": false,
+      "adjudicated": true,
+      "final_label": 1
+    }
+  ]
+}
