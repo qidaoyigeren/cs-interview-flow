@@ -2986,7 +2986,7 @@ Important structured information may include: names, dates, locations, events, k
     },
     admin: {
       loginTitle: '관리자 콘솔',
-      title: 'RAGFlow',
+      title: 'CS Interview Flow',
       confirm: '확인',
       close: '닫기',
       yes: '예',

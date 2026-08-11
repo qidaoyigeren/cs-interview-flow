@@ -2764,7 +2764,7 @@ Temel Talimatlar:
     },
     admin: {
       loginTitle: 'Yönetici konsolu',
-      title: 'RAGFlow',
+      title: 'CS Interview Flow',
       confirm: 'Onayla',
       close: 'Kapat',
       yes: 'Evet',

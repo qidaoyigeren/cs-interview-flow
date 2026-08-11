@@ -1,8 +1,7 @@
 # CS Interview Agent · 模拟面试前端
 
 面向求职者的计算机专业模拟面试训练产品前端。独立的 React + TypeScript + Vite 应用，
-不依赖 RAGFlow 管理后台布局；复用 RAGFlow 项目中已定义的 CS Interview 类型定义
-（`web/src/interfaces/database/cs-interview.ts`，只读导入，单一来源）。
+不依赖管理后台布局；CS Interview 类型定义与主 Web 项目共用（`web/src/interfaces/database/cs-interview.ts`，只读导入，单一来源）。
 
 ## 技术栈
 
@@ -58,7 +57,7 @@ node scripts/verify-interact.mjs# 交互：报告矩阵展开 / 逐题溯源 / �
 ```
 src/
   lib/
-    types.ts          # 复用 RAGFlow 的 CS Interview 类型 + 产品层类型
+    types.ts          # CS Interview 类型 + 产品层类型
     theme.ts          # 深浅主题（data-theme 切换）
     storage.ts        # localStorage 草稿
     claims.ts         # 简历高风险声明（编辑后持久化，配置/面试页读取）
@@ -89,8 +88,8 @@ src/
 
 ## 设计
 
-- 独立品牌：深色底 `#161618`、内容 `#1D1D20`、强调色 `#00BEB4`，
-  区别于 RAGFlow 的蓝色系；细边框、低对比分区、紧凑密度、mono 数字排版。
+- 独立品牌：深色底 `#161618`、内容 `#1D1D20`、强调色 `#00BEB4`；
+  细边框、低对比分区、紧凑密度、mono 数字排版。
 - “证据轨道”：简历声明 → JD 要求 → 当前问题 → 回答证据 → 能力结论，
   面试页随回答动态推进，报告页作为可展开的溯源链路。
 - 业务文案不出现 Planner / Judge / Dataset 等内部工程术语。

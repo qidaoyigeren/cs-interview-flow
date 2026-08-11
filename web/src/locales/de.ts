@@ -2543,7 +2543,7 @@ Wichtige strukturierte Informationen können sein: Namen, Daten, Orte, Ereigniss
     },
     admin: {
       loginTitle: 'Admin-Konsole',
-      title: 'RAGFlow',
+      title: 'CS Interview Flow',
       confirm: 'Bestätigen',
       close: 'Schließen',
       yes: 'Ja',

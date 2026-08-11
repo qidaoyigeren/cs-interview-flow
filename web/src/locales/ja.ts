@@ -3112,7 +3112,7 @@ export default {
 
     admin: {
       loginTitle: '管理コンソール',
-      title: 'RAGFlow',
+      title: 'CS Interview Flow',
       confirm: '確認',
       close: '閉じる',
       yes: 'はい',

@@ -89,7 +89,7 @@ class DingTalkChannel(Channel):
         payload = {
             "msgtype": "markdown",
             "markdown": {
-                "title": "RAGFlow",
+                "title": "CS Interview Flow",
                 "text": message.text,
             },
         }

@@ -2990,7 +2990,7 @@ Le informazioni strutturate importanti possono includere: nomi, date, luoghi, ev
 
     admin: {
       loginTitle: 'Console admin',
-      title: 'RAGFlow',
+      title: 'CS Interview Flow',
       confirm: 'Conferma',
       close: 'Chiudi',
       yes: 'Sì',

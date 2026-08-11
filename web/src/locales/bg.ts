@@ -2483,7 +2483,7 @@ Important structured information may include: names, dates, locations, events, k
     },
     admin: {
       loginTitle: 'Админ конзола',
-      title: 'RAGFlow',
+      title: 'CS Interview Flow',
       confirm: 'Потвърди',
       close: 'Затвори',
       yes: 'Да',

@@ -1,6 +1,6 @@
 apiVersion: v2
 name: ragflow
-description: A Helm chart for deploying RAGFlow on Kubernetes
+description: A Helm chart for deploying CS Interview Flow on Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
 #

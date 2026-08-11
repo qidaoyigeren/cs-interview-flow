@@ -1,6 +1,6 @@
 <div align="center">
 <h1>CS Interview Flow</h1>
-<p><b>基于 RAGFlow 检索/Agent 引擎构建的 CS 模拟面试平台</b></p>
+<p><b>面向计算机岗位的模拟面试平台</b></p>
 </div>
 
 <p align="center">
@@ -8,9 +8,6 @@
         <img height="21" src="https://img.shields.io/badge/License-Apache--2.0-ffffff?labelColor=d4eaf7&color=2e6cc4" alt="license">
     </a>
 </p>
-
-> [!NOTE]
-> 本项目基于 [infiniflow/ragflow](https://github.com/infiniflow/ragflow)（Apache-2.0）二次开发，复用其检索引擎、Agent 运行时和文档解析能力，在此之上构建了独立的 CS 模拟面试垂直应用。完整的架构、部署与 API 文档见 [docs/develop/cs_interview.md](./docs/develop/cs_interview.md)。
 
 <details open>
 <summary><b>📕 目录</b></summary>
@@ -30,7 +27,7 @@
 
 CS Interview Flow 是一套面向计算机岗位（后端、AI 应用、算法等）的**模拟面试**应用：候选人上传简历、粘贴目标 JD，系统据此规划提问、检索证据支撑的题目、评估回答、追问、给出报告,并支持真实代码题的沙箱执行。
 
-面试的出题、追问、评分和状态迁移全部由程序化的 Planner / Judge / 状态机控制，模型只负责在给定证据和结构化决策下生成自然语言,不允许自行改变流程或凭空编题。检索、模型调用与文档解析复用 RAGFlow 已有的能力。
+面试的出题、追问、评分和状态迁移全部由程序化的 Planner / Judge / 状态机控制，模型只负责在给定证据和结构化决策下生成自然语言,不允许自行改变流程或凭空编题。
 
 ## 🌟 核心能力
 
@@ -44,13 +41,19 @@ CS Interview Flow 是一套面向计算机岗位（后端、AI 应用、算法�
 
 ## 🔎 架构概览
 
-业务 owning runtime 是 RAGFlow 现有的 Python Quart API、Peewee 数据层与检索/模型运行时；不维护并行的 Canvas 或 Go 业务运行时。核心链路、状态机、数据模型、REST/SSE 接口详见 [docs/develop/cs_interview.md](./docs/develop/cs_interview.md)。
+产品由以下几层构成：
 
-RAGFlow 引擎本身（文档解析、混合检索、Agent 工作流等）的架构说明见上游文档：[ragflow.io/docs](https://ragflow.io/docs/dev/)。
+- **API 服务层**：Python Quart 应用暴露 REST/SSE 接口，负责面试会话、简历/JD 管理、报告与系统管理。
+- **面试状态机**：Planner / Judge / Answer State 三个核心模块驱动出题、回答评估、追问与状态迁移；每次回答同时进入打分与声明抽取双轨。
+- **检索层**：面经 / LeetCode 题解 / 八股文三个独立知识库，出题前做 grounding 校验，保证题目有证据支撑。
+- **沙箱执行层**：隔离的代码 Runner，支持多语言代码题测试，限制资源与网络。
+- **可靠性层**：Operation/Event/Checkpoint 带 CAS 版本、lease 和幂等键，配额限流与 OTel 可观测性贯穿全链路。
+
+核心链路、状态机、数据模型、REST/SSE 接口详见 [docs/develop/cs_interview.md](./docs/develop/cs_interview.md)。
 
 ## 🚀 本地开发
 
-前置条件与通用 RAGFlow 环境一致：
+前置条件：
 
 - CPU >= 4 核，RAM >= 16 GB，Disk >= 50 GB
 - Docker >= 24.0.0 & Docker Compose >= v2.26.1
@@ -74,7 +77,7 @@ cd web && npm install && npm run dev
 csInterviewRunner:
   enabled: true
   image:
-    repository: registry.example.com/ragflow/cs-interview-runner
+    repository: registry.example.com/cs-interview-flow/cs-interview-runner
     tag: "2026.08.07"
 ```
 
@@ -93,8 +96,7 @@ Runner 以 ClusterIP 运行在内部网络中，禁止出站、非 root、只读
 
 - [docs/develop/cs_interview.md](./docs/develop/cs_interview.md) — CS 模拟面试应用的完整架构、数据模型、REST/SSE 接口、部署与运维文档
 - [docs/develop/cs_interview_phase3.md](./docs/develop/cs_interview_phase3.md)、[docs/develop/cs_interview_eval_report_2026-08-08.md](./docs/develop/cs_interview_eval_report_2026-08-08.md) — 迭代与评测记录
-- RAGFlow 引擎本身的用户/开发者文档：[ragflow.io/docs](https://ragflow.io/docs/dev/)
 
 ## 🙌 致谢
 
-本项目基于 [InfiniFlow](https://github.com/infiniflow) 团队开源的 [RAGFlow](https://github.com/infiniflow/ragflow) 构建，感谢其在文档理解、混合检索与 Agent 运行时上的工作。项目遵循 [Apache License 2.0](./LICENSE)。
+底层检索与 Agent 引擎基于开源 [RAGFlow](https://github.com/infiniflow/ragflow)（Apache-2.0）构建，感谢其在文档理解、混合检索与 Agent 运行时上的工作。项目遵循 [Apache License 2.0](./LICENSE)。

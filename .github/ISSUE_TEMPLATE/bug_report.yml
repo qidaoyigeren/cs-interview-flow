@@ -1,5 +1,5 @@
 name: "🐞 Bug Report"
-description: Create a bug issue for RAGFlow
+description: Create a bug issue for CS Interview Flow
 title: "[Bug]: "
 labels: ["🐞 bug"]
 body:
@@ -8,7 +8,7 @@ body:
     label: Self Checks
     description: "Please check the following in order to be responded in time :)"
     options:
-      - label: I have searched for existing issues [search for existing issues](https://github.com/infiniflow/ragflow/issues), including closed ones.
+      - label: I have searched for existing issues [search for existing issues](https://github.com/qidaoyigeren/cs-interview-flow/issues), including closed ones.
         required: true
       - label: I confirm that I am using English to submit this report ([Language Policy](https://github.com/infiniflow/ragflow/issues/5910)).
         required: true
@@ -21,15 +21,15 @@ body:
     value: "Please provide the following information to help us understand the issue."
 - type: input
   attributes:
-    label: RAGFlow workspace code commit ID
+    label: CS Interview Flow workspace code commit ID
     description: Enter the commit ID associated with the issue.
     placeholder: e.g., 26d3480e
   validations:
     required: true
 - type: input
   attributes:
-    label: RAGFlow image version
-    description: Enter the image version(shown in RAGFlow UI, `System` page) associated with the issue.
+    label: CS Interview Flow image version
+    description: Enter the image version(shown in CS Interview Flow UI, `System` page) associated with the issue.
     placeholder: e.g., 26d3480e(v0.13.0~174)
   validations:
     required: true

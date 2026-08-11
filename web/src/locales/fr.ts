@@ -3078,7 +3078,7 @@ Mémoire procédurale : compétences acquises, habitudes et procédures automati
     },
     admin: {
       loginTitle: "Console d'administration",
-      title: 'RAGFlow',
+      title: 'CS Interview Flow',
       confirm: 'Confirmer',
       close: 'Fermer',
       yes: 'Oui',

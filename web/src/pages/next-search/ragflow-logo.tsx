@@ -55,7 +55,7 @@ export function RAGFlowLogo({
           'text-4xl font-bold bg-gradient-to-l from-[#40EBE3] to-[#4A51FF] bg-clip-text',
         )}
       >
-        RAGFlow
+        CS Interview Flow
       </h1>
       {showEmbedIcon && <EmbedIcon></EmbedIcon>}
     </div>

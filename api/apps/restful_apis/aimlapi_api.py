@@ -57,7 +57,7 @@ def _app_url() -> str:
 
 
 def _partner_name() -> str:
-    return os.environ.get("AIMLAPI_PARTNER_NAME", "RAGFlow").strip()
+    return os.environ.get("AIMLAPI_PARTNER_NAME", "CS Interview Flow").strip()
 
 
 def _verification_base_url() -> str:
@@ -88,7 +88,7 @@ async def aimlapi_authorize_start():
     payload = {
         "partnerId": partner_id,
         "partnerName": _partner_name(),
-        "agentName": "RAGFlow",
+        "agentName": "CS Interview Flow",
         "returnUrl": return_url,
         "requestedUsdLimitMinor": _requested_usd_limit_minor(),
     }

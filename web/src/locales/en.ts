@@ -105,7 +105,7 @@ export default {
       nicknamePlaceholder: 'Please input nickname',
       register: 'Create an account',
       continue: 'Continue',
-      title: 'A leading RAG engine for LLM context',
+      title: 'Evidence-grounded CS mock interviews',
       start: "Let's get started",
       description:
         'Sign up for free to explore top RAG technology. Create datasets and AIs to empower your business.',
@@ -3689,7 +3689,7 @@ Important structured information may include: names, dates, locations, events, k
 
     admin: {
       loginTitle: 'Admin console',
-      title: 'RAGFlow',
+      title: 'CS Interview Flow',
       confirm: 'Confirm',
       close: 'Close',
       yes: 'Yes',

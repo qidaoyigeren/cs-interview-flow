@@ -1,5 +1,5 @@
 name: "🙋‍♀️ Question"
-description: Ask questions on RAGFlow
+description: Ask questions on CS Interview Flow
 title: "[Question]: "
 labels: ["🙋‍♀️ question"]
 body:
@@ -8,7 +8,7 @@ body:
     label: Self Checks
     description: "Please check the following in order to be responded in time :)"
     options:
-      - label: I have searched for existing issues [search for existing issues](https://github.com/infiniflow/ragflow/issues), including closed ones.
+      - label: I have searched for existing issues [search for existing issues](https://github.com/qidaoyigeren/cs-interview-flow/issues), including closed ones.
         required: true
       - label: I confirm that I am using English to submit this report ([Language Policy](https://github.com/infiniflow/ragflow/issues/5910)).
         required: true

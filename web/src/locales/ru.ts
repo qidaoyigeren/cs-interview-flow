@@ -2624,7 +2624,7 @@ export default {
 
     admin: {
       loginTitle: 'Административная консоль',
-      title: 'RAGFlow',
+      title: 'CS Interview Flow',
       confirm: 'Подтвердить',
       close: 'Закрыть',
       yes: 'Да',
