@@ -87,6 +87,20 @@ def test_equal():
     assert meta_filter(metas, filters) == ["doc1"]
 
 
+def test_equal_matches_native_boolean_against_flattened_metadata():
+    metas = {"verified": {"True": ["doc1"], "False": ["doc2"]}}
+    filters = [{"key": "verified", "op": "=", "value": True}]
+
+    assert meta_filter(metas, filters) == ["doc1"]
+
+
+def test_numeric_comparison_matches_native_float_against_flattened_metadata():
+    metas = {"quality_score": {"0.96": ["doc1"], "0.4": ["doc2"]}}
+    filters = [{"key": "quality_score", "op": ">", "value": 0.6}]
+
+    assert meta_filter(metas, filters) == ["doc1"]
+
+
 def test_not_equal():
     # returns chunk where the metadata is not equal to the value
     metas = {"score": {"5": ["doc1"], "6": ["doc2"]}}

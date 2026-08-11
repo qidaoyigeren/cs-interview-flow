@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "plugins": ["typescript", "react"],
+  "categories": {
+    "correctness": "error",
+    "perf": "error",
+    "suspicious": "error"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "off",
+    "typescript/ban-ts-comment": "off",
+    "typescript/no-non-null-assertion": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/no-array-index-key": "off"
+  },
+  "ignorePatterns": ["dist", "node_modules"]
+}

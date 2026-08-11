@@ -1171,6 +1171,33 @@ class InterviewKnowledgeConfig(DataBaseModel):
         indexes = ((("tenant_id", "user_id", "enabled"), False),)
 
 
+class InterviewKnowledgeBootstrap(DataBaseModel):
+    id = CharField(max_length=32, primary_key=True)
+    tenant_id = CharField(max_length=32, null=False, index=True)
+    user_id = CharField(max_length=32, null=False, index=True)
+    corpus_version = CharField(max_length=32, null=False)
+    status = CharField(max_length=16, null=False, default="pending", index=True)
+    current_stage = CharField(max_length=32, null=False, default="queued", index=True)
+    progress = JSONField(null=False, default={})
+    dataset_ids = JSONField(null=False, default={})
+    attempt_count = IntegerField(null=False, default=0)
+    max_attempts = IntegerField(null=False, default=4)
+    lease_owner = CharField(max_length=128, null=True, index=True)
+    lease_expires_at = DateTimeField(null=True, index=True)
+    next_retry_at = DateTimeField(null=True, index=True)
+    error_code = CharField(max_length=64, null=True, index=True)
+    error_message = LongTextField(null=True)
+    started_at = DateTimeField(null=True, index=True)
+    completed_at = DateTimeField(null=True, index=True)
+
+    class Meta:
+        db_table = "interview_knowledge_bootstrap"
+        indexes = (
+            (("tenant_id", "corpus_version"), True),
+            (("status", "next_retry_at", "lease_expires_at"), False),
+        )
+
+
 class InterviewSession(DataBaseModel):
     id = CharField(max_length=32, primary_key=True)
     tenant_id = CharField(max_length=32, null=False, index=True)
@@ -1195,6 +1222,10 @@ class InterviewSession(DataBaseModel):
     initial_candidate_state = JSONField(null=False, default={})
     current_interview_plan = JSONField(null=False, default=[])
     current_candidate_state = JSONField(null=False, default={})
+    # Immutable competency/rubric/anchor snapshot frozen at creation; the
+    # running session must never re-read the mutable competency catalog.
+    competency_snapshot = JSONField(null=False, default={})
+    rubric_version = CharField(max_length=32, null=False, default="")
     planner_version = CharField(max_length=64, null=False, default="cs-interview-planner-v1")
     prompt_version = CharField(max_length=32, null=False, default="cs-interview-v1")
     performance_snapshot = JSONField(null=False, default={})
@@ -1225,6 +1256,12 @@ class InterviewRound(DataBaseModel):
     topic = CharField(max_length=128, null=False, index=True)
     question_type = CharField(max_length=32, null=False, default="theory", index=True)
     difficulty = CharField(max_length=16, null=False, index=True)
+    # Anchor / adaptive / coding baseline metadata for comparability.
+    question_kind = CharField(max_length=16, null=False, default="adaptive", index=True)
+    competency_id = CharField(max_length=128, null=False, default="", index=True)
+    anchor_group_id = CharField(max_length=128, null=False, default="")
+    expected_evidence = JSONField(null=False, default={})
+    rubric_version = CharField(max_length=32, null=False, default="")
     question_text = LongTextField(null=False)
     reference_answer = LongTextField(null=False)
     evaluation_rubric = JSONField(null=False, default=[])
@@ -1239,6 +1276,8 @@ class InterviewRound(DataBaseModel):
     answer_state = JSONField(null=False, default={})
     question_validation = JSONField(null=False, default={})
     evidence_versions = JSONField(null=False, default=[])
+    # Full three-stage evidence-judge record (extraction / scorer / validator).
+    evidence_evaluation = JSONField(null=False, default={})
     source_version = CharField(max_length=128, null=False, default="")
     prompt_version = CharField(max_length=32, null=False, default="cs-interview-v1")
     model_version = CharField(max_length=128, null=False, default="")
@@ -1278,6 +1317,8 @@ class InterviewReport(DataBaseModel):
     metrics = JSONField(null=False, default={})
     skill_verification = JSONField(null=True, default=None)
     jd_verification_matrix = JSONField(null=False, default=[])
+    # Per-competency evidence track and conclusion status.
+    competency_verification = JSONField(null=True, default=None)
     report_markdown = LongTextField(null=False, default="")
     report_version = CharField(max_length=32, null=False, default="cs-interview-report-v1")
 
@@ -1513,7 +1554,6 @@ class InterviewEvaluationRun(DataBaseModel):
 
     class Meta:
         db_table = "interview_evaluation_run"
-        indexes = ((("create_time",), False),)
 
 
 class InterviewEvaluationMetric(DataBaseModel):
@@ -1550,7 +1590,6 @@ class InterviewPricingVersion(DataBaseModel):
 
     class Meta:
         db_table = "interview_pricing_version"
-        indexes = ((("active",), False),)
 
 
 class InterviewExperiment(DataBaseModel):
@@ -1634,6 +1673,67 @@ class InterviewReviewAction(DataBaseModel):
     class Meta:
         db_table = "interview_review_action"
         indexes = ((("tenant_id", "resource_type", "resource_id", "create_time"), False),)
+
+
+class InterviewAnnotationCase(DataBaseModel):
+    """One annotation case for rubric calibration.
+
+    Holds the exact question/answer/code/rubric snapshot that reviewers judge.
+    Independent reviewers each write an InterviewAnnotationReview row; the
+    adjudicated score is stored on the case once consensus is reached.
+    """
+
+    id = CharField(max_length=32, primary_key=True)
+    case_id = CharField(max_length=64, null=False, unique=True, index=True)
+    role = CharField(max_length=32, null=False, index=True)
+    competency_id = CharField(max_length=128, null=False, index=True)
+    question = LongTextField(null=False)
+    answer = LongTextField(null=False)
+    code_result = JSONField(null=True, default=None)
+    rubric_version = CharField(max_length=32, null=False, default="", index=True)
+    rubric_snapshot = JSONField(null=False, default={})
+    expected_score = IntegerField(null=True)
+    adjudicated_score = IntegerField(null=True, index=True)
+    status = CharField(max_length=16, null=False, default="open", index=True)
+    reviewer_count = IntegerField(null=False, default=0)
+    created_by = CharField(max_length=64, null=True)
+
+    class Meta:
+        db_table = "interview_annotation_case"
+        indexes = ((("role", "competency_id", "create_time"), False),)
+
+
+class InterviewAnnotationReview(DataBaseModel):
+    """One reviewer's independent score and evidence spans for an annotation case."""
+
+    id = CharField(max_length=32, primary_key=True)
+    case_id = CharField(max_length=64, null=False, index=True)
+    reviewer_id_hash = CharField(max_length=64, null=False, index=True)
+    reviewer_score = IntegerField(null=False)
+    reviewer_evidence_spans = JSONField(null=False, default=[])
+    reviewer_reason = LongTextField(null=False, default="")
+    submitted_at = DateTimeField(null=True, index=True)
+
+    class Meta:
+        db_table = "interview_annotation_review"
+        indexes = ((("case_id", "reviewer_id_hash"), True),)
+
+
+class InterviewRubricCalibration(DataBaseModel):
+    """One measured rubric-calibration metric row (agent vs human agreement)."""
+
+    id = CharField(max_length=32, primary_key=True)
+    rubric_version = CharField(max_length=32, null=False, index=True)
+    competency_id = CharField(max_length=128, null=False, index=True)
+    metric = CharField(max_length=64, null=False, index=True)
+    value = FloatField(null=True)
+    sample_count = IntegerField(null=False, default=0)
+    insufficient = BooleanField(null=False, default=False)
+    context = JSONField(null=False, default={})
+
+    class Meta:
+        db_table = "interview_rubric_calibration"
+        indexes = ((("rubric_version", "competency_id", "metric"), False),)
 
 
 class UserCanvas(DataBaseModel):
@@ -2409,6 +2509,16 @@ def migrate_db():
     alter_db_add_column(migrator, "interview_session", "retrieval_request_count", IntegerField(null=False, default=0))
     alter_db_add_column(migrator, "interview_experiment", "tenant_id", CharField(max_length=32, null=False, default="", index=True))
     alter_db_add_column(migrator, "interview_review_action", "tenant_id", CharField(max_length=32, null=False, default="", index=True))
+    # Competency/rubric evidence tracking (v2 planner + evidence-level judge).
+    alter_db_add_column(migrator, "interview_session", "competency_snapshot", JSONField(null=False, default={}))
+    alter_db_add_column(migrator, "interview_session", "rubric_version", CharField(max_length=32, null=False, default=""))
+    alter_db_add_column(migrator, "interview_round", "question_kind", CharField(max_length=16, null=False, default="adaptive"))
+    alter_db_add_column(migrator, "interview_round", "competency_id", CharField(max_length=128, null=False, default=""))
+    alter_db_add_column(migrator, "interview_round", "anchor_group_id", CharField(max_length=128, null=False, default=""))
+    alter_db_add_column(migrator, "interview_round", "expected_evidence", JSONField(null=False, default={}))
+    alter_db_add_column(migrator, "interview_round", "rubric_version", CharField(max_length=32, null=False, default=""))
+    alter_db_add_column(migrator, "interview_round", "evidence_evaluation", JSONField(null=False, default={}))
+    alter_db_add_column(migrator, "interview_report", "competency_verification", JSONField(null=True, default=None))
     # Add nullable columns first; ensure_model_indexes creates their unique
     # indexes separately so production upgrades do not combine a table rewrite
     # and index build in one ALTER statement.

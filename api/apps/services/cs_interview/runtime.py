@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import contextvars
 import hashlib
+import json
 import os
 import time
 from typing import Any
@@ -165,20 +166,36 @@ class InstrumentedRuntimeAdapter:
                     result = list(persisted.get("result") or [])
         return result
 
-    async def chat(self, tenant_id: str, system: str, user: str, *, temperature: float = 0.1) -> tuple[str, str]:
+    async def chat(
+        self,
+        tenant_id: str,
+        system: str,
+        user: str,
+        *,
+        temperature: float = 0.1,
+        response_format: dict[str, Any] | None = None,
+    ) -> tuple[str, str]:
         context = operation_context.get()
         stage = _stage_from_prompt(system)
         temperature = _configured_temperature(context, stage, temperature)
+        response_format_key = (
+            json.dumps(response_format, sort_keys=True, separators=(",", ":"))
+            if response_format is not None
+            else ""
+        )
         checkpoint_key = _checkpoint_key(
             "llm",
             stage,
-            f"{system}\0{user}\0{temperature}",
+            f"{system}\0{user}\0{temperature}\0{response_format_key}",
         ) if context else ""
         if context:
             checkpoint = load_external_checkpoint(context.operation_id, checkpoint_key)
             if checkpoint is not None:
                 return str(checkpoint.get("output") or ""), str(checkpoint.get("model") or "")
         prompt_tokens_estimate = num_tokens_from_string(system) + num_tokens_from_string(user)
+        chat_kwargs: dict[str, Any] = {"temperature": temperature}
+        if response_format is not None:
+            chat_kwargs["response_format"] = response_format
         if context:
             BudgetService.reserve_operation_call(
                 context.operation_id,
@@ -199,12 +216,12 @@ class InstrumentedRuntimeAdapter:
                 limit = int(os.getenv("CS_INTERVIEW_GLOBAL_JUDGE_CONCURRENCY", "16"))
                 with quota.semaphore("judge", f"{context.operation_id}:judge", limit, lease_seconds=int(timeout) + 10):
                     output, model = await asyncio.wait_for(
-                        self.delegate.chat(tenant_id, system, user, temperature=temperature),
+                        self.delegate.chat(tenant_id, system, user, **chat_kwargs),
                         timeout=timeout,
                     )
             else:
                 output, model = await asyncio.wait_for(
-                    self.delegate.chat(tenant_id, system, user, temperature=temperature),
+                    self.delegate.chat(tenant_id, system, user, **chat_kwargs),
                     timeout=timeout,
                 )
             status = "completed"

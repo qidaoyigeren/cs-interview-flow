@@ -1,0 +1,184 @@
+{
+  "version": "cs-interview-real-retrieval-ab-v1",
+  "variant_definitions": {
+    "raw_unfiltered": "Raw interview query without metadata constraints.",
+    "raw_filtered": "Raw interview query with role/topic/difficulty/quality metadata constraints.",
+    "state_unfiltered": "Structured planner/state query without metadata constraints.",
+    "state_filtered": "Structured planner/state query with role/topic/difficulty/quality metadata constraints."
+  },
+  "sample": {
+    "cases": 500,
+    "source_documents": 100,
+    "resumed_cases": 500,
+    "review_statuses": [
+      "model_generated_unreviewed"
+    ],
+    "resume_eligible": false
+  },
+  "variants": {
+    "raw_unfiltered": {
+      "cases": 500,
+      "recall_at_1": 0.668,
+      "recall_at_3": 0.822,
+      "recall_at_5": 0.86,
+      "mrr": 0.7477,
+      "latency_p50_ms": 1013.5,
+      "latency_p95_ms": 8394.3,
+      "zero_result_cases": 0
+    },
+    "raw_filtered": {
+      "cases": 500,
+      "recall_at_1": 0.91,
+      "recall_at_3": 0.956,
+      "recall_at_5": 0.966,
+      "mrr": 0.9339,
+      "latency_p50_ms": 1023.2,
+      "latency_p95_ms": 8105.6,
+      "zero_result_cases": 0
+    },
+    "state_unfiltered": {
+      "cases": 500,
+      "recall_at_1": 0.5,
+      "recall_at_3": 0.578,
+      "recall_at_5": 0.584,
+      "mrr": 0.5388,
+      "latency_p50_ms": 984.1,
+      "latency_p95_ms": 8148.1,
+      "zero_result_cases": 156
+    },
+    "state_filtered": {
+      "cases": 500,
+      "recall_at_1": 0.93,
+      "recall_at_3": 0.974,
+      "recall_at_5": 0.982,
+      "mrr": 0.9516,
+      "latency_p50_ms": 1036.2,
+      "latency_p95_ms": 7569.0,
+      "zero_result_cases": 0
+    }
+  },
+  "comparisons": {
+    "full_vs_baseline": {
+      "baseline": "raw_unfiltered",
+      "candidate": "state_filtered",
+      "recall_at_1_delta": 0.262,
+      "recall_at_3_delta": 0.152,
+      "mrr_delta": 0.2039,
+      "paired": {
+        "recall_at_1": {
+          "improved_cases": 143,
+          "regressed_cases": 12,
+          "mcnemar_exact_p": 0.0
+        },
+        "recall_at_3": {
+          "improved_cases": 84,
+          "regressed_cases": 8,
+          "mcnemar_exact_p": 0.0
+        }
+      },
+      "cluster_bootstrap_95_ci": {
+        "recall_at_1_delta": [
+          0.212,
+          0.31
+        ],
+        "recall_at_3_delta": [
+          0.11,
+          0.192
+        ]
+      },
+      "cluster_count": 100
+    },
+    "filter_only": {
+      "baseline": "raw_unfiltered",
+      "candidate": "raw_filtered",
+      "recall_at_1_delta": 0.242,
+      "recall_at_3_delta": 0.134,
+      "mrr_delta": 0.1862,
+      "paired": {
+        "recall_at_1": {
+          "improved_cases": 121,
+          "regressed_cases": 0,
+          "mcnemar_exact_p": 0.0
+        },
+        "recall_at_3": {
+          "improved_cases": 67,
+          "regressed_cases": 0,
+          "mcnemar_exact_p": 0.0
+        }
+      },
+      "cluster_bootstrap_95_ci": {
+        "recall_at_1_delta": [
+          0.2,
+          0.284
+        ],
+        "recall_at_3_delta": [
+          0.102,
+          0.166
+        ]
+      },
+      "cluster_count": 100
+    },
+    "state_query_only": {
+      "baseline": "raw_unfiltered",
+      "candidate": "state_unfiltered",
+      "recall_at_1_delta": -0.168,
+      "recall_at_3_delta": -0.244,
+      "mrr_delta": -0.2089,
+      "paired": {
+        "recall_at_1": {
+          "improved_cases": 58,
+          "regressed_cases": 142,
+          "mcnemar_exact_p": 0.0
+        },
+        "recall_at_3": {
+          "improved_cases": 39,
+          "regressed_cases": 161,
+          "mcnemar_exact_p": 0.0
+        }
+      },
+      "cluster_bootstrap_95_ci": {
+        "recall_at_1_delta": [
+          -0.25,
+          -0.086
+        ],
+        "recall_at_3_delta": [
+          -0.334,
+          -0.156
+        ]
+      },
+      "cluster_count": 100
+    }
+  },
+  "by_kind": {
+    "contrast": {
+      "cases": 100,
+      "raw_unfiltered_recall_at_3": 0.96,
+      "state_filtered_recall_at_3": 0.98,
+      "delta": 0.02
+    },
+    "hard": {
+      "cases": 100,
+      "raw_unfiltered_recall_at_3": 0.64,
+      "state_filtered_recall_at_3": 0.95,
+      "delta": 0.31
+    },
+    "noisy": {
+      "cases": 100,
+      "raw_unfiltered_recall_at_3": 0.85,
+      "state_filtered_recall_at_3": 0.98,
+      "delta": 0.13
+    },
+    "paraphrase": {
+      "cases": 100,
+      "raw_unfiltered_recall_at_3": 0.95,
+      "state_filtered_recall_at_3": 0.97,
+      "delta": 0.02
+    },
+    "scenario": {
+      "cases": 100,
+      "raw_unfiltered_recall_at_3": 0.71,
+      "state_filtered_recall_at_3": 0.99,
+      "delta": 0.28
+    }
+  }
+}

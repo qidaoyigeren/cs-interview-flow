@@ -44,6 +44,8 @@ class TraceEventKind(StrEnum):
     QUESTION_REJECTED = "question_rejected"
     ANSWER_RECEIVED = "answer_received"
     ANSWER_STATE_EXTRACTED = "answer_state_extracted"
+    EVIDENCE_EXTRACTED = "evidence_extracted"
+    RUBRIC_SCORED = "rubric_scored"
     JUDGE_COMPLETED = "judge_completed"
     FOLLOWUP_SELECTED = "followup_selected"
     CODE_EXECUTION_COMPLETED = "code_execution_completed"

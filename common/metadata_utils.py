@@ -37,6 +37,14 @@ def meta_filter(metas: dict, filters: list[dict], logic: str = "and"):
             return [item.lower() if isinstance(item, str) else item for item in value]
         return value
 
+    def parse_literal(value):
+        if not isinstance(value, str):
+            return value, True
+        try:
+            return ast.literal_eval(value), True
+        except (SyntaxError, TypeError, ValueError):
+            return value, False
+
     def filter_out(v2docs, operator, value):
         ids = []
         original_value = value
@@ -72,14 +80,21 @@ def meta_filter(metas: dict, filters: list[dict], logic: str = "and"):
                             input = input[0]
                     except Exception:
                         pass
-                    # Commit both literal_eval results together, or neither -- assigning
-                    # just one side (e.g. "None" parses but "none" doesn't) would compare
-                    # mismatched types after lowercasing and silently break the
-                    # case-insensitive match below.
-                    try:
-                        input, value = ast.literal_eval(input), ast.literal_eval(value)
-                    except Exception:
-                        pass
+                    # Flattened metadata keys are strings while API filter values may
+                    # already be typed (for example bool/float). Parse the string side
+                    # independently in that case. When both sides are strings, keep the
+                    # all-or-nothing conversion so values such as "None" and "none"
+                    # still fall back to case-insensitive string comparison.
+                    if isinstance(input, str) and isinstance(value, str):
+                        parsed_input, input_parsed = parse_literal(input)
+                        parsed_value, value_parsed = parse_literal(value)
+                        if input_parsed and value_parsed:
+                            input, value = parsed_input, parsed_value
+                    else:
+                        if isinstance(input, str):
+                            input, _ = parse_literal(input)
+                        if isinstance(value, str):
+                            value, _ = parse_literal(value)
 
                     # Convert strings to lowercase
                     if isinstance(input, str):

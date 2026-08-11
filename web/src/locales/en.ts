@@ -3873,6 +3873,8 @@ Important structured information may include: names, dates, locations, events, k
         adminGovernance: 'Governance',
         adminFeedback: 'Feedback & appeals',
         adminExperiments: 'Experiments',
+        adminCompetencies: 'Competencies',
+        adminCalibration: 'Calibration',
       },
       admin: {
         unauthorized: 'Administrator access required.',
@@ -3906,6 +3908,12 @@ Important structured information may include: names, dates, locations, events, k
         experimentsTitle: 'Interview experiments',
         experimentsDescription:
           'Stable control/candidate assignments with executable prompt, model, temperature and retrieval variants.',
+        competenciesTitle: 'Competency & rubric versions',
+        competenciesDescription:
+          'Per-role competency definitions, score anchors (0..4) and anchor question groups. Rubric snapshots are frozen per session.',
+        calibrationTitle: 'Rubric calibration',
+        calibrationDescription:
+          'Agent-vs-human agreement over annotated cases. Metrics with too few samples are reported insufficient, never as a fabricated percentage.',
       },
       status: {
         created: 'Ready',
@@ -3960,6 +3968,14 @@ Important structured information may include: names, dates, locations, events, k
         start: 'Create and start interview',
         validationError:
           'Complete all required fields and keep question and follow-up counts within range.',
+        topicConflict:
+          'The same topic cannot be both focused and excluded.',
+        resumeUnavailable:
+          'The selected resume has not finished parsing and extraction.',
+        resumeNotReady: ' (parsing or extraction incomplete)',
+        jobUnavailable:
+          'The selected job description has not finished extraction.',
+        jobNotReady: ' (extraction incomplete)',
         startError:
           'Could not create the interview. Check knowledge and model configuration.',
       },
@@ -3968,6 +3984,14 @@ Important structured information may include: names, dates, locations, events, k
         title: 'Bind three independent knowledge sources',
         description:
           'Each round searches the most relevant dataset first and uses a second source only when evidence is insufficient.',
+        bootstrapTitle: 'Binding platform interview knowledge',
+        bootstrapDescription:
+          'The platform corpus is already parsed. This account only receives a read-only binding and performs no duplicate embedding.',
+        bootstrapImported: '{{count}} ready',
+        bootstrapFailed: 'Knowledge initialization failed',
+        bootstrapFailedDescription:
+          'Ask an administrator to check the platform knowledge configuration.',
+        bootstrapRetry: 'Retry initialization',
         interviewExperience: 'Interview experience',
         interviewExperienceDescription:
           'Single questions or follow-up chains with company, role, year, and round metadata.',
@@ -4011,6 +4035,26 @@ Important structured information may include: names, dates, locations, events, k
         evidence: 'Evidence sources',
         source: 'Verified knowledge chunk',
         verifiedSource: 'Source version locked',
+        verifyingCompetency: 'Verifying {{competency}}',
+        projectDive: 'Project deep-dive',
+        project: 'Project',
+        verifyingClaim: 'Claim under verification',
+        dimension: 'Dimension',
+        verificationStatus: 'Verification status',
+        claimUntested: 'Not tested',
+        claimPartial: 'Partially verified',
+        claimVerified: 'Verified',
+        claimDisputed: 'Disputed',
+        claimContradiction: 'Contradiction',
+        claimLowConfidence: 'Low confidence',
+        followupProgress: 'Follow-up progress',
+        projectDiveHint:
+          'This probe verifies one resume claim at a time. A claim is followed up at most twice before the interviewer switches to another dimension.',
+        foundationVerify: 'Foundation verification',
+        foundationAnchor: 'Anchor baseline',
+        foundationDowngraded: 'No claim-relevant evidence was found, so this round degraded to a foundation question instead of a project deep-dive.',
+        foundationPulledByProject: 'This standalone foundation question is naturally pulled by the technology used in {{project}}.',
+        foundationJdDriven: 'This question verifies a JD capability requirement.',
         runtime: 'Interview status',
         waiting: 'Waiting for your answer.',
         answer_received: 'Answer received',
@@ -4104,6 +4148,10 @@ Important structured information may include: names, dates, locations, events, k
         claimedLevel: 'Claimed level',
         mappedTopics: 'Mapped topics',
         projects: 'Projects',
+        outdatedExtraction:
+          'This resume was extracted with an older format. Re-extract it to unlock project deep-dive interviews.',
+        outdatedExtractionHint:
+          'Re-extract the resume before creating a profile — project deep-dive requires the new structured claims.',
         noExtraction:
           'No profile extracted yet. Run "Extract profile" to analyze this resume.',
         noProjects: 'No projects detected.',

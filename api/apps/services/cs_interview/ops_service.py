@@ -240,10 +240,33 @@ def session_audit(session_id: str, tenant_id: str) -> dict[str, Any]:
     rounds = []
     for row in InterviewRound.select().where(InterviewRound.session_id == session_id).order_by(InterviewRound.sequence):
         actions = row.planner_actions or []
+        evaluations = (row.evidence_evaluation or {}).get("evaluations") or []
+        evidence_audit = [
+            {
+                "answer_sequence": item.get("answer_sequence"),
+                "score": (item.get("evaluation") or {}).get("scorer", {}).get("score"),
+                "matched_anchor": (item.get("evaluation") or {}).get("scorer", {}).get("matched_anchor"),
+                "confidence": (item.get("evaluation") or {}).get("scorer", {}).get("confidence"),
+                "low_confidence": bool((item.get("evaluation") or {}).get("low_confidence")),
+                "consistency_passed": (item.get("evaluation") or {}).get("validator", {}).get("passed"),
+                "evidence_span_ids": (item.get("evaluation") or {}).get("scorer", {}).get("evidence_span_ids"),
+                "span_texts": [
+                    span.get("text")
+                    for span_id in (item.get("evaluation") or {}).get("scorer", {}).get("evidence_span_ids", [])
+                    for span in (item.get("evaluation") or {}).get("extraction", {}).get("answer_spans", [])
+                    if span.get("span_id") == span_id
+                ],
+            }
+            for item in evaluations
+        ]
         rounds.append(
             {
                 "sequence": row.sequence,
                 "topic": row.topic,
+                "competency_id": row.competency_id,
+                "question_kind": row.question_kind or "adaptive",
+                "anchor_group_id": row.anchor_group_id,
+                "rubric_version": row.rubric_version,
                 "category": row.category,
                 "difficulty": row.difficulty,
                 "question_id": row.question_id,
@@ -258,11 +281,15 @@ def session_audit(session_id: str, tenant_id: str) -> dict[str, Any]:
                         "selected_action": item.get("selected_action"),
                         "target_requirement_id": item.get("target_requirement_id"),
                         "target_topic": item.get("target_topic"),
+                        "question_kind": item.get("question_kind"),
+                        "competency_id": item.get("competency_id"),
+                        "action_factors": item.get("action_factors"),
                         "reason": _redact(item.get("reason")),
                         "decision_audit": item.get("decision_audit"),
                     }
                     for item in actions
                 ],
+                "evidence_evaluation": evidence_audit,
                 # Answers are never exposed in full -- only a redacted summary.
                 "answer_summary": _redact((row.candidate_answers or [{}])[-1].get("answer") if row.candidate_answers else ""),
             }

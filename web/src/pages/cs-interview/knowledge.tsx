@@ -1,15 +1,26 @@
 import { Button } from '@/components/ui/button';
 import {
   useInterviewDatasets,
+  useInterviewKnowledgeBootstrap,
   useInterviewKnowledgeConfig,
   useInterviewMutations,
 } from '@/hooks/use-cs-interview-request';
 import { KnowledgeConfigPayload } from '@/interfaces/request/cs-interview';
 import dayjs from 'dayjs';
-import { AlertTriangle, CheckCircle2, Database, RefreshCw } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Database,
+  LoaderCircle,
+  RefreshCw,
+} from 'lucide-react';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InterviewShell, PageHeading } from './components';
+import {
+  InterviewShell,
+  NativeSelectThemeClass,
+  PageHeading,
+} from './components';
 
 const EmptyBindings: KnowledgeConfigPayload = {
   interviewExperienceDatasetId: '',
@@ -38,9 +49,17 @@ const Bindings = [
 
 export default function InterviewKnowledge() {
   const { t } = useTranslation();
-  const { data: datasets = [], isLoading } = useInterviewDatasets();
-  const { data: savedConfig } = useInterviewKnowledgeConfig();
-  const { saveKnowledge, validateKnowledge } = useInterviewMutations();
+  const {
+    data: datasets = [],
+    isLoading,
+    refetch: refetchDatasets,
+  } = useInterviewDatasets();
+  const { data: savedConfig, refetch: refetchKnowledge } =
+    useInterviewKnowledgeConfig();
+  const { data: bootstrap, isLoading: bootstrapLoading } =
+    useInterviewKnowledgeBootstrap();
+  const { saveKnowledge, validateKnowledge, retryKnowledgeBootstrap } =
+    useInterviewMutations();
   const [bindings, setBindings] =
     useState<KnowledgeConfigPayload>(EmptyBindings);
   const [message, setMessage] = useState<string>();
@@ -57,6 +76,13 @@ export default function InterviewKnowledge() {
       });
     }
   }, [savedConfig]);
+
+  useEffect(() => {
+    if (bootstrap?.status === 'ready') {
+      void refetchDatasets();
+      void refetchKnowledge();
+    }
+  }, [bootstrap?.status, refetchDatasets, refetchKnowledge]);
 
   const handleBindingChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setBindings((current) => ({
@@ -98,8 +124,7 @@ export default function InterviewKnowledge() {
     bindings.fundamentalsDatasetId,
   ]);
   const validSelection = selectedIds.size === 3 && !selectedIds.has('');
-  const selectClass =
-    'mt-4 h-10 w-full rounded-md border border-border-button bg-bg-input px-3 text-sm outline-none focus:ring-1 focus:ring-accent-primary';
+  const selectClass = `mt-4 h-10 w-full rounded-md border border-border-button bg-bg-input px-3 text-sm outline-none focus:ring-1 focus:ring-accent-primary ${NativeSelectThemeClass}`;
 
   return (
     <InterviewShell>
@@ -108,7 +133,77 @@ export default function InterviewKnowledge() {
         title={t('csInterview.knowledge.title')}
         description={t('csInterview.knowledge.description')}
       />
-      {isLoading ? (
+      {bootstrapLoading || !bootstrap ? (
+        <div className="h-64 animate-pulse bg-bg-card" />
+      ) : bootstrap.status !== 'ready' ? (
+        <section className="border border-border-button bg-bg-card p-6 sm:p-8">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                {bootstrap.status === 'failed' ? (
+                  <AlertTriangle className="size-4 text-state-error" />
+                ) : (
+                  <LoaderCircle className="size-4 animate-spin text-accent-primary" />
+                )}
+                {bootstrap.status === 'failed'
+                  ? t('csInterview.knowledge.bootstrapFailed')
+                  : t('csInterview.knowledge.bootstrapTitle')}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-text-secondary">
+                {bootstrap.status === 'failed'
+                  ? bootstrap.errorMessage ||
+                    t('csInterview.knowledge.bootstrapFailedDescription')
+                  : t('csInterview.knowledge.bootstrapDescription')}
+              </p>
+            </div>
+            {bootstrap.status === 'failed' && (
+              <Button
+                variant="outline"
+                onClick={() => retryKnowledgeBootstrap.mutate()}
+                loading={retryKnowledgeBootstrap.isPending}
+              >
+                <RefreshCw />
+                {t('csInterview.knowledge.bootstrapRetry')}
+              </Button>
+            )}
+          </div>
+          <div className="mt-7 grid gap-4 sm:grid-cols-3">
+            {Bindings.map((binding) => {
+              const key =
+                binding.field === 'interviewExperienceDatasetId'
+                  ? 'interview_experience'
+                  : binding.field === 'leetcodeDatasetId'
+                    ? 'leetcode'
+                    : 'fundamentals';
+              const item = bootstrap.progress[key];
+              const value = item?.total
+                ? Math.round((item.parsed / item.total) * 100)
+                : 0;
+              return (
+                <div key={binding.field} className="border border-border-button p-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>{t(binding.title)}</span>
+                    <span className="font-mono text-xs text-text-secondary">
+                      {item?.parsed || 0}/{item?.total || 0}
+                    </span>
+                  </div>
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-border-button">
+                    <div
+                      className="h-full bg-accent-primary transition-[width]"
+                      style={{ width: `${value}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 font-mono text-[10px] text-text-secondary">
+                    {t('csInterview.knowledge.bootstrapImported', {
+                      count: item?.imported || 0,
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ) : isLoading ? (
         <div className="h-64 animate-pulse bg-bg-card" />
       ) : datasets.length === 0 ? (
         <div className="border border-state-warning bg-state-warning-5 p-6 text-sm">

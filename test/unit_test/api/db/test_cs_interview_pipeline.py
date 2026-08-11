@@ -3,9 +3,10 @@ import json
 
 import pytest
 
-from api.apps.services.cs_interview.domain import DomainError, PlannerAction, PlannerActionKind
+from api.apps.services.cs_interview.domain import DomainError, PlannerAction, PlannerActionKind, evaluation_to_judge_result
+from api.apps.services.cs_interview.judge import evaluate_answer
 from api.apps.services.cs_interview.observability import OperationContext, operation_context
-from api.apps.services.cs_interview.pipeline import _safe_model_snapshot, generate_question, judge_answer
+from api.apps.services.cs_interview.pipeline import _safe_model_snapshot, generate_question
 
 
 class FakeRuntime:
@@ -165,6 +166,76 @@ def test_question_pipeline_routes_to_one_dataset_when_evidence_is_sufficient():
         "verified",
         "quality_score",
     }
+
+
+def test_anchor_question_requires_evidence_from_the_frozen_group():
+    anchor_id = "anchor-go_backend-go-runtime"
+    action = PlannerAction(
+        selected_action=PlannerActionKind.VERIFY_JD_REQUIREMENT.value,
+        target_requirement_id=None,
+        target_topic="go.runtime",
+        reason="anchor baseline",
+        supporting_state={},
+        target_difficulty="medium",
+        preferred_question_type="scenario",
+        question_kind="anchor",
+        competency_id="go.runtime",
+        anchor_group_id=anchor_id,
+        expected_evidence={
+            "anchor_content_type": "fundamentals",
+            "anchor_difficulty": "medium",
+            "anchor_question_ids": ["public-fund-context-001"],
+        },
+    )
+    wrong_group = _evidence("public-fund-context-001")
+    wrong_group["metadata"]["anchor_group_id"] = "another-group"
+    runtime = FakeRuntime({"fundamentals-ds": [wrong_group]})
+
+    with pytest.raises(DomainError, match="no verified"):
+        asyncio.run(generate_question(runtime, "tenant-1", PROFILE, CONFIG, [], action))
+
+    assert runtime.chat_calls == []
+    assert len(runtime.retrieval_calls) == 2
+    for call in runtime.retrieval_calls:
+        filters = call[3]["meta_data_filter"]["manual"]
+        assert {item["key"]: item["value"] for item in filters}["anchor_group_id"] == anchor_id
+
+
+def test_anchor_question_uses_reviewed_canonical_text_without_an_llm_rewrite():
+    anchor_id = "anchor-go_backend-go-runtime"
+    evidence = _evidence("public-fund-context-001")
+    evidence["metadata"]["anchor_group_id"] = anchor_id
+    evidence["content"] = """# Go context
+## 问题
+解释 context 的取消传播、deadline 和资源释放边界。
+## 参考要点
+- 父 context 取消会传播给派生子 context。
+- WithCancel 返回的 cancel 应及时调用以释放 timer 和引用。
+"""
+    action = PlannerAction(
+        selected_action=PlannerActionKind.VERIFY_JD_REQUIREMENT.value,
+        target_requirement_id=None,
+        target_topic="go.runtime",
+        reason="anchor baseline",
+        supporting_state={},
+        target_difficulty="medium",
+        preferred_question_type="scenario",
+        question_kind="anchor",
+        competency_id="go.runtime",
+        anchor_group_id=anchor_id,
+        expected_evidence={
+            "anchor_content_type": "fundamentals",
+            "anchor_difficulty": "medium",
+            "anchor_question_ids": ["public-fund-context-001"],
+        },
+    )
+    runtime = FakeRuntime({"fundamentals-ds": [evidence]})
+
+    snapshot = asyncio.run(generate_question(runtime, "tenant-1", PROFILE, CONFIG, [], action))
+
+    assert snapshot["question_text"] == "解释 context 的取消传播、deadline 和资源释放边界。"
+    assert snapshot["model_version"] == "reviewed-anchor-v1"
+    assert runtime.chat_calls == []
 
 
 def test_governance_blocked_question_never_reaches_the_model():
@@ -368,38 +439,113 @@ def test_question_pipeline_rejects_exact_question_id_reuse():
     assert runtime.chat_calls == []
 
 
-def test_low_confidence_judge_runs_twice_and_uses_conservative_result():
-    low_confidence = {
-        "score": 4,
-        "verdict": "excellent",
-        "covered_points": ["all"],
-        "missing_points": [],
+_EXTRACTION_JSON = {
+    "answer_spans": [{"span_id": "s1", "text": "Sending to a closed channel panics"}],
+    "technical_claims": [{"claim_id": "c1", "text": "send on a closed channel panics", "span_ids": ["s1"], "topic_ids": ["go.runtime"]}],
+    "decisions": [],
+    "mechanisms": [],
+    "tradeoffs": [],
+    "examples": [],
+    "contradictions": [],
+    "uncertainty_phrases": [],
+    "matched_indicators": [{"indicator": "核心概念与典型实现", "anchor_level": 2, "span_ids": ["s1"]}],
+    "missing_indicators": [{"indicator": "机制解释与场景权衡", "anchor_level": 3}],
+    "newly_claimed_facts": [],
+    "project_facts": [],
+    "covered_rubric_points": [],
+    "unverified_boundaries": [],
+    "deep_dive_branches": [],
+}
+
+
+def _round_data():
+    return {
+        "question_text": "Explain a closed channel.",
+        "reference_answer": "Reference answer with evidence.",
+        "evaluation_rubric": ["send behavior", "receive behavior"],
+        "candidate_answers": [{"answer": "Sending to a closed channel panics"}],
+        "followup_count": 0,
+        "topic": "go.runtime",
+        "difficulty": "medium",
+        "question_type": "theory",
+        "question_kind": "adaptive",
+    }
+
+
+def test_evidence_judge_happy_path_produces_judge_result():
+    scorer = {
+        "score": 2,
+        "matched_anchor": 2,
+        "verdict": "partial",
+        "matched_indicators": ["核心概念与典型实现"],
+        "missing_indicators": ["机制解释与场景权衡"],
+        "evidence_span_ids": ["s1"],
+        "confidence": 0.8,
+        "needs_followup": False,
+        "followup_focus": "",
+        "weak_point": "",
+        "feedback": "Correct basic mechanism.",
+        "evaluation_summary": "Basic mechanism.",
         "factual_errors": [],
+    }
+    runtime = FakeRuntime(chat_outputs=[json.dumps(_EXTRACTION_JSON), json.dumps(scorer)])
+    evaluation = asyncio.run(
+        evaluate_answer(
+            runtime,
+            "tenant-1",
+            answer="Sending to a closed channel panics",
+            round_data=_round_data(),
+            rubric_snapshot=None,
+            code_result=None,
+            history=[],
+            max_followups=2,
+        )
+    )
+    result = evaluation_to_judge_result(evaluation)
+    assert len(runtime.chat_calls) == 2
+    assert result.score == 2
+    assert result.verdict == "partial"
+    assert result.covered_points == ["核心概念与典型实现"]
+    assert result.missing_points == ["机制解释与场景权衡"]
+
+
+def test_evidence_judge_low_confidence_after_consistency_failure():
+    # The scorer passes JSON but is internally inconsistent (cites an indicator
+    # that the extractor never found). Consistency validation fails, the scorer
+    # is retried once, and the result becomes low-confidence -- never a
+    # fabricated deterministic score.
+    bad_scorer = {
+        "score": 4,
+        "matched_anchor": 4,
+        "verdict": "excellent",
+        "matched_indicators": ["invented indicator not in the answer"],
+        "missing_indicators": [],
+        "evidence_span_ids": ["s1"],
+        "confidence": 0.9,
         "needs_followup": False,
         "followup_focus": "",
         "weak_point": "",
         "feedback": "Looks complete.",
         "evaluation_summary": "Complete.",
-        "confidence": 0.3,
+        "factual_errors": [],
     }
-    runtime = FakeRuntime(chat_outputs=[json.dumps(low_confidence), json.dumps(low_confidence)])
-    result = asyncio.run(
-        judge_answer(
+    runtime = FakeRuntime(chat_outputs=[json.dumps(_EXTRACTION_JSON), json.dumps(bad_scorer), json.dumps(bad_scorer)])
+    evaluation = asyncio.run(
+        evaluate_answer(
             runtime,
             "tenant-1",
-            {
-                "question_text": "Explain a closed channel.",
-                "reference_answer": "Reference answer with evidence.",
-                "evaluation_rubric": ["send behavior", "receive behavior"],
-                "candidate_answers": [{"answer": "Candidate answer"}],
-                "followup_count": 0,
-            },
-            [],
-            2,
+            answer="Sending to a closed channel panics",
+            round_data=_round_data(),
+            rubric_snapshot=None,
+            code_result=None,
+            history=[],
+            max_followups=2,
         )
     )
-    assert len(runtime.chat_calls) == 2
-    assert result.score == 2
-    assert result.verdict == "partial"
-    assert not result.needs_followup
-    assert "send behavior" in result.feedback
+    assert len(runtime.chat_calls) == 3  # extractor + scorer + one retry
+    assert evaluation.low_confidence is True
+    assert evaluation.validator["passed"] is False
+    assert evaluation.validator["retried"] is True
+    assert evaluation.scorer["confidence"] <= 0.3
+    assert evaluation.scorer["needs_followup"] is False
+    assert "低置信" in evaluation.scorer["feedback"] or "low-confidence" in evaluation.scorer["feedback"]

@@ -1,10 +1,13 @@
 import {
+  CalibrationView,
   CodeSubmission,
+  CompetencyCatalogView,
   InterviewAdminSession,
   InterviewDatasetOption,
   InterviewExperimentView,
   InterviewFeedbackItem,
   InterviewJob,
+  InterviewKnowledgeBootstrap,
   InterviewKnowledgeConfig,
   InterviewProfile,
   InterviewQualityOverview,
@@ -29,6 +32,8 @@ export const CsInterviewKeys = {
   profiles: () => [...CsInterviewKeys.all, 'profiles'] as const,
   datasets: () => [...CsInterviewKeys.all, 'datasets'] as const,
   knowledge: () => [...CsInterviewKeys.all, 'knowledge'] as const,
+  knowledgeBootstrap: () =>
+    [...CsInterviewKeys.all, 'knowledge-bootstrap'] as const,
   sessions: () => [...CsInterviewKeys.all, 'sessions'] as const,
   session: (id: string) => [...CsInterviewKeys.sessions(), id] as const,
   report: (id: string) => [...CsInterviewKeys.session(id), 'report'] as const,
@@ -45,6 +50,8 @@ export const CsInterviewKeys = {
   adminQuestions: () => [...CsInterviewKeys.admin(), 'questions'] as const,
   adminFeedback: () => [...CsInterviewKeys.admin(), 'feedback'] as const,
   adminExperiments: () => [...CsInterviewKeys.admin(), 'experiments'] as const,
+  adminCompetencies: () => [...CsInterviewKeys.admin(), 'competencies'] as const,
+  adminCalibration: () => [...CsInterviewKeys.admin(), 'calibration'] as const,
 };
 
 const responseData = <T>(response: any): T =>
@@ -71,6 +78,26 @@ export function useInterviewKnowledgeConfig() {
     queryKey: CsInterviewKeys.knowledge(),
     queryFn: async () =>
       responseData(await csInterviewService.getKnowledgeConfig({}, true)),
+  });
+}
+
+export function useInterviewKnowledgeBootstrap() {
+  return useQuery<InterviewKnowledgeBootstrap | null>({
+    queryKey: CsInterviewKeys.knowledgeBootstrap(),
+    queryFn: async () => {
+      const current = responseData<InterviewKnowledgeBootstrap | null>(
+        await csInterviewService.getKnowledgeBootstrap({}, true),
+      );
+      if (current) return current;
+      return responseData(
+        await csInterviewService.ensureKnowledgeBootstrap({}, true),
+      );
+    },
+    refetchInterval: (query) =>
+      query.state.data &&
+      !['ready', 'failed'].includes(query.state.data.status)
+        ? 3000
+        : false,
   });
 }
 
@@ -201,6 +228,23 @@ export function useInterviewAdminExperiments() {
   });
 }
 
+export function useInterviewAdminCompetencies() {
+  return useQuery<CompetencyCatalogView>({
+    queryKey: CsInterviewKeys.adminCompetencies(),
+    queryFn: async () =>
+      responseData(await csInterviewService.adminCompetencies({}, true)),
+  });
+}
+
+export function useInterviewAdminCalibration() {
+  return useQuery<CalibrationView>({
+    queryKey: CsInterviewKeys.adminCalibration(),
+    queryFn: async () =>
+      responseData(await csInterviewService.adminCalibration({}, true)),
+    refetchInterval: 60000,
+  });
+}
+
 export function useInterviewMutations() {
   const queryClient = useQueryClient();
   const createProfile = useMutation<
@@ -230,6 +274,21 @@ export function useInterviewMutations() {
   >({
     mutationFn: async (payload) =>
       responseData(await csInterviewService.validateKnowledgeConfig(payload)),
+  });
+  const retryKnowledgeBootstrap = useMutation<
+    InterviewKnowledgeBootstrap,
+    Error,
+    void
+  >({
+    mutationFn: async () =>
+      responseData(await csInterviewService.retryKnowledgeBootstrap({}, true)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: CsInterviewKeys.knowledgeBootstrap(),
+      });
+      queryClient.invalidateQueries({ queryKey: CsInterviewKeys.datasets() });
+      queryClient.invalidateQueries({ queryKey: CsInterviewKeys.knowledge() });
+    },
   });
   const createSession = useMutation<
     InterviewSession,
@@ -380,6 +439,7 @@ export function useInterviewMutations() {
     createProfile,
     saveKnowledge,
     validateKnowledge,
+    retryKnowledgeBootstrap,
     createSession,
     runCode,
     submitCode,

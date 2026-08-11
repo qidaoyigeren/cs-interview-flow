@@ -52,7 +52,7 @@ def _variant(variant_id, **overrides):
     base = {
         "variant_id": variant_id,
         "prompt_version": "cs-interview-v1",
-        "planner_version": "cs-interview-planner-v1",
+        "planner_version": "cs-interview-planner-v2",
         "temperature": 0.1,
     }
     base.update(overrides)

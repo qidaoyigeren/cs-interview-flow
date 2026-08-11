@@ -354,4 +354,13 @@ if [[ "${ENABLE_TASKEXECUTOR}" -eq 1 ]]; then
     fi
 fi
 
+if [[ "${CS_INTERVIEW_WORKER_ENABLED:-false}" == "true" ]]; then
+    while true; do
+        echo "Starting CS interview operation worker..."
+        "$PY" -m api.apps.services.cs_interview.worker
+        echo "CS interview operation worker stopped; restarting..."
+        sleep 1
+    done &
+fi
+
 wait

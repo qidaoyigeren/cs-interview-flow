@@ -14,9 +14,11 @@ import json
 import math
 from copy import deepcopy
 from dataclasses import asdict, dataclass
+from itertools import combinations
 from pathlib import Path
 from typing import Any
 
+from api.apps.services.cs_interview.competencies import build_competency_snapshot
 from api.apps.services.cs_interview.domain import (
     PLANNER_VERSION,
     ROLE_CAPABILITY_TREES,
@@ -26,9 +28,21 @@ from api.apps.services.cs_interview.domain import (
     choose_planner_action,
     lexical_similarity,
     update_interview_plan,
+    validate_answer_state,
     validate_judge_result,
 )
 from api.apps.services.cs_interview.replay import replay_planner_decision
+
+_COMPETENCY_SNAPSHOTS: dict[str, dict[str, Any]] = {}
+
+
+def _competency_snapshot_for(role: str) -> dict[str, Any]:
+    if role not in _COMPETENCY_SNAPSHOTS:
+        try:
+            _COMPETENCY_SNAPSHOTS[role] = build_competency_snapshot(role)
+        except ValueError:
+            _COMPETENCY_SNAPSHOTS[role] = {}
+    return _COMPETENCY_SNAPSHOTS[role]
 
 
 @dataclass(frozen=True)
@@ -273,6 +287,34 @@ def _evaluate_agentic_case(case: dict[str, Any]) -> dict[str, Any]:
         ) >= 0.1
         leaked = _contains_hidden_data(question.get("candidate_response"), list(case.get("forbidden_fragments") or []))
 
+    project = case.get("project") if isinstance(case.get("project"), dict) else None
+    expected_target = project.get("expected_target") if isinstance(project, dict) else None
+    is_project_case = bool(project)
+    project_target_picked = bool(is_project_case and action.selected_action == "verify_project_claim")
+    expected_claim = str((expected_target or {}).get("claim_id") or "")
+    expected_dimension = str((expected_target or {}).get("dimension") or "")
+    project_target_correct = bool(
+        project_target_picked
+        and str(action.target_claim_id) == expected_claim
+        and str(action.project_dimension) == expected_dimension
+    )
+    project_facts = [item for item in ((planner.get("answer_state") or {}).get("project_facts") or []) if item.get("project_id") and item.get("claim_id")]
+    project_followup_applicable = bool(is_project_case and planner.get("phase") == "after_answer" and project_facts)
+    project_followup_triggered = bool(
+        project_followup_applicable
+        and action.selected_action == "follow_up_current_claim"
+        and action.target_project_id
+        and action.target_claim_id
+    )
+    # A metric-focused case must have a metric attack dimension available.
+    metric_attack_available = bool(
+        is_project_case
+        and expected_dimension == "metric"
+        and any(
+            str(item.get("claim_id")) == expected_claim and str(item.get("dimension")) == "metric"
+            for item in (candidate_state.get("project_attack_map") or [])
+        )
+    )
     return {
         "requirement_count": len(requirements),
         "covered_requirement_count": len(covered),
@@ -289,6 +331,13 @@ def _evaluate_agentic_case(case: dict[str, Any]) -> dict[str, Any]:
         "evidence_valid": grounded,
         "hidden_answer_leaked": leaked,
         "replay_deterministic": _real_replay_deterministic(case, action),
+        "is_project_case": is_project_case,
+        "project_target_picked": project_target_picked,
+        "project_target_correct": project_target_correct,
+        "project_followup_applicable": project_followup_applicable,
+        "project_followup_triggered": project_followup_triggered,
+        "expected_project_dimension": expected_dimension,
+        "metric_attack_available": metric_attack_available,
     }
 
 
@@ -316,6 +365,12 @@ MIN_SAMPLES: dict[str, int] = {
     "jd_question_relevance": 5,
     "agentic_grounded_question_ratio": 5,
     "replay_determinism_ratio": 5,
+    "project_claim_coverage": 5,
+    "project_claim_verification_accuracy": 5,
+    "project_followup_relevance": 3,
+    "metric_verification_accuracy": 3,
+    "cross_project_leakage": 1,
+    "project_replay_consistency": 5,
 }
 
 # Safety metrics: any non-zero value or any zero-sample run blocks the release.
@@ -326,8 +381,38 @@ SAFETY_METRICS = frozenset(
         "report_numeric_consistency_ratio",
         "hidden_answer_leakage_count",
         "replay_determinism_ratio",
+        "cross_project_leakage",
+        "project_replay_consistency",
     }
 )
+
+
+def _project_fact_metrics(payload: dict[str, Any]) -> dict[str, int]:
+    """Count project-fact attribution safety over the fixture's fact cases.
+
+    ``cross_project`` cases must lose their attribution entirely (a fact from
+    project A can never chain onto project B's claim); ``valid`` counts facts
+    whose attribution was correctly retained.
+    """
+    leaked = 0
+    valid = 0
+    total = 0
+    for case in (payload.get("project_fact_cases") or []):
+        if not isinstance(case, dict):
+            continue
+        total += 1
+        answer = str(case.get("answer") or "")
+        raw = {"project_facts": case.get("project_facts") or [], "contradictions": []}
+        known = {str(claim): str(project) for claim, project in (case.get("known_claims") or {}).items()}
+        try:
+            validated = validate_answer_state(raw, answer, known_project_claims=known)
+        except (DomainError, TypeError, ValueError):
+            continue
+        kept = validated.get("project_facts") or []
+        valid += sum(bool(item.get("claim_id") and item.get("project_id")) for item in kept)
+        if case.get("cross_project") and any(item.get("claim_id") and item.get("project_id") for item in kept):
+            leaked += 1
+    return {"total": total, "valid": valid, "leaked": leaked}
 
 
 def evaluate_fixture(payload: dict[str, Any]) -> EvaluationResult:
@@ -373,6 +458,18 @@ def evaluate_fixture(payload: dict[str, Any]) -> EvaluationResult:
     replay_total = len(replay_cases)
     replay_deterministic = sum(bool(case["replay_deterministic"]) for case in replay_cases)
 
+    project_cases = [case for case in agentic_cases if case["is_project_case"]]
+    project_expect_pick = [case for case in project_cases if case.get("expected_action") == "verify_project_claim"]
+    project_claim_coverage_num = sum(case["project_target_picked"] for case in project_expect_pick)
+    project_claim_accuracy_num = sum(case["project_target_correct"] for case in project_expect_pick)
+    project_followup_cases = [case for case in project_cases if case["project_followup_applicable"]]
+    project_followup_num = sum(case["project_followup_triggered"] for case in project_followup_cases)
+    metric_cases = [case for case in project_cases if case["expected_project_dimension"] == "metric"]
+    metric_available_num = sum(case["metric_attack_available"] for case in metric_cases)
+    project_replay_cases = [case for case in project_cases if case["replay_deterministic"] is not None]
+    project_replay_num = sum(bool(case["replay_deterministic"]) for case in project_replay_cases)
+    project_fact = _project_fact_metrics(payload)
+
     metrics: dict[str, float | int] = {
         "retrieval_recall_at_5": _ratio(retrieved, len(retrieval_cases)),
         "grounded_question_ratio": _ratio(grounded, len(questions)),
@@ -395,6 +492,12 @@ def evaluate_fixture(payload: dict[str, Any]) -> EvaluationResult:
         "jd_question_relevance": _ratio(jd_relevant, len(generated_agentic)),
         "agentic_grounded_question_ratio": _ratio(grounded_agentic, len(generated_agentic)),
         "replay_determinism_ratio": _ratio(replay_deterministic, replay_total),
+        "project_claim_coverage": _ratio(project_claim_coverage_num, len(project_expect_pick)),
+        "project_claim_verification_accuracy": _ratio(project_claim_accuracy_num, len(project_expect_pick)),
+        "project_followup_relevance": _ratio(project_followup_num, len(project_followup_cases)),
+        "metric_verification_accuracy": _ratio(metric_available_num, len(metric_cases)),
+        "cross_project_leakage": project_fact["leaked"],
+        "project_replay_consistency": _ratio(project_replay_num, len(project_replay_cases)),
     }
     threshold_specs = {
         "retrieval_recall_at_5": (">=", 0.85),
@@ -415,6 +518,12 @@ def evaluate_fixture(payload: dict[str, Any]) -> EvaluationResult:
         "jd_question_relevance": (">=", 0.95),
         "agentic_grounded_question_ratio": (">=", 0.95),
         "replay_determinism_ratio": ("==", 1.0),
+        "project_claim_coverage": (">=", 0.9),
+        "project_claim_verification_accuracy": (">=", 0.85),
+        "project_followup_relevance": (">=", 0.9),
+        "metric_verification_accuracy": (">=", 0.9),
+        "cross_project_leakage": ("==", 0),
+        "project_replay_consistency": ("==", 1.0),
     }
 
     sample_for_metric = {
@@ -438,6 +547,12 @@ def evaluate_fixture(payload: dict[str, Any]) -> EvaluationResult:
         "jd_question_relevance": len(generated_agentic),
         "agentic_grounded_question_ratio": len(generated_agentic),
         "replay_determinism_ratio": replay_total,
+        "project_claim_coverage": len(project_expect_pick),
+        "project_claim_verification_accuracy": len(project_expect_pick),
+        "project_followup_relevance": len(project_followup_cases),
+        "metric_verification_accuracy": len(metric_cases),
+        "cross_project_leakage": project_fact["total"],
+        "project_replay_consistency": len(project_replay_cases),
     }
     numerator_for_ci = {
         "retrieval_recall_at_5": retrieved,
@@ -460,6 +575,12 @@ def evaluate_fixture(payload: dict[str, Any]) -> EvaluationResult:
         "jd_question_relevance": jd_relevant,
         "agentic_grounded_question_ratio": grounded_agentic,
         "replay_determinism_ratio": replay_deterministic,
+        "project_claim_coverage": project_claim_coverage_num,
+        "project_claim_verification_accuracy": project_claim_accuracy_num,
+        "project_followup_relevance": project_followup_num,
+        "metric_verification_accuracy": metric_available_num,
+        "cross_project_leakage": project_fact["leaked"],
+        "project_replay_consistency": project_replay_num,
     }
 
     thresholds: dict[str, dict[str, Any]] = {}
@@ -508,9 +629,13 @@ def evaluate_file(path: str | Path) -> EvaluationResult:
     with fixture_path.open(encoding="utf-8") as fixture:
         payload = json.load(fixture)
     agentic_path = fixture_path.with_name("agentic_scenarios.json")
-    if not payload.get("agentic_cases") and agentic_path.exists():
+    if agentic_path.exists():
         with agentic_path.open(encoding="utf-8") as fixture:
-            payload["agentic_cases"] = json.load(fixture).get("agentic_cases", [])
+            agentic = json.load(fixture)
+        if not payload.get("agentic_cases"):
+            payload["agentic_cases"] = agentic.get("agentic_cases", [])
+        if not payload.get("project_fact_cases"):
+            payload["project_fact_cases"] = agentic.get("project_fact_cases", [])
     return evaluate_fixture(payload)
 
 
@@ -554,6 +679,205 @@ def _cohens_kappa(pairs: list[tuple[int, int]]) -> float | None:
     if expected == 1:
         return None
     return round((observed - expected) / (1 - expected), 4)
+
+
+def _weighted_cohens_kappa(pairs: list[tuple[int, int]]) -> float | None:
+    """Quadratic-weighted Cohen's kappa for ordinal 0..4 scores."""
+    if len(pairs) < 2:
+        return None
+    from collections import Counter
+
+    n = len(pairs)
+    scale = sorted({value for pair in pairs for value in pair})
+    weights = {a: {b: (a - b) ** 2 for b in scale} for a in scale}
+    observed = sum(weights[a][b] for a, b in pairs) / n
+    count_a = Counter(a for a, _ in pairs)
+    count_b = Counter(b for _, b in pairs)
+    expected = sum((count_a[a] / n) * (count_b[b] / n) * weights[a][b] for a in scale for b in scale)
+    if expected == 0:
+        return None
+    return round(1 - observed / expected, 4)
+
+
+def _confusion_matrix(pairs: list[tuple[int, int]]) -> dict[str, Any]:
+    matrix = {str(row): {str(col): 0 for col in range(5)} for row in range(5)}
+    for human, agent in pairs:
+        matrix[str(human)][str(agent)] = matrix.get(str(human), {}).get(str(agent), 0) + 1
+    return matrix
+
+
+def _macro_f1(confusion: dict[str, Any]) -> float | None:
+    """Macro-averaged F1 over the 5 score classes (human = reference)."""
+    classes = [str(level) for level in range(5)]
+    f1_scores = []
+    for label in classes:
+        tp = int(confusion.get(label, {}).get(label, 0))
+        col = sum(int(confusion.get(row, {}).get(label, 0)) for row in classes)
+        row = sum(int(confusion.get(label, {}).get(col_label, 0)) for col_label in classes)
+        precision = tp / col if col else 0.0
+        recall = tp / row if row else 0.0
+        if precision + recall == 0:
+            continue
+        f1_scores.append(2 * precision * recall / (precision + recall))
+    if not f1_scores:
+        return None
+    return round(sum(f1_scores) / len(f1_scores), 4)
+
+
+def _wilson_ci_or_none(numerator: int, denominator: int) -> dict[str, float] | None:
+    return _wilson_ci(numerator, denominator)
+
+
+@dataclass(frozen=True)
+class CalibrationResult:
+    """Agent-vs-human rubric calibration metrics over annotated cases."""
+
+    metrics: dict[str, float | int]
+    sample_counts: dict[str, int]
+    insufficient: dict[str, bool]
+    confusion_matrix: dict[str, Any]
+    per_competency: dict[str, dict[str, Any]]
+    versions: dict[str, str]
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+# Minimum annotated cases before a calibration metric can pass (never fabricate
+# an agreement percentage from a handful of samples).
+CALIBRATION_MIN_SAMPLES: dict[str, int] = {
+    "agent_human_exact_ratio": 30,
+    "agent_human_within_one_ratio": 30,
+    "weighted_cohens_kappa": 30,
+    "macro_f1": 30,
+    "low_confidence_accuracy": 20,
+    "followup_reasonable_ratio": 30,
+    "anchor_coverage_ratio": 10,
+    "anchor_group_stability": 20,
+    "reviewer_inter_rater_kappa": 30,
+}
+
+
+def evaluate_calibration(payload: dict[str, Any]) -> CalibrationResult:
+    """Compute agent-vs-human calibration metrics from annotated cases.
+
+    Nothing here is fabricated: every case must carry a reviewer-verified
+    ``adjudicated_score``. When the sample count is below the floor the metric
+    is reported as insufficient, never as a passing percentage.
+    """
+    cases = [item for item in (payload.get("cases") or []) if isinstance(item, dict) and item.get("adjudicated_score") is not None]
+    pairs = [(int(item["adjudicated_score"]), int(item["agent_score"])) for item in cases if item.get("agent_score") is not None]
+    within_one = sum(abs(int(item["adjudicated_score"]) - int(item["agent_score"])) <= 1 for item in cases if item.get("agent_score") is not None)
+    exact = sum(int(item["adjudicated_score"]) == int(item["agent_score"]) for item in cases if item.get("agent_score") is not None)
+
+    low_conf_cases = [item for item in cases if item.get("agent_low_confidence") and item.get("agent_score") is not None]
+    low_conf_within_one = sum(abs(int(item["adjudicated_score"]) - int(item["agent_score"])) <= 1 for item in low_conf_cases)
+
+    followup_pairs = [(bool(item.get("agent_followup")), bool(item.get("human_followup"))) for item in cases if item.get("human_followup") is not None]
+    followup_ok = sum(a == b for a, b in followup_pairs)
+
+    reviewer_pairs: list[tuple[int, int]] = []
+    for item in cases:
+        reviews = [int(r["reviewer_score"]) for r in (item.get("reviews") or []) if isinstance(r, dict) and r.get("reviewer_score") is not None]
+        reviewer_pairs.extend((left, right) for left, right in combinations(reviews, 2))
+    inter_rater_kappa = _cohens_kappa(reviewer_pairs)
+
+    # Anchor coverage and anchor-group stability use the annotation's
+    # competency/role mapping against the role's must-have competencies.
+    competencies_by_role: dict[str, set[str]] = {}
+    anchor_probe_groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for item in cases:
+        role = str(item.get("role") or "")
+        competency_id = str(item.get("competency_id") or "")
+        competencies_by_role.setdefault(role, set()).add(competency_id)
+        anchor_group_id = str(item.get("anchor_group_id") or "")
+        candidate_id = str(item.get("candidate_id") or "")
+        if anchor_group_id and candidate_id and item.get("question_id"):
+            anchor_probe_groups.setdefault((anchor_group_id, candidate_id), []).append(item)
+    must_have_total = 0
+    must_have_covered = 0
+    for role, covered in competencies_by_role.items():
+        snapshot_competencies = (_competency_snapshot_for(role)).get("competencies") or []
+        for competency in snapshot_competencies:
+            if not competency.get("must_have"):
+                continue
+            must_have_total += 1
+            must_have_covered += int(competency["competency_id"] in covered)
+    # Stability is a repeated-measures metric: compare the same candidate on
+    # distinct questions in one anchor group.  Mixing different candidates
+    # would measure ability variance, not question stability.
+    anchor_pairs: list[tuple[int, int]] = []
+    for probes in anchor_probe_groups.values():
+        for left, right in combinations(probes, 2):
+            if str(left.get("question_id")) == str(right.get("question_id")):
+                continue
+            anchor_pairs.append((int(left["adjudicated_score"]), int(right["adjudicated_score"])))
+    anchor_pair_stable = sum(abs(left - right) <= 1 for left, right in anchor_pairs)
+
+    confusion = _confusion_matrix(pairs)
+    macro_f1_value = _macro_f1(confusion)
+    weighted_kappa = _weighted_cohens_kappa(pairs)
+
+    metrics: dict[str, float | int] = {
+        "agent_human_exact_ratio": _ratio(exact, len(cases)),
+        "agent_human_within_one_ratio": _ratio(within_one, len(cases)),
+        "weighted_cohens_kappa": weighted_kappa if weighted_kappa is not None else 0.0,
+        "macro_f1": macro_f1_value if macro_f1_value is not None else 0.0,
+        "low_confidence_accuracy": _ratio(low_conf_within_one, len(low_conf_cases)),
+        "followup_reasonable_ratio": _ratio(followup_ok, len(followup_pairs)),
+        "anchor_coverage_ratio": _ratio(must_have_covered, must_have_total),
+        "anchor_group_stability": _ratio(anchor_pair_stable, len(anchor_pairs)),
+        "reviewer_inter_rater_kappa": inter_rater_kappa if inter_rater_kappa is not None else 0.0,
+    }
+    sample_counts = {
+        "cases": len(cases),
+        "agent_human_pairs": len(pairs),
+        "low_confidence_cases": len(low_conf_cases),
+        "followup_cases": len(followup_pairs),
+        "anchor_must_have": must_have_total,
+        "anchor_pairs": len(anchor_pairs),
+        "reviewer_pairs": len(reviewer_pairs),
+    }
+    sample_key_by_metric = {
+        "agent_human_exact_ratio": "agent_human_pairs",
+        "agent_human_within_one_ratio": "agent_human_pairs",
+        "weighted_cohens_kappa": "agent_human_pairs",
+        "macro_f1": "agent_human_pairs",
+        "low_confidence_accuracy": "low_confidence_cases",
+        "followup_reasonable_ratio": "followup_cases",
+        "anchor_coverage_ratio": "anchor_must_have",
+        "anchor_group_stability": "anchor_pairs",
+        "reviewer_inter_rater_kappa": "reviewer_pairs",
+    }
+    insufficient = {
+        name: sample_counts[sample_key_by_metric[name]] < floor
+        for name, floor in CALIBRATION_MIN_SAMPLES.items()
+    }
+    per_competency: dict[str, dict[str, Any]] = {}
+    for competency_id in {str(item.get("competency_id")) for item in cases if item.get("competency_id")}:
+        competency_cases = [item for item in cases if str(item.get("competency_id")) == competency_id]
+        competency_pairs = [(int(item["adjudicated_score"]), int(item["agent_score"])) for item in competency_cases if item.get("agent_score") is not None]
+        competency_exact = sum(a == b for a, b in competency_pairs)
+        per_competency[competency_id] = {
+            "case_count": len(competency_cases),
+            "agent_human_exact_ratio": _ratio(competency_exact, len(competency_pairs)),
+            "confusion": _confusion_matrix(competency_pairs),
+            "insufficient": len(competency_pairs) < CALIBRATION_MIN_SAMPLES["agent_human_exact_ratio"],
+        }
+    versions = {
+        "rubric_version": str(payload.get("rubric_version") or ""),
+        "model_version": str(payload.get("model_version") or ""),
+        "prompt_version": str(payload.get("prompt_version") or ""),
+        "schema_version": str(payload.get("schema_version") or ""),
+    }
+    return CalibrationResult(
+        metrics=metrics,
+        sample_counts=sample_counts,
+        insufficient=insufficient,
+        confusion_matrix=confusion,
+        per_competency=per_competency,
+        versions=versions,
+    )
 
 
 def human_summary(result: EvaluationResult) -> str:

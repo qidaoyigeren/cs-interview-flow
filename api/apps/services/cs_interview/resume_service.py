@@ -77,7 +77,22 @@ Return ONLY one JSON object with this exact schema (omit keys you cannot determi
     {{"skill": "<skill name>", "claimed_level": "<fluent|experienced|proficient|familiar|beginner>", "topics": ["<topic id>", "..."]}}
   ],
   "projects": [
-    {{"name": "<project name>", "role": "<candidate role>", "summary": "<1-2 sentence summary including technology>", "skills": ["<tech>", "..."]}}
+    {{
+      "name": "<project name>",
+      "role": "<candidate role in this project>",
+      "summary": "<1-2 sentences: business goal AND candidate responsibility AND technology>",
+      "skills": ["<tech>", "..."],
+      "claims": [
+        {{
+          "claim_type": "<architecture|technology_choice|mechanism|reliability|data_design|interface|metric|testing>",
+          "text": "<one concrete resume claim: the architecture/choice/mechanism/metric or its outcome>",
+          "evidence_span": "<EXACT contiguous quote verbatim from the resume text backing this claim>",
+          "topic_ids": ["<topic id>", "..."],
+          "skills": ["<tech>", "..."],
+          "risk_flags": ["<vague_metric|unexplained_choice|happy_path_only|keyword_stacking|missing_validation>"]
+        }}
+      ]
+    }}
   ],
   "years_of_experience": <number>,
   "summary": "<1-2 sentence overall profile>"
@@ -86,7 +101,12 @@ Rules:
 - A claimed_skill's "topics" MUST come only from the provided topic list; if none fit, use [].
 - Include only skills/projects explicitly present in the resume. Never invent.
 - claimed_level reflects the resume's own wording (精通/熟练/掌握→proficient, 熟悉→familiar, 有经验→experienced, 了解/入门→beginner).
-- technology_stack may include tools/frameworks not in the topic list."""
+- technology_stack may include tools/frameworks not in the topic list.
+- A project's "summary" MUST state the business goal and the candidate's responsibility, not just a stack list.
+- Every claim's "evidence_span" MUST be a verbatim contiguous quote from the resume text. Never paraphrase and never fabricate one.
+- Do NOT generate project_id or claim_id: they are computed deterministically by the system.
+- "risk_flags" are suggestions only: flag vague performance claims (提升性能/高可用/防止重复), unexplained technology choices, happy-path-only descriptions, keyword stacks without a mechanism, and numbers without a baseline.
+- Split one dense project sentence into 1-3 atomic claims so each can be verified independently."""
 
 
 def ensure_resume_dataset(tenant_id: str) -> Knowledgebase:
@@ -224,7 +244,7 @@ def parse_status(resume: InterviewResume) -> str:
     """Derive the authoritative parse status from the underlying Document row."""
     doc = Document.get_or_none(Document.id == resume.document_id)
     if doc is None:
-        return "pending"
+        return "failed"
     status = {
         str(TaskStatus.DONE.value): "parsed",
         str(TaskStatus.RUNNING.value): "parsing",
@@ -252,9 +272,19 @@ def resume_text(resume: InterviewResume) -> tuple[str, list[str]]:
     return indexed, lines
 
 
+def resume_needs_extraction(resume: InterviewResume) -> bool:
+    """True when the stored extraction is missing or is an older version.
+
+    v1 extractions predate structured project claims (evidence_span / typed
+    claims / risk flags) and must be re-extracted before a new profile or
+    session can be built from them.
+    """
+    return not resume.extraction or str((resume.extraction or {}).get("extraction_version") or "") != EXTRACTION_VERSION
+
+
 async def extract_resume(adapter: Any, tenant_id: str, resume: InterviewResume, *, force: bool = False) -> InterviewResume:
     """Run the LLM extraction over the resume text and persist the validated snapshot."""
-    if resume.extraction and not force:
+    if not force and not resume_needs_extraction(resume):
         return resume
     _indexed, lines = resume_text(resume)
     text = "\n".join(lines)[:12000]
@@ -268,7 +298,7 @@ async def extract_resume(adapter: Any, tenant_id: str, resume: InterviewResume, 
     )
     output, _ = await adapter.chat(tenant_id, system, user, temperature=0.1)
     raw = _json_object(output, "invalid_extraction")
-    validated = validate_resume_extraction(raw)
+    validated = validate_resume_extraction(raw, source_text=text)
     validated["extraction_version"] = EXTRACTION_VERSION
     InterviewResume.update(
         extraction=validated,
@@ -292,8 +322,12 @@ async def extract_resume(adapter: Any, tenant_id: str, resume: InterviewResume, 
 
 def create_profile_from_resume(tenant_id: str, user_id: str, resume: InterviewResume, payload: dict[str, Any]) -> InterviewProfile:
     """Build an InterviewProfile from the resume extraction, overridable by payload."""
-    if not resume.extraction:
-        raise DomainError("resume_not_extracted", "Extract the resume before creating an interview profile.", http_status=409)
+    if resume_needs_extraction(resume):
+        raise DomainError(
+            "resume_outdated_extraction",
+            "The resume extraction is missing or outdated; re-extract the resume before creating an interview profile.",
+            http_status=409,
+        )
     extraction = resume.extraction or {}
     focus_topics: list[str] = []
     for skill in extraction.get("claimed_skills") or []:
@@ -360,6 +394,8 @@ def delete_resume(tenant_id: str, user_id: str, resume: InterviewResume) -> None
             state = dict(session.current_candidate_state or {})
             state["project_facts"] = []
             state["newly_claimed_facts"] = []
+            state["project_attack_map"] = []
+            state["project_claim_state"] = {}
             InterviewSession.update(
                 resume_snapshot=anonymous_snapshot,
                 initial_interview_plan=[],

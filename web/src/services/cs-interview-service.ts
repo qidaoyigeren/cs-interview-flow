@@ -49,6 +49,18 @@ const Methods = {
     url: `${BaseUrl}/knowledge-config/validate`,
     method: 'post',
   },
+  getKnowledgeBootstrap: {
+    url: `${BaseUrl}/knowledge/bootstrap`,
+    method: 'get',
+  },
+  ensureKnowledgeBootstrap: {
+    url: `${BaseUrl}/knowledge/bootstrap`,
+    method: 'post',
+  },
+  retryKnowledgeBootstrap: {
+    url: `${BaseUrl}/knowledge/bootstrap/retry`,
+    method: 'post',
+  },
   listSessions: { url: `${BaseUrl}/sessions`, method: 'get' },
   createSession: { url: `${BaseUrl}/sessions`, method: 'post' },
   getSession: {
@@ -120,6 +132,14 @@ const Methods = {
   adminReview: { url: `${BaseUrl}/admin/review`, method: 'post' },
   adminListFeedback: {
     url: `${BaseUrl}/admin/feedback`,
+    method: 'get',
+  },
+  adminCompetencies: {
+    url: `${BaseUrl}/admin/competencies`,
+    method: 'get',
+  },
+  adminCalibration: {
+    url: `${BaseUrl}/admin/calibration`,
     method: 'get',
   },
   submitFeedback: {

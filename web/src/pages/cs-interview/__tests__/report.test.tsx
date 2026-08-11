@@ -17,6 +17,8 @@ jest.mock('@/routes', () => ({
     CsInterviewAdminGovernance: '/cs-interview/admin/governance',
     CsInterviewAdminFeedback: '/cs-interview/admin/feedback',
     CsInterviewAdminExperiments: '/cs-interview/admin/experiments',
+    CsInterviewAdminCompetencies: '/cs-interview/admin/competencies',
+    CsInterviewAdminCalibration: '/cs-interview/admin/calibration',
   },
 }));
 jest.mock('@/hooks/use-cs-interview-request', () => ({
@@ -76,6 +78,57 @@ jest.mock('@/hooks/use-cs-interview-request', () => ({
           unmapped: false,
         },
       ],
+      competencyVerification: [
+        {
+          competencyId: 'go.runtime',
+          name: 'Go 运行时与并发',
+          weight: 1.4,
+          mustHave: true,
+          status: 'verified',
+          score: 4,
+          bestScore: 4,
+          lowConfidence: false,
+          anchorDone: true,
+          testedRoundCount: 1,
+          conclusion: '锚点题与后续证据均支持该能力。',
+          evidenceTrack: [
+            { kind: 'jd_requirement', text: '熟悉 Go 并发' },
+            { kind: 'anchor_question', questionText: 'Explain channel closing.', questionKind: 'anchor' },
+            {
+              kind: 'answer_evidence',
+              score: 4,
+              lowConfidence: false,
+              spans: [{ spanId: 's1', text: 'Sending panics' }],
+            },
+          ],
+        },
+      ],
+      projectClaimVerification: [
+        {
+          projectId: 'proj-go',
+          projectName: '交易网关',
+          claimId: 'clm-go',
+          claimText: '通过超时与重试保证支付接口可用',
+          claimType: 'reliability',
+          evidenceSpan: '通过超时与重试保证支付接口可用',
+          dimensions: [
+            {
+              dimension: 'failure',
+              status: 'verified',
+              attemptCount: 2,
+              followupDepth: 1,
+              answeredEvidence: [
+                { fact: '超时后进入降级兜底', factKind: 'failure_mode', evidenceSpan: '超时后进入降级兜底' },
+              ],
+              relatedQuestionIds: ['q1'],
+            },
+          ],
+          verificationStatus: 'verified',
+          score: 4,
+          testedRoundCount: 1,
+          conclusion: '候选人以项目相关证据演示了该声明。',
+        },
+      ],
     },
     isLoading: false,
     isError: false,
@@ -117,9 +170,49 @@ test('renders deterministic final report metrics and persisted rounds', () => {
     </MemoryRouter>,
   );
   expect(screen.getAllByText('3.50').length).toBeGreaterThan(0);
-  expect(screen.getByText('Explain channel closing.')).toBeInTheDocument();
+  expect(screen.getAllByText('Explain channel closing.').length).toBeGreaterThan(0);
   expect(screen.getByText('Evidence-based summary')).toBeInTheDocument();
   expect(screen.getByText('Must understand Go channels')).toBeInTheDocument();
-  expect(screen.getByText('go-channel-1: chunk-go')).toBeInTheDocument();
+  expect(screen.getAllByText('go-channel-1: chunk-go').length).toBeGreaterThan(0);
   expect(screen.queryByText(/reference answer/i)).not.toBeInTheDocument();
+});
+
+test('renders competency evidence track and statuses without leaking internals', () => {
+  render(
+    <MemoryRouter initialEntries={['/cs-interview/report/session-1']}>
+      <RouterRoutes>
+        <Route
+          path="/cs-interview/report/:id"
+          element={<InterviewReportPage />}
+        />
+      </RouterRoutes>
+    </MemoryRouter>,
+  );
+  expect(screen.getByText('能力验证证据轨道')).toBeInTheDocument();
+  expect(screen.getByText('Go 运行时与并发')).toBeInTheDocument();
+  expect(screen.getAllByText('已验证').length).toBeGreaterThan(0);
+  expect(screen.getByText(/Sending panics/)).toBeInTheDocument();
+  expect(screen.queryByText('reference_answer')).not.toBeInTheDocument();
+  expect(screen.queryByText('evaluation_rubric')).not.toBeInTheDocument();
+});
+
+test('renders the project claim verification matrix with evidence and status', () => {
+  render(
+    <MemoryRouter initialEntries={['/cs-interview/report/session-1']}>
+      <RouterRoutes>
+        <Route
+          path="/cs-interview/report/:id"
+          element={<InterviewReportPage />}
+        />
+      </RouterRoutes>
+    </MemoryRouter>,
+  );
+  expect(screen.getByText('项目声明验真矩阵')).toBeInTheDocument();
+  expect(screen.getByText('交易网关')).toBeInTheDocument();
+  expect(screen.getByText('通过超时与重试保证支付接口可用')).toBeInTheDocument();
+  expect(screen.getByText('failure')).toBeInTheDocument();
+  expect(screen.getByText('超时后进入降级兜底')).toBeInTheDocument();
+  // Internal planner weights / scoring points must never reach the report.
+  expect(screen.queryByText('priority')).not.toBeInTheDocument();
+  expect(screen.queryByText('action_factors')).not.toBeInTheDocument();
 });

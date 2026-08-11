@@ -207,6 +207,10 @@ services:
   cs-interview-runner:
     profiles:
       - cs-interview
+    # Bubblewrap creates short-lived PID-namespace helpers during readiness
+    # checks and candidate execution. Keep an init process as PID 1 so orphaned
+    # children are reaped instead of exhausting the runner's strict PID quota.
+    init: true
     build:
       context: ./cs-interview-runner
     image: ${CS_INTERVIEW_RUNNER_IMAGE:-ragflow-cs-interview-runner:0.1.0}

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import time
 from collections.abc import AsyncIterator
@@ -19,6 +18,8 @@ from api.apps.services.cs_interview.domain import (
     choose_after_answer_action_versioned,
     choose_planner_action_versioned,
     compute_next_difficulty,
+    downgrade_project_action,
+    evaluation_to_judge_result,
     merge_candidate_state,
     payload_hash,
     update_interview_plan,
@@ -26,6 +27,7 @@ from api.apps.services.cs_interview.domain import (
     validate_answer,
     validate_code_request,
 )
+from api.apps.services.cs_interview.judge import evaluate_answer
 from api.apps.services.cs_interview.observability import (
     RUNNER_EXECUTION,
     RUNNER_TIMEOUT,
@@ -36,10 +38,8 @@ from api.apps.services.cs_interview.observability import (
 from api.apps.services.cs_interview.pipeline import (
     RAGFlowRuntimeAdapter,
     RuntimeAdapter,
-    extract_answer_state,
     generate_followup,
     generate_question,
-    judge_answer,
 )
 from api.apps.services.cs_interview.reliability import classify_failure
 from api.apps.services.cs_interview.runner import CodeRunner, IsolatedCodeRunner
@@ -153,19 +153,82 @@ class InterviewApplication:
         }
         return snapshot
 
+    def _mark_project_target_evidence_unavailable(self, session: InterviewSession, action: PlannerAction) -> None:
+        """Persist ``evidence_status=unavailable`` so the planner never re-picks a target
+        whose claim-specific evidence could not be retrieved (it degrades to a foundation
+        question instead of failing the session or looping on an unaskable target).
+        """
+        if not action.target_project_id or not action.target_claim_id:
+            return
+        target_id = f"{action.target_project_id}::{action.target_claim_id}::{action.project_dimension or ''}"
+        state = dict(session.current_candidate_state or {})
+        claim_state = dict(state.get("project_claim_state") or {})
+        row = dict(claim_state.get(target_id) or {})
+        row["evidence_status"] = "unavailable"
+        claim_state[target_id] = row
+        state["project_claim_state"] = claim_state
+        with DB.atomic():
+            InterviewSession.update(current_candidate_state=state, **_touch()).where(InterviewSession.id == session.id).execute()
+        TRACE_EMITTER.emit(
+            TraceEventKind.PLANNER_ACTION_SELECTED.value,
+            session_id=session.id,
+            tenant_id=session.tenant_id,
+            round_id=None,
+            planner_version=action.planner_version,
+            prompt_version=session.prompt_version,
+            metadata={
+                "selected_action": "project_evidence_downgraded",
+                "target_project_id": action.target_project_id,
+                "target_claim_id": action.target_claim_id,
+                "project_dimension": action.project_dimension,
+            },
+        )
+
     async def _generate_question_for_action(self, session: InterviewSession, action) -> dict[str, Any]:
         profile, config, history = self._question_inputs(session)
         started = time.monotonic()
-        snapshot = await generate_question(
-            self.runtime,
-            session.tenant_id,
-            profile,
-            config,
-            history,
-            action,
-            resume_context=session.resume_snapshot or None,
-            job_context=session.job_snapshot or None,
-        )
+        try:
+            snapshot = await generate_question(
+                self.runtime,
+                session.tenant_id,
+                profile,
+                config,
+                history,
+                action,
+                resume_context=session.resume_snapshot or None,
+                job_context=session.job_snapshot or None,
+            )
+        except DomainError as exc:
+            if exc.code != "project_evidence_irrelevant":
+                raise
+            # No claim-relevant evidence for this project target: mark it
+            # unavailable for the planner and ask a clearly-marked foundation
+            # question on the same topic instead of faking a project dive.
+            self._mark_project_target_evidence_unavailable(session, action)
+            downgraded = downgrade_project_action(action)
+            snapshot = await generate_question(
+                self.runtime,
+                session.tenant_id,
+                profile,
+                config,
+                history,
+                downgraded,
+                resume_context=session.resume_snapshot or None,
+                job_context=session.job_snapshot or None,
+            )
+            validation = dict(snapshot.get("question_validation") or {})
+            dive = dict(validation.get("project_dive") or {})
+            dive.update(
+                {
+                    "downgraded_from_project": True,
+                    "reason": str(exc.message)[:500],
+                    "target_project_id": str(action.target_project_id or ""),
+                    "target_claim_id": str(action.target_claim_id or ""),
+                    "target_dimension": str(action.project_dimension or ""),
+                }
+            )
+            validation["project_dive"] = dive
+            snapshot["question_validation"] = validation
         record_stage_latency("question_preparation", int((time.monotonic() - started) * 1000))
         return await self._preflight_question(snapshot)
 
@@ -241,6 +304,7 @@ class InterviewApplication:
                 history,
                 remaining_question_budget=session.max_questions - session.completed_question_count,
                 current_difficulty=session.current_difficulty,
+                competency_snapshot=dict(session.competency_snapshot or {}),
             )
             if action.selected_action == PlannerActionKind.FINISH_INTERVIEW.value:
                 raise DomainError("no_eligible_topic", "The interview plan has no grounded topic to ask.", http_status=409)
@@ -402,23 +466,22 @@ class InterviewApplication:
                         "runtime_ms": submission.runtime_ms,
                     }
             judge_started = time.monotonic()
-            judge_task = judge_answer(
+            rubric_snapshot = (session.competency_snapshot or {}).get("rubrics", {}).get(round_.competency_id or round_.topic)
+            required_score = max(2, min(4, int((rubric_snapshot or {}).get("required_score") or 3)))
+            evaluation = await evaluate_answer(
                 self.runtime,
                 tenant_id,
-                dict(round_.__data__),
-                history,
-                session.max_followups,
-                code_result,
-            )
-            state_task = extract_answer_state(
-                self.runtime,
-                tenant_id,
-                answer,
+                answer=answer,
+                round_data=dict(round_.__data__),
+                rubric_snapshot=rubric_snapshot,
+                code_result=code_result,
+                history=history,
+                max_followups=session.max_followups,
                 resume_snapshot=session.resume_snapshot or None,
                 candidate_state=session.current_candidate_state or None,
-                round_data=dict(round_.__data__),
             )
-            result, answer_state = await asyncio.gather(judge_task, state_task)
+            result = evaluation_to_judge_result(evaluation)
+            answer_state = evaluation.extraction["answer_state"]
             judge_duration_ms = int((time.monotonic() - judge_started) * 1000)
             record_stage_latency("judge", judge_duration_ms)
             TRACE_EMITTER.emit(
@@ -452,6 +515,7 @@ class InterviewApplication:
             requirement_id = round_.target_requirement_id or None
             targeted_claim_facts: list[str] = []
             resolved_contradiction_ids: list[str] = []
+            project_target: dict[str, Any] | None = None
             if round_.planner_actions:
                 answered_action = round_.planner_actions[-1]
                 if answered_action.get("selected_action") == PlannerActionKind.FOLLOW_UP_CURRENT_CLAIM.value:
@@ -465,6 +529,17 @@ class InterviewApplication:
                     cid = str((answered_action.get("supporting_state") or {}).get("target_contradiction_id") or "").strip()
                     if cid:
                         resolved_contradiction_ids.append(cid)
+                target_project_id = str(answered_action.get("target_project_id") or "")
+                target_claim_id = str(answered_action.get("target_claim_id") or "")
+                if target_project_id and target_claim_id:
+                    project_target = {
+                        "project_id": target_project_id,
+                        "claim_id": target_claim_id,
+                        "dimension": str(answered_action.get("project_dimension") or ""),
+                        "claim_text": str((answered_action.get("supporting_state") or {}).get("target_claim_fact") or "")[:500],
+                        "followup_depth": int(answered_action.get("project_followup_depth") or 0),
+                        "question_id": round_.question_id,
+                    }
             provisional_state = merge_candidate_state(
                 dict(session.current_candidate_state or {}),
                 answer_state,
@@ -472,14 +547,17 @@ class InterviewApplication:
                 requirement_id=requirement_id,
                 target_topic=round_.topic,
                 completed=True,
+                required_score=required_score,
                 targeted_claim_facts=targeted_claim_facts,
                 resolved_contradiction_ids=resolved_contradiction_ids,
+                project_target=project_target,
             )
             provisional_plan = update_interview_plan(
                 list(session.current_interview_plan or []),
                 requirement_id,
                 score=result.score,
                 completed=True,
+                required_score=required_score,
             )
             completed_count = session.completed_question_count + 1
             action = choose_after_answer_action_versioned(
@@ -493,6 +571,7 @@ class InterviewApplication:
                 remaining_question_budget=session.max_questions - completed_count,
                 max_followups=session.max_followups,
                 current_difficulty=next_difficulty,
+                competency_snapshot=dict(session.competency_snapshot or {}),
             )
             followup_action = (
                 action.selected_action
@@ -524,7 +603,9 @@ class InterviewApplication:
                     requirement_id=requirement_id,
                     target_topic=round_.topic,
                     completed=False,
+                    required_score=required_score,
                     resolved_contradiction_ids=resolved_contradiction_ids,
+                    project_target=project_target,
                 )
                 state["next_action_reason"] = action.reason
                 plan = update_interview_plan(
@@ -532,6 +613,7 @@ class InterviewApplication:
                     requirement_id,
                     score=None,
                     completed=False,
+                    required_score=required_score,
                 )
                 followup = await generate_followup(self.runtime, tenant_id, dict(round_.__data__), action)
                 self._ensure_operation_active(operation_id)
@@ -557,6 +639,11 @@ class InterviewApplication:
                         *(state_log.get("extractions") or []),
                         {"answer_sequence": len(answers), "state": answer_state},
                     ]
+                    evidence_log = dict(round_.evidence_evaluation or {})
+                    evidence_log["evaluations"] = [
+                        *(evidence_log.get("evaluations") or []),
+                        {"answer_sequence": len(answers), "evaluation": asdict(evaluation)},
+                    ]
                     round_ = InterviewSessionRepository.transition_round(
                         round_,
                         RoundStatus.AWAITING_FOLLOWUP.value,
@@ -566,6 +653,7 @@ class InterviewApplication:
                         initial_score=round_.initial_score if round_.initial_score is not None else result.score,
                         judge_confidence=result.confidence,
                         answer_state=state_log,
+                        evidence_evaluation=evidence_log,
                         planner_actions=[*(round_.planner_actions or []), asdict(action)],
                     )
                     session = InterviewSessionRepository.transition(
@@ -610,6 +698,11 @@ class InterviewApplication:
                     *(state_log.get("extractions") or []),
                     {"answer_sequence": len(answers), "state": answer_state},
                 ]
+                evidence_log = dict(round_.evidence_evaluation or {})
+                evidence_log["evaluations"] = [
+                    *(evidence_log.get("evaluations") or []),
+                    {"answer_sequence": len(answers), "evaluation": asdict(evaluation)},
+                ]
                 round_ = InterviewSessionRepository.transition_round(
                     round_,
                     RoundStatus.COMPLETED.value,
@@ -624,6 +717,7 @@ class InterviewApplication:
                     evaluation_summary=result.evaluation_summary,
                     completed_at=utcnow(),
                     answer_state=state_log,
+                    evidence_evaluation=evidence_log,
                     planner_actions=[*(round_.planner_actions or []), asdict(action)],
                 )
                 feedback_event = {
@@ -651,6 +745,8 @@ class InterviewApplication:
                         resume_snapshot=session.resume_snapshot or None,
                         job_snapshot=session.job_snapshot or None,
                         match_snapshot=list(session.match_snapshot or []),
+                        competency_snapshot=dict(session.competency_snapshot or {}),
+                        candidate_state=dict(session.current_candidate_state or {}),
                     )
                     report = InterviewReport.create(id=get_uuid(), session_id=session.id, **report_data, **_timestamps())
                     session = InterviewSessionRepository.transition(

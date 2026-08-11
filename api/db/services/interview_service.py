@@ -13,6 +13,7 @@ from peewee import IntegrityError
 from api.apps.services.cs_interview.domain import (
     MAX_COMPILER_OUTPUT,
     PLANNER_VERSION,
+    PROJECT_CLAIM_MAX_FOLLOWUPS,
     PROMPT_VERSION,
     ROUND_TRANSITIONS,
     SESSION_TRANSITIONS,
@@ -24,6 +25,7 @@ from api.apps.services.cs_interview.domain import (
     initial_candidate_state,
     match_resume_to_job,
     metadata_quality,
+    question_category_for_round,
     require_transition,
     utcnow,
 )
@@ -324,6 +326,13 @@ def inspect_dataset(dataset_id: str, tenant_id: str, expected_content_type: str)
         "updated_at": kb.update_date,
         "version": str(kb.update_time or kb.create_time or ""),
         "embedding_model": kb.embd_id,
+        "anchor_group_ids": sorted(
+            {
+                str(metadata.get("anchor_group_id"))
+                for metadata in metadata_rows
+                if str(metadata.get("anchor_group_id") or "").strip()
+            }
+        ),
     }
 
 
@@ -335,24 +344,117 @@ class InterviewKnowledgeService:
     }
 
     @classmethod
+    def _system_quality_snapshot(cls, tenant_id: str, payload: dict[str, Any]) -> dict[str, Any] | None:
+        """Return the platform owner's validated snapshot for an exact system binding."""
+        from api.apps.services.cs_interview.system_knowledge import load_system_knowledge_config
+
+        system = load_system_knowledge_config()
+        if system is None or tenant_id == system.tenant_id:
+            return None
+        if any(str(payload.get(field, "")) != dataset_id for field, dataset_id in system.dataset_ids.items()):
+            return None
+
+        source = (
+            InterviewKnowledgeConfig.select()
+            .where(
+                (InterviewKnowledgeConfig.tenant_id == system.tenant_id)
+                & InterviewKnowledgeConfig.enabled
+                & (InterviewKnowledgeConfig.interview_experience_dataset_id == system.dataset_ids["interview_experience_dataset_id"])
+                & (InterviewKnowledgeConfig.leetcode_dataset_id == system.dataset_ids["leetcode_dataset_id"])
+                & (InterviewKnowledgeConfig.fundamentals_dataset_id == system.dataset_ids["fundamentals_dataset_id"])
+            )
+            .order_by(InterviewKnowledgeConfig.update_time.desc())
+            .first()
+        )
+        if source is None:
+            raise DomainError(
+                "system_knowledge_unvalidated",
+                "The platform interview knowledge bases do not have a validated release snapshot.",
+                http_status=503,
+            )
+
+        quality = deepcopy(source.metadata_quality_snapshot or {})
+        datasets = {
+            row.id: row
+            for row in Knowledgebase.select().where(
+                (Knowledgebase.tenant_id == system.tenant_id)
+                & (Knowledgebase.status == StatusEnum.VALID.value)
+                & Knowledgebase.id.in_(tuple(system.dataset_ids.values()))
+            )
+        }
+        from api.apps.services.cs_interview.competencies import ANCHOR_GROUPS
+
+        available_anchor_groups: set[str] = set()
+        for field, dataset_id in system.dataset_ids.items():
+            summary = quality.get(field)
+            dataset = datasets.get(dataset_id)
+            current_version = str(dataset.update_time or dataset.create_time or "") if dataset else ""
+            if (
+                not isinstance(summary, dict)
+                or str(summary.get("id", "")) != dataset_id
+                or str(summary.get("tenant_id", "")) != system.tenant_id
+                or not summary.get("parsed")
+                or not (summary.get("metadata_quality") or {}).get("ready")
+                or str(summary.get("version", "")) != current_version
+            ):
+                raise DomainError(
+                    "system_knowledge_snapshot_stale",
+                    "The platform interview knowledge release must be revalidated before it can be bound.",
+                    http_status=503,
+                )
+            summary["read_only"] = True
+            available_anchor_groups.update(str(value) for value in summary.get("anchor_group_ids", []))
+        if not set(ANCHOR_GROUPS).issubset(available_anchor_groups):
+            raise DomainError(
+                "system_knowledge_snapshot_stale",
+                "The platform interview knowledge release is missing reviewed capability anchors.",
+                http_status=503,
+            )
+        return quality
+
+    @classmethod
     def validate_bindings(cls, tenant_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+        from api.apps.services.cs_interview.system_knowledge import load_system_knowledge_config
+
         missing = set(cls.FIELDS) - set(payload)
         if missing:
             raise DomainError("invalid_knowledge_config", f"Missing dataset bindings: {', '.join(sorted(missing))}.")
         ids = [str(payload[field]) for field in cls.FIELDS]
         if len(set(ids)) != 3:
             raise DomainError("datasets_not_independent", "The three interview datasets must be different.")
+        system_config = load_system_knowledge_config()
         quality = {}
         for field, content_type in cls.FIELDS.items():
-            summary = inspect_dataset(str(payload[field]), tenant_id, content_type)
+            dataset_id = str(payload[field])
+            owner_tenant_id = (
+                system_config.owner_for(field, dataset_id, tenant_id)
+                if system_config
+                else tenant_id
+            )
+            summary = inspect_dataset(dataset_id, owner_tenant_id, content_type)
+            summary["read_only"] = owner_tenant_id != tenant_id
             quality[field] = summary
             if not summary["parsed"]:
                 raise DomainError("dataset_not_parsed", f"Dataset {summary['name']} has unparsed or failed documents.", http_status=409)
+        from api.apps.services.cs_interview.competencies import ANCHOR_GROUPS
+
+        available_anchor_groups = {
+            str(anchor_group_id)
+            for summary in quality.values()
+            for anchor_group_id in summary.get("anchor_group_ids", [])
+        }
+        missing_anchor_groups = sorted(set(ANCHOR_GROUPS) - available_anchor_groups)
+        if missing_anchor_groups:
+            raise DomainError(
+                "anchor_dataset_incomplete",
+                "Knowledge datasets are missing reviewed anchor groups: " + ", ".join(missing_anchor_groups),
+                http_status=409,
+            )
         return quality
 
     @classmethod
     def save(cls, tenant_id: str, user_id: str, payload: dict[str, Any]) -> InterviewKnowledgeConfig:
-        quality = cls.validate_bindings(tenant_id, payload)
+        quality = cls._system_quality_snapshot(tenant_id, payload) or cls.validate_bindings(tenant_id, payload)
         retrieval = payload.get("retrieval_config_snapshot") or {}
         try:
             retrieval = {
@@ -362,6 +464,9 @@ class InterviewKnowledgeService:
                 "top_k": max(1, min(int(retrieval.get("top_k", 1024)), 2048)),
                 "rerank_id": str(retrieval.get("rerank_id", "")),
                 "embedding_models": {field: summary["embedding_model"] for field, summary in quality.items()},
+                "dataset_tenant_ids": {
+                    summary["id"]: summary["tenant_id"] for summary in quality.values()
+                },
             }
         except (TypeError, ValueError) as exc:
             raise DomainError("invalid_knowledge_config", "Retrieval configuration contains invalid numbers.") from exc
@@ -409,13 +514,27 @@ class InterviewKnowledgeService:
     @classmethod
     def revalidate(cls, config: InterviewKnowledgeConfig) -> dict[str, Any]:
         payload = {field: getattr(config, field) for field in cls.FIELDS}
-        quality = cls.validate_bindings(config.tenant_id, payload)
+        quality = cls._system_quality_snapshot(config.tenant_id, payload) or cls.validate_bindings(config.tenant_id, payload)
         InterviewKnowledgeConfig.update(metadata_quality_snapshot=quality, **_touch()).where(InterviewKnowledgeConfig.id == config.id).execute()
         return quality
 
     @staticmethod
     def list_available(tenant_id: str) -> list[dict[str, Any]]:
-        rows = Knowledgebase.select().where((Knowledgebase.tenant_id == tenant_id) & (Knowledgebase.status == StatusEnum.VALID.value)).order_by(Knowledgebase.update_time.desc())
+        from api.apps.services.cs_interview.system_knowledge import load_system_knowledge_config
+
+        system_config = load_system_knowledge_config()
+        allowed_ids = set(system_config.dataset_ids.values()) if system_config else set()
+        scope = Knowledgebase.tenant_id == tenant_id
+        if allowed_ids:
+            scope = scope | Knowledgebase.id.in_(allowed_ids)
+        rows = (
+            Knowledgebase.select()
+            .where(
+                (Knowledgebase.status == StatusEnum.VALID.value)
+                & scope
+            )
+            .order_by(Knowledgebase.update_time.desc())
+        )
         return [
             {
                 "id": row.id,
@@ -423,6 +542,7 @@ class InterviewKnowledgeService:
                 "document_count": row.doc_num,
                 "chunk_count": row.chunk_num,
                 "embedding_model": row.embd_id,
+                "read_only": row.tenant_id != tenant_id,
                 "updated_at": row.update_date,
             }
             for row in rows
@@ -454,6 +574,14 @@ class InterviewSessionRepository:
         resume_row = InterviewResume.get_or_none((InterviewResume.id == profile.resume_id) & (InterviewResume.tenant_id == tenant_id) & (InterviewResume.user_id == user_id))
         if resume_row is None or not resume_row.extraction:
             raise DomainError("resume_not_extracted", "The profile resume must be extracted before starting an interview.", http_status=409)
+        from api.apps.services.cs_interview.resume_service import resume_needs_extraction
+
+        if resume_needs_extraction(resume_row):
+            raise DomainError(
+                "resume_outdated_extraction",
+                "The resume extraction is outdated; re-extract the resume before starting an interview.",
+                http_status=409,
+            )
         job_row = InterviewJob.get_or_none((InterviewJob.id == profile.job_id) & (InterviewJob.tenant_id == tenant_id) & (InterviewJob.user_id == user_id))
         if job_row is None or not job_row.extraction:
             raise DomainError("job_not_extracted", "The profile job must be extracted before starting an interview.", http_status=409)
@@ -489,6 +617,18 @@ class InterviewSessionRepository:
         }
         match_snapshot = match_resume_to_job(resume_snapshot, job_snapshot["extraction"])
         initial_plan = build_initial_interview_plan(job_snapshot["extraction"], match_snapshot, profile_snapshot)
+        # Freeze the project attack map once from the resume/JD snapshots.  It is
+        # seeded into candidate_state and never regenerated mid-session; only
+        # statuses/attempts mutate (see CandidateState.project_claim_state).
+        from api.apps.services.cs_interview.domain import build_project_attack_map
+
+        attack_map = build_project_attack_map(resume_snapshot, job_snapshot["extraction"], profile_snapshot)
+        candidate_state = initial_candidate_state(attack_map)
+        # Freeze the competency/rubric/anchor snapshot once at creation. The
+        # running session must never re-read the mutable competency catalog.
+        from api.apps.services.cs_interview.competencies import RUBRIC_VERSION, normalize_competency_snapshot
+
+        competency_snapshot = normalize_competency_snapshot(str(profile_snapshot.get("target_role") or "cs_general"), str(profile_snapshot.get("target_level") or "all"))
         knowledge_config_snapshot = {
             "id": config.id,
             "interview_experience_dataset_id": config.interview_experience_dataset_id,
@@ -539,9 +679,11 @@ class InterviewSessionRepository:
             resume_snapshot=resume_snapshot,
             match_snapshot=match_snapshot,
             initial_interview_plan=deepcopy(initial_plan),
-            initial_candidate_state=initial_candidate_state(),
+            initial_candidate_state=deepcopy(candidate_state),
             current_interview_plan=deepcopy(initial_plan),
-            current_candidate_state=initial_candidate_state(),
+            current_candidate_state=deepcopy(candidate_state),
+            competency_snapshot=deepcopy(competency_snapshot),
+            rubric_version=str((competency_snapshot or {}).get("rubric_version") or RUBRIC_VERSION),
             planner_version=planner_version,
             prompt_version=prompt_version,
             performance_snapshot={},
@@ -643,10 +785,16 @@ class InterviewSessionRepository:
                 model_version=snapshot["model_version"],
                 target_requirement_id=snapshot.get("target_requirement_id"),
                 target_requirement=snapshot.get("target_requirement"),
+                question_kind=snapshot.get("question_kind") or "adaptive",
+                competency_id=snapshot.get("competency_id") or str(snapshot.get("topic") or ""),
+                anchor_group_id=snapshot.get("anchor_group_id") or "",
+                expected_evidence=snapshot.get("expected_evidence") or {},
+                rubric_version=snapshot.get("rubric_version") or "",
                 selected_action=snapshot["planner_action"]["selected_action"],
                 selection_reason=snapshot["planner_action"]["reason"],
                 planner_actions=[snapshot["planner_action"]],
                 answer_state={},
+                evidence_evaluation={},
                 question_validation=snapshot["question_validation"],
                 candidate_answers=[],
                 followup_questions=[],
@@ -862,6 +1010,8 @@ def public_profile(profile: InterviewProfile) -> dict[str, Any]:
 
 def public_resume(resume: InterviewResume) -> dict[str, Any]:
     """Candidate-facing resume DTO. Never includes the full resume text or chunk contents."""
+    from api.apps.services.cs_interview.resume_service import resume_needs_extraction
+
     return _public_json(
         {
             "id": resume.id,
@@ -872,6 +1022,7 @@ def public_resume(resume: InterviewResume) -> dict[str, Any]:
             "chunk_count": resume.chunk_count,
             "extraction": resume.extraction,
             "extracted_at": resume.extracted_at,
+            "needs_extraction": resume_needs_extraction(resume),
             "created_at": resume.create_date,
             "updated_at": resume.update_date,
         }
@@ -926,7 +1077,59 @@ def public_code_submission(submission: CodeSubmission) -> dict[str, Any]:
     )
 
 
-def public_round(round_: InterviewRound, *, include_evaluation: bool = True) -> dict[str, Any]:
+def _round_project_targeting(round_) -> dict[str, Any]:
+    """The project claim/context the round's current action is pursuing."""
+    actions = round_.planner_actions or []
+    for action in reversed(actions):
+        if not isinstance(action, dict):
+            continue
+        project_id = str(action.get("target_project_id") or "")
+        claim_id = str(action.get("target_claim_id") or "")
+        if not project_id or not claim_id:
+            continue
+        supporting = action.get("supporting_state") or {}
+        return {
+            "target_project_id": project_id,
+            "target_claim_id": claim_id,
+            "project_dimension": str(action.get("project_dimension") or ""),
+            "project_followup_depth": int(action.get("project_followup_depth") or 0),
+            "claim_text": str(supporting.get("target_claim_fact") or "")[:500],
+            "project_name": str(supporting.get("project_name") or "")[:255],
+            "claim_type": str(supporting.get("claim_type") or "")[:64],
+        }
+    return {}
+
+
+def _public_project_attack(session: InterviewSession) -> dict[str, Any]:
+    """Non-sensitive attack-map summary for the session page.
+
+    Never leaks planner weights or internal scoring points; only the frozen
+    attack targets, the current claim and follow-up progress.
+    """
+    state = dict(session.current_candidate_state or {})
+    attack_map = state.get("project_attack_map") or []
+    claim_state = state.get("project_claim_state") or {}
+    if not attack_map:
+        return {"present": False}
+    main = attack_map[0] if isinstance(attack_map[0], dict) else {}
+    pending = [
+        item
+        for item in attack_map
+        if isinstance(item, dict) and str(item.get("status") or "pending") in {"pending", "partial"}
+    ]
+    verified = sum(1 for row in claim_state.values() if isinstance(row, dict) and row.get("status") == "verified")
+    return {
+        "present": True,
+        "project_id": main.get("project_id"),
+        "project_name": main.get("project_name"),
+        "attack_target_count": len(attack_map),
+        "pending_target_count": len(pending),
+        "verified_claim_count": verified,
+        "claim_followup_limit": PROJECT_CLAIM_MAX_FOLLOWUPS,
+    }
+
+
+def public_round(round_: InterviewRound, *, include_evaluation: bool = True, claim_state: dict[str, Any] | None = None) -> dict[str, Any]:
     evidence_sources = []
     for item in round_.retrieval_evidence or []:
         evidence_sources.append(
@@ -964,22 +1167,45 @@ def public_round(round_: InterviewRound, *, include_evaluation: bool = True) -> 
         "topic": round_.topic,
         "question_type": round_.question_type,
         "difficulty": round_.difficulty,
+        "question_kind": round_.question_kind or "adaptive",
+        "competency_id": round_.competency_id or round_.topic,
         "question_text": round_.question_text,
         "candidate_answers": candidate_answers,
         "followup_questions": round_.followup_questions,
         "followup_count": round_.followup_count,
         "code_submission_id": round_.code_submission_id,
-        "resume_probe": round_.resume_probe,
+        "resume_probe": round_.resume_probe or None,
         "selected_action": round_.selected_action,
         "target_requirement_id": round_.target_requirement_id,
         "target_requirement": round_.target_requirement,
         "target_topic": round_.topic,
         "question_reason": round_.selection_reason,
+        "project_target": _round_project_targeting(round_),
         "evidence_sources": evidence_sources,
         "asked_at": round_.asked_at,
         "answered_at": round_.answered_at,
         "completed_at": round_.completed_at,
+        # Deterministic frontend classification: "project" only when the round
+        # is truly bound to a project/claim/dimension; otherwise "foundation",
+        # "anchor" or "coding".  A round is never labelled a project deep-dive
+        # just because the session has an attack map.
+        "question_category": question_category_for_round(dict(round_.__data__))["category"],
+        "project_dive_downgraded": bool(
+            (round_.question_validation or {}).get("project_dive", {}).get("downgraded_from_project")
+        ),
+        "pulled_by_project": question_category_for_round(dict(round_.__data__)).get("pulled_by_project"),
     }
+    project_target = data.get("project_target") or {}
+    if project_target and claim_state:
+        target_id = (
+            f"{project_target.get('target_project_id') or ''}::{project_target.get('target_claim_id') or ''}"
+            f"::{project_target.get('project_dimension') or ''}"
+        )
+        row = claim_state.get(target_id) or {}
+        project_target["verification_status"] = str(row.get("status") or "untested")
+        project_target["attempt_count"] = int(row.get("attempt_count") or 0)
+        project_target["followup_limit"] = PROJECT_CLAIM_MAX_FOLLOWUPS
+        data["project_target"] = project_target
     if include_evaluation and round_.status == RoundStatus.COMPLETED.value:
         data.update(
             {
@@ -1030,11 +1256,13 @@ def public_session(session: InterviewSession, *, include_rounds: bool = True) ->
             "name": session.job_snapshot.get("name"),
             "unmapped_requirement_ids": (session.job_snapshot.get("extraction") or {}).get("unmapped_requirement_ids", []),
         },
+        "project_attack": _public_project_attack(session),
     }
     if include_rounds:
-        data["rounds"] = [public_round(row) for row in InterviewSessionRepository.rounds(session.id)]
+        claim_state = dict((session.current_candidate_state or {}).get("project_claim_state") or {})
+        data["rounds"] = [public_round(row, claim_state=claim_state) for row in InterviewSessionRepository.rounds(session.id)]
         active = InterviewSessionRepository.active_round(session.id)
-        data["active_round"] = public_round(active, include_evaluation=False) if active else None
+        data["active_round"] = public_round(active, include_evaluation=False, claim_state=claim_state) if active else None
     report = InterviewReport.get_or_none(InterviewReport.session_id == session.id)
     data["report"] = public_report(report) if report else None
     return _public_json(data)

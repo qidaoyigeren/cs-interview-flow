@@ -10,6 +10,7 @@ import api.apps.services.cs_interview.service as application_service
 import api.db.services.interview_operation_service as operation_persistence
 import api.db.services.interview_service as persistence
 from api.apps.services.cs_interview import resume_service
+from api.apps.services.cs_interview.competencies import ANCHOR_GROUPS
 from api.apps.services.cs_interview.domain import DomainError, initial_candidate_state
 from api.apps.services.cs_interview.service import InterviewApplication
 from api.db.db_models import (
@@ -102,6 +103,7 @@ def test_three_knowledge_bindings_must_be_independent_and_parsed(monkeypatch):
             "name": dataset_id,
             "parsed": dataset_id != "dataset-unparsed",
             "embedding_model": "embedding/test",
+            "anchor_group_ids": sorted(ANCHOR_GROUPS),
         }
 
     monkeypatch.setattr(persistence, "inspect_dataset", inspect)
@@ -119,6 +121,27 @@ def test_three_knowledge_bindings_must_be_independent_and_parsed(monkeypatch):
 
     bindings["fundamentals_dataset_id"] = "dataset-unparsed"
     with pytest.raises(DomainError, match="unparsed or failed"):
+        InterviewKnowledgeService.validate_bindings("tenant-1", bindings)
+
+
+def test_knowledge_bindings_require_all_reviewed_anchor_groups(monkeypatch):
+    monkeypatch.setattr(
+        persistence,
+        "inspect_dataset",
+        lambda dataset_id, tenant_id, content_type: {
+            "id": dataset_id,
+            "name": dataset_id,
+            "parsed": True,
+            "embedding_model": "embedding/test",
+            "anchor_group_ids": [],
+        },
+    )
+    bindings = {
+        "interview_experience_dataset_id": "dataset-experience",
+        "leetcode_dataset_id": "dataset-leetcode",
+        "fundamentals_dataset_id": "dataset-fundamentals",
+    }
+    with pytest.raises(DomainError, match="missing reviewed anchor groups"):
         InterviewKnowledgeService.validate_bindings("tenant-1", bindings)
 
 
@@ -166,6 +189,8 @@ def _session(status="created"):
         state_version=0,
         model_config_snapshot={},
         knowledge_base_versions={},
+        planner_version="cs-interview-planner-v2",
+        prompt_version="cs-interview-v1",
         performance_snapshot={},
         **_timestamps(),
     )
@@ -201,7 +226,7 @@ def _snapshot(question_id="q-1"):
             "target_topic": "go.runtime",
             "reason": "Verify the JD requirement.",
             "supporting_state": {},
-            "planner_version": "cs-interview-planner-v1",
+            "planner_version": "cs-interview-planner-v2",
             "followup_focus": "",
             "target_difficulty": "medium",
             "preferred_question_type": "theory",
@@ -316,6 +341,7 @@ def test_session_uses_immutable_job_resume_match_and_plan_snapshots(interview_db
             "technology_stack": ["Go"],
             "claimed_skills": [{"skill": "Go", "claimed_level": "proficient", "topics": ["go.runtime"]}],
             "projects": [],
+            "extraction_version": "cs-interview-resume-extraction-v2",
         },
         **_timestamps(),
     )
@@ -590,6 +616,7 @@ def test_candidate_dto_drops_private_question_and_intermediate_judge_fields(inte
     round_.save()
     payload = public_round(round_, include_evaluation=False)
     serialized = str(payload)
+    assert payload["resume_probe"] is None
     assert "reference_answer" not in payload
     assert "evaluation_rubric" not in payload
     assert "retrieval_evidence" not in payload
@@ -675,14 +702,18 @@ class _E2ERuntime:
                 ),
                 "fake-model-v1",
             )
-        if "technical interview judge" in system:
+        if "extract evidence and interview state" in system:
+            return _extraction_from_payload(user)
+        if "rubric-based" in system:
             self.judge_calls += 1
             if self.judge_calls == 1:
                 result = {
                     "score": 2,
+                    "matched_anchor": 2,
                     "verdict": "partial",
-                    "covered_points": ["send panics"],
-                    "missing_points": ["receive semantics"],
+                    "matched_indicators": [],
+                    "missing_indicators": ["receive semantics"],
+                    "evidence_span_ids": ["s1"],
                     "factual_errors": [],
                     "needs_followup": True,
                     "followup_focus": "receive semantics after buffered values are drained",
@@ -694,9 +725,11 @@ class _E2ERuntime:
             else:
                 result = {
                     "score": 4,
+                    "matched_anchor": 4,
                     "verdict": "excellent",
-                    "covered_points": ["all rubric points"],
-                    "missing_points": [],
+                    "matched_indicators": [],
+                    "missing_indicators": [],
+                    "evidence_span_ids": ["s1"],
                     "factual_errors": [],
                     "needs_followup": False,
                     "followup_focus": "",
@@ -708,21 +741,6 @@ class _E2ERuntime:
             return json.dumps(result), "fake-judge-v1"
         if "interview follow-up" in system:
             return json.dumps({"question": "What does a receiver observe after buffered values are drained?"}), "fake-model-v1"
-        if "extract interview state" in system:
-            return (
-                json.dumps(
-                    {
-                        "technical_concepts": [],
-                        "newly_claimed_facts": [],
-                        "project_facts": [],
-                        "contradictions": [],
-                        "covered_rubric_points": [],
-                        "unverified_boundaries": [],
-                        "deep_dive_branches": [],
-                    }
-                ),
-                "fake-state-v1",
-            )
         raise AssertionError("Unexpected fake model prompt")
 
     async def embed(self, tenant_id, texts):
@@ -730,6 +748,36 @@ class _E2ERuntime:
 
     def model_snapshot(self, tenant_id):
         return {"chat": {"model": "fake-model-v1"}, "embedding": {"model": "fake-embedding-v1"}}
+
+
+def _extraction_from_payload(user: str) -> tuple[str, str]:
+    """Build a valid stage-1 extraction whose span quotes the candidate answer."""
+    try:
+        payload = json.loads(user)
+    except (TypeError, json.JSONDecodeError):
+        payload = {}
+    wrapped = str(payload.get("CandidateAnswer") or "")
+    answer = wrapped.split("</untrusted_data>")[0].split("<untrusted_data>")[-1].strip()
+    if not answer:
+        answer = "candidate answer"
+    extraction = {
+        "answer_spans": [{"span_id": "s1", "text": answer}],
+        "technical_claims": [],
+        "decisions": [],
+        "mechanisms": [],
+        "tradeoffs": [],
+        "examples": [],
+        "contradictions": [],
+        "uncertainty_phrases": [],
+        "matched_indicators": [],
+        "missing_indicators": [],
+        "newly_claimed_facts": [],
+        "project_facts": [],
+        "covered_rubric_points": [],
+        "unverified_boundaries": [],
+        "deep_dive_branches": [],
+    }
+    return json.dumps(extraction), "fake-extractor-v1"
 
 
 class _E2ERunner:
@@ -929,7 +977,7 @@ def test_fake_runtime_full_interview_e2e_with_refresh_code_and_report(interview_
         initial_interview_plan=plan,
         current_interview_plan=plan,
         current_candidate_state=initial_candidate_state(),
-        planner_version="cs-interview-planner-v1",
+        planner_version="cs-interview-planner-v2",
         performance_snapshot={},
         **_timestamps(),
     )
@@ -1048,29 +1096,18 @@ class _JudgeOnlyRuntime:
         raise AssertionError("No next question should be generated")
 
     async def chat(self, tenant_id, system, user, *, temperature=0.1):
-        if "extract interview state" in system:
-            return (
-                json.dumps(
-                    {
-                        "technical_concepts": [],
-                        "newly_claimed_facts": [],
-                        "project_facts": [],
-                        "contradictions": [],
-                        "covered_rubric_points": [],
-                        "unverified_boundaries": [],
-                        "deep_dive_branches": [],
-                    }
-                ),
-                "fake-state",
-            )
-        assert "technical interview judge" in system
+        if "extract evidence and interview state" in system:
+            return _extraction_from_payload(user)
+        assert "rubric-based" in system
         return (
             json.dumps(
                 {
                     "score": 4,
+                    "matched_anchor": 4,
                     "verdict": "excellent",
-                    "covered_points": ["all"],
-                    "missing_points": [],
+                    "matched_indicators": [],
+                    "missing_indicators": [],
+                    "evidence_span_ids": ["s1"],
                     "factual_errors": [],
                     "needs_followup": False,
                     "followup_focus": "",

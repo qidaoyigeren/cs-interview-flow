@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- 设计 Token ---------- */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-app: #161618;
+  --bg-content: #1d1d20;
+  --bg-surface: #222226;
+  --bg-hover: #29292e;
+  --bg-overlay: rgba(0, 0, 0, 0.52);
+  --ink: #f6f6f7;
+  --ink-secondary: #9b9ba3;
+  --ink-tertiary: #6e6e76;
+  --ink-inverse: #161618;
+  --line: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --accent: #00beb4;
+  --accent-dim: rgba(0, 190, 180, 0.14);
+  --ok: #39c985;
+  --ok-dim: rgba(57, 201, 133, 0.14);
+  --warn: #e5b454;
+  --warn-dim: rgba(229, 180, 84, 0.14);
+  --err: #e46767;
+  --err-dim: rgba(228, 103, 103, 0.14);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg-app: #f5f5f7;
+  --bg-content: #ffffff;
+  --bg-surface: #f0f0f3;
+  --bg-hover: #e9e9ee;
+  --bg-overlay: rgba(17, 17, 20, 0.45);
+  --ink: #1a1a1e;
+  --ink-secondary: #5c5c66;
+  --ink-tertiary: #9b9ba3;
+  --ink-inverse: #ffffff;
+  --line: rgba(15, 15, 18, 0.1);
+  --line-strong: rgba(15, 15, 18, 0.2);
+  --accent: #009e95;
+  --accent-dim: rgba(0, 158, 149, 0.12);
+  --ok: #1fa667;
+  --ok-dim: rgba(31, 166, 103, 0.12);
+  --warn: #b98a2e;
+  --warn-dim: rgba(185, 138, 46, 0.12);
+  --err: #d04949;
+  --err-dim: rgba(208, 73, 73, 0.12);
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background-color: var(--bg-app);
+    color: var(--ink);
+    font-family:
+      'IBM Plex Sans SC', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei',
+      system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--accent-dim);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  /* mono 微标签：编号、时间、分数、状态、技术标签 */
+  .micro-label {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-secondary);
+  }
+  .panel {
+    background-color: var(--bg-content);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .panel-surface {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .thin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  .thin-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .thin-scroll::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: 4px;
+  }
+  .thin-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* 打字光标保持方块，避免与字体混淆 */
+.mono-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 证据轨道正在验证的慢速扫描线 */
+@keyframes track-scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+.track-scan {
+  animation: track-scan 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.pulse-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

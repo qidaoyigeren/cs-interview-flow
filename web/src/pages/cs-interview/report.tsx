@@ -157,6 +157,149 @@ export default function InterviewReportPage() {
         </div>
       </section>
 
+      {report.competencyVerification && report.competencyVerification.length > 0 && (
+        <section className="mb-12">
+          <SectionTitle icon={Target}>能力验证证据轨道</SectionTitle>
+          <p className="mb-4 text-xs leading-5 text-text-secondary">
+            JD 要求 → 简历声明 → 锚点题 → 自适应追问 → 回答证据 → 能力结论。未覆盖能力不显示为低分。
+          </p>
+          <div className="space-y-4">
+            {report.competencyVerification.map((item) => (
+              <details
+                key={item.competencyId}
+                className="rounded-lg border border-border-button"
+              >
+                <summary className="flex cursor-pointer list-none flex-wrap items-center gap-3 p-4">
+                  <span className="font-mono text-xs text-accent-primary">
+                    {item.competencyId}
+                  </span>
+                  <span className="text-sm font-medium">{item.name}</span>
+                  <CompetencyStatusPill status={item.status} />
+                  <span className="ml-auto font-mono text-xs text-text-secondary">
+                    {item.score == null ? '未考' : `${item.score.toFixed(1)}/4`}
+                  </span>
+                </summary>
+                <div className="border-t border-border-button px-4 py-4">
+                  <p className="mb-3 text-sm leading-6">{item.conclusion}</p>
+                  <div className="space-y-2">
+                    {item.evidenceTrack.map((evidence, index) => (
+                      <div
+                        key={`${item.competencyId}-${index}`}
+                        className="grid grid-cols-[120px_minmax(0,1fr)] gap-3 text-xs leading-6"
+                      >
+                        <span className="font-mono uppercase text-text-secondary">
+                          {evidence.kind}
+                        </span>
+                        <div>
+                          <span className="text-text-primary">
+                            {evidence.text || evidence.questionText}
+                          </span>
+                          {evidence.spans && evidence.spans.length > 0 && (
+                            <span className="ml-2 text-text-secondary">
+                              「{evidence.spans.map((span) => span.text).join('；')}」
+                            </span>
+                          )}
+                          {evidence.score != null && (
+                            <span className="ml-2 font-mono text-text-secondary">
+                              {evidence.score}/4
+                            </span>
+                          )}
+                          {evidence.lowConfidence && (
+                            <span className="ml-2 rounded-full border border-state-warning px-2 py-0.5 font-mono text-[10px] text-state-warning">
+                              低置信
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {report.projectClaimVerification &&
+        report.projectClaimVerification.length > 0 && (
+          <section className="mb-12">
+            <SectionTitle icon={Target}>项目声明验真矩阵</SectionTitle>
+            <p className="mb-4 text-xs leading-5 text-text-secondary">
+              技术能力得分（相关题目平均分）与项目声明可信度分开展示；「已验证」仅表示候选人以项目相关证据、达标得分与足够置信度演示了该声明，不代表回答技术分高就等于简历真实。
+            </p>
+            <div className="overflow-x-auto border border-border-button">
+              <table className="min-w-[1200px] w-full text-left text-sm">
+                <thead className="border-b border-border-button bg-bg-card font-mono text-[10px] uppercase text-text-secondary">
+                  <tr>
+                    <th className="p-3">项目</th>
+                    <th className="p-3">简历声明</th>
+                    <th className="p-3">深挖维度</th>
+                    <th className="p-3">验证状态</th>
+                    <th className="p-3">回答证据</th>
+                    <th className="p-3">相关问题</th>
+                    <th className="p-3">技术能力得分</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.projectClaimVerification.map((item) => (
+                    <tr
+                      key={item.claimId}
+                      className="border-b border-border-button align-top last:border-0"
+                    >
+                      <td className="p-3 font-medium">{item.projectName}</td>
+                      <td className="p-3">
+                        {item.claimText}
+                        <div className="mt-1 font-mono text-[10px] text-text-secondary">
+                          {item.claimType}
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        {item.dimensions.map((entry) => (
+                          <div
+                            key={entry.dimension}
+                            className="mb-1 font-mono text-xs"
+                          >
+                            {entry.dimension}
+                            <span className="ml-2 text-text-secondary">
+                              ×{entry.attemptCount}
+                            </span>
+                          </div>
+                        ))}
+                      </td>
+                      <td className="p-3">
+                        <ProjectClaimStatusPill
+                          status={item.verificationStatus}
+                        />
+                      </td>
+                      <td className="p-3 text-xs leading-5">
+                        {item.dimensions
+                          .flatMap((entry) =>
+                            entry.answeredEvidence.map(
+                              (evidence) => evidence.evidenceSpan,
+                            ),
+                          )
+                          .filter((span, index, all) => all.indexOf(span) === index)
+                          .join('；') || '—'}
+                      </td>
+                      <td className="p-3 font-mono text-xs text-text-secondary">
+                        {item.dimensions
+                          .flatMap((entry) => entry.relatedQuestionIds)
+                          .filter((id, index, all) => all.indexOf(id) === index)
+                          .join(', ') || '—'}
+                      </td>
+                      <td className="p-3 font-mono">
+                        {item.score == null
+                          ? '—'
+                          : `${item.score.toFixed(2)}/4`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
       <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0 space-y-12">
           <section>
@@ -392,6 +535,57 @@ function DimensionScores({
         ))}
       </div>
     </div>
+  );
+}
+
+const CompetencyStatusLabels: Record<string, string> = {
+  verified: '已验证',
+  partial: '部分验证',
+  insufficient_evidence: '证据不足',
+  contradiction: '存在矛盾',
+  uncovered: '未覆盖',
+};
+
+const ProjectClaimStatusLabels: Record<string, string> = {
+  verified: '已验证',
+  partial: '部分验证',
+  disputed: '存在差距',
+  contradiction: '存在矛盾',
+  low_confidence: '置信不足',
+  untested: '未覆盖',
+};
+
+function ProjectClaimStatusPill({ status }: { status: string }) {
+  const tone =
+    status === 'verified'
+      ? 'border-state-success text-state-success'
+      : status === 'partial'
+        ? 'border-state-warning text-state-warning'
+        : status === 'contradiction' || status === 'disputed'
+          ? 'border-state-error text-state-error'
+          : 'border-border-button text-text-secondary';
+  return (
+    <span
+      className={`rounded-full border px-2 py-0.5 font-mono text-[10px] ${tone}`}
+    >
+      {ProjectClaimStatusLabels[status] ?? status}
+    </span>
+  );
+}
+
+function CompetencyStatusPill({ status }: { status: string }) {
+  const tone =
+    status === 'verified'
+      ? 'border-state-success text-state-success'
+      : status === 'partial'
+        ? 'border-state-warning text-state-warning'
+        : status === 'contradiction'
+          ? 'border-state-error text-state-error'
+          : 'border-border-button text-text-secondary';
+  return (
+    <span className={`rounded-full border px-2 py-0.5 font-mono text-[10px] ${tone}`}>
+      {CompetencyStatusLabels[status] ?? status}
+    </span>
   );
 }
 

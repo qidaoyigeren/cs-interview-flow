@@ -6,6 +6,7 @@ import {
   useInterviewSession,
 } from '@/hooks/use-cs-interview-request';
 import {
+  InterviewRound,
   InterviewSession as InterviewSessionType,
   InterviewStreamEvent,
 } from '@/interfaces/database/cs-interview';
@@ -24,6 +25,7 @@ import {
   RotateCcw,
   Send,
   StopCircle,
+  Target,
 } from 'lucide-react';
 import {
   ChangeEvent,
@@ -36,7 +38,11 @@ import {
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useParams } from 'react-router';
-import { InterviewShell, StatusPill } from './components';
+import {
+  InterviewShell,
+  NativeSelectThemeClass,
+  StatusPill,
+} from './components';
 
 type StreamState = 'idle' | 'answer_received' | 'evaluating' | 'disconnected';
 
@@ -204,6 +210,18 @@ export default function InterviewSessionPage() {
     round?.followupQuestions?.[round.followupQuestions.length - 1];
   const busy =
     streamState === 'answer_received' || streamState === 'evaluating';
+  // A round is a project deep-dive ONLY when the backend labelled it as such
+  // with a complete project/claim/dimension binding.  A round is never shown
+  // as 项目深挖 merely because the session has an attack map.
+  const isProjectDive =
+    round?.questionCategory === 'project' &&
+    Boolean(
+      round.projectTarget?.targetProjectId &&
+        round.projectTarget.targetClaimId &&
+        round.projectTarget.projectDimension,
+    );
+  const isFoundation =
+    round?.questionCategory === 'foundation' || round?.questionCategory === 'anchor';
   return (
     <InterviewShell>
       <header className="mb-8 flex flex-wrap items-center gap-4 border-b border-border-button pb-6">
@@ -260,14 +278,35 @@ export default function InterviewSessionPage() {
                 <span>{round.difficulty}</span>
               </div>
               <div className="mb-5 border border-border-button bg-bg-card p-4 text-xs leading-5 text-text-secondary">
-                <div className="font-medium text-text-primary">
-                  {round.selectedAction} · {round.targetRequirement?.text ?? round.targetRequirementId}
+                <div className="flex flex-wrap items-center gap-2 font-medium text-text-primary">
+                  <span>
+                    {round.selectedAction} ·{' '}
+                    {round.targetRequirement?.text ?? round.targetRequirementId}
+                  </span>
+                  {round.competencyId && (
+                    <span className="rounded-full border border-accent-primary px-2 py-0.5 font-mono text-[10px] text-accent-primary">
+                      {t('csInterview.session.verifyingCompetency', {
+                        competency: round.competencyId,
+                      })}
+                    </span>
+                  )}
+                  {round.questionKind && (
+                    <span className="rounded-full border border-border-button px-2 py-0.5 font-mono text-[10px]">
+                      {round.questionKind}
+                    </span>
+                  )}
                 </div>
-                {round.questionReason && <p className="mt-1">{round.questionReason}</p>}
-                {round.resumeProbe && (
+                {round.questionReason && (
+                  <p className="mt-1">{round.questionReason}</p>
+                )}
+                {((round.resumeProbe?.skills?.length ?? 0) > 0 ||
+                  round.resumeProbe?.project?.name) && (
                   <p className="mt-1">
-                    简历声明：{round.resumeProbe.skills.join('、') || '相关项目经历'}
-                    {round.resumeProbe.project?.name ? ` · ${round.resumeProbe.project.name}` : ''}
+                    简历声明：
+                    {round.resumeProbe?.skills?.join('、') || '相关项目经历'}
+                    {round.resumeProbe?.project?.name
+                      ? ` · ${round.resumeProbe.project.name}`
+                      : ''}
                   </p>
                 )}
               </div>
@@ -295,7 +334,7 @@ export default function InterviewSessionPage() {
                   <select
                     value={language}
                     onChange={handleLanguageChange}
-                    className="ml-auto rounded border border-border-button bg-bg-input px-2 py-1 text-xs"
+                    className={`ml-auto rounded border border-border-button bg-bg-input px-2 py-1 text-xs ${NativeSelectThemeClass}`}
                   >
                     <option value="python">Python</option>
                     <option value="go">Go</option>
@@ -376,6 +415,20 @@ export default function InterviewSessionPage() {
             </section>
           </div>
           <aside className="space-y-5">
+            {isProjectDive && (
+              <ProjectDivePanel
+                attack={session.projectAttack}
+                target={round?.projectTarget}
+                t={t}
+              />
+            )}
+            {isFoundation && !isProjectDive && (
+              <FoundationPanel
+                category={round?.questionCategory}
+                round={round}
+                t={t}
+              />
+            )}
             <section className="border border-border-button p-5">
               <h2 className="mb-4 flex items-center gap-2 text-sm font-medium">
                 <Database className="size-4 text-text-secondary" />
@@ -439,5 +492,124 @@ export default function InterviewSessionPage() {
         </div>
       )}
     </InterviewShell>
+  );
+}
+
+const ProjectVerificationStatusLabel: Record<string, string> = {
+  untested: 'csInterview.session.claimUntested',
+  partial: 'csInterview.session.claimPartial',
+  verified: 'csInterview.session.claimVerified',
+  disputed: 'csInterview.session.claimDisputed',
+  contradiction: 'csInterview.session.claimContradiction',
+  low_confidence: 'csInterview.session.claimLowConfidence',
+};
+
+function ProjectDivePanel({
+  attack,
+  target,
+  t,
+}: {
+  attack?: NonNullable<InterviewSessionType['projectAttack']>;
+  target?: InterviewRound['projectTarget'];
+  t: ReturnType<typeof useTranslation>['t'];
+}) {
+  const claim = target?.claimText;
+  const dimension = target?.projectDimension;
+  const depth = target?.projectFollowupDepth ?? 0;
+  const limit = target?.followupLimit ?? attack?.claimFollowupLimit ?? 2;
+  const progress = Math.min(100, (depth / Math.max(1, limit)) * 100);
+  const statusKey = target?.verificationStatus;
+  const statusLabel = statusKey
+    ? t(
+        ProjectVerificationStatusLabel[statusKey] ??
+          'csInterview.session.claimUntested',
+      )
+    : '';
+  return (
+    <section className="border border-border-button p-5">
+      <h2 className="mb-4 flex items-center gap-2 text-sm font-medium">
+        <Target className="size-4 text-text-secondary" />
+        {t('csInterview.session.projectDive')}
+      </h2>
+      <dl className="space-y-3 text-xs leading-5">
+        <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-3">
+          <dt className="font-mono uppercase text-text-secondary">
+            {t('csInterview.session.project')}
+          </dt>
+          <dd className="font-medium text-text-primary">
+            {target?.projectName || attack?.projectName || ''}
+          </dd>
+        </div>
+        <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-3">
+          <dt className="font-mono uppercase text-text-secondary">
+            {t('csInterview.session.verifyingClaim')}
+          </dt>
+          <dd className="text-text-primary">{claim || ''}</dd>
+        </div>
+        <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-3">
+          <dt className="font-mono uppercase text-text-secondary">
+            {t('csInterview.session.dimension')}
+          </dt>
+          <dd className="font-mono text-accent-primary">{dimension || ''}</dd>
+        </div>
+        <div className="grid grid-cols-[92px_minmax(0,1fr)] gap-3">
+          <dt className="font-mono uppercase text-text-secondary">
+            {t('csInterview.session.verificationStatus')}
+          </dt>
+          <dd className="text-text-primary">{statusLabel || ''}</dd>
+        </div>
+      </dl>
+      <div className="mt-4">
+        <div className="mb-1 flex justify-between font-mono text-[10px] uppercase tracking-wider text-text-secondary">
+          <span>{t('csInterview.session.followupProgress')}</span>
+          <span>
+            {depth}/{limit}
+          </span>
+        </div>
+        <div className="h-1 overflow-hidden rounded-full bg-bg-card">
+          <div
+            className="h-full bg-accent-primary transition-[width]"
+            style={{ width: `${Math.max(4, progress)}%` }}
+          />
+        </div>
+      </div>
+      <p className="mt-4 border-l border-border-default pl-3 text-[11px] leading-5 text-text-secondary">
+        {t('csInterview.session.projectDiveHint')}
+      </p>
+    </section>
+  );
+}
+
+function FoundationPanel({
+  category,
+  round,
+  t,
+}: {
+  category?: InterviewRound['questionCategory'];
+  round?: InterviewRound;
+  t: ReturnType<typeof useTranslation>['t'];
+}) {
+  const isAnchor = category === 'anchor';
+  const pullProject = round?.pulledByProject?.projectName;
+  return (
+    <section className="border border-border-button p-5">
+      <h2 className="mb-3 flex items-center gap-2 text-sm font-medium">
+        <Database className="size-4 text-text-secondary" />
+        {t(
+          isAnchor
+            ? 'csInterview.session.foundationAnchor'
+            : 'csInterview.session.foundationVerify',
+        )}
+      </h2>
+      <p className="text-xs leading-5 text-text-secondary">
+        {round?.projectDiveDowngraded
+          ? t('csInterview.session.foundationDowngraded')
+          : pullProject
+            ? t('csInterview.session.foundationPulledByProject', {
+                project: pullProject,
+              })
+            : t('csInterview.session.foundationJdDriven')}
+      </p>
+    </section>
   );
 }

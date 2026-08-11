@@ -71,6 +71,8 @@ jobs:
         run: >-
           uv run pytest -q
           test/unit_test/api/db/test_cs_interview_agentic_domain.py
+          test/unit_test/api/db/test_cs_interview_calibration.py
+          test/unit_test/api/db/test_cs_interview_competency_upgrade.py
           test/unit_test/api/db/test_cs_interview_domain.py
           test/unit_test/api/db/test_cs_interview_evaluation.py
           test/unit_test/api/db/test_cs_interview_eval_runs.py
@@ -79,6 +81,7 @@ jobs:
           test/unit_test/api/db/test_cs_interview_ops_api.py
           test/unit_test/api/db/test_cs_interview_persistence.py
           test/unit_test/api/db/test_cs_interview_pipeline.py
+          test/unit_test/api/db/test_cs_interview_rag_review.py
           test/unit_test/api/db/test_cs_interview_reliability.py
           test/unit_test/api/db/test_cs_interview_replay.py
           test/unit_test/api/db/test_cs_interview_resume.py
@@ -87,6 +90,8 @@ jobs:
           test/unit_test/api/db/test_cs_interview_trace.py
       - name: Assert the agentic scenario suite is byte-identical to the generator
         run: uv run python tools/cs_interview_scenarios_generate.py --check
+      - name: Validate the rubric calibration annotation format
+        run: uv run python tools/cs_interview_calibration.py --check
       - name: Run deterministic offline evaluation
         run: uv run python tools/cs_interview_eval.py --labeled --json-output cs-interview-offline-eval.json
       - name: Upload evaluation evidence

@@ -48,6 +48,8 @@ export enum Routes {
   CsInterviewAdminGovernance = '/cs-interview/admin/governance',
   CsInterviewAdminFeedback = '/cs-interview/admin/feedback',
   CsInterviewAdminExperiments = '/cs-interview/admin/experiments',
+  CsInterviewAdminCompetencies = '/cs-interview/admin/competencies',
+  CsInterviewAdminCalibration = '/cs-interview/admin/calibration',
 
   Skills = '/files/skills',
   ProfileSetting = '/profile-setting',
@@ -292,6 +294,14 @@ const routeConfigOptions = [
       {
         path: Routes.CsInterviewAdminExperiments,
         Component: () => import('@/pages/cs-interview/admin/experiments'),
+      },
+      {
+        path: Routes.CsInterviewAdminCompetencies,
+        Component: () => import('@/pages/cs-interview/admin/competencies'),
+      },
+      {
+        path: Routes.CsInterviewAdminCalibration,
+        Component: () => import('@/pages/cs-interview/admin/calibration'),
       },
       {
         path: Routes.Searches,

@@ -51,6 +51,19 @@ describe('CS interview configuration validation', () => {
     ).toEqual(expect.arrayContaining(['questionCount', 'maxFollowups']));
   });
 
+  it('rejects a topic that is both focused and excluded', () => {
+    expect(
+      validateInterviewConfiguration(
+        {
+          ...profile,
+          focusTopics: ['go.runtime'],
+          excludedTopics: ['go.runtime'],
+        },
+        knowledge,
+      ),
+    ).toContain('topicConflict');
+  });
+
   it('requires an extracted resume and JD binding', () => {
     expect(
       validateInterviewConfiguration(

@@ -9,15 +9,29 @@
 一次面试的关键链路如下：
 
 1. `job_service.py` 把粘贴或上传的 JD 当作不可信数据，要求模型返回严格 JSON，再由程序校验 evidence span、topic、长度、置信度和权重。非法 topic 会被移除，要求本身作为 unmapped requirement 保留。
-2. Session 创建时确定性匹配 JD 与简历，并一次性保存 Profile、知识配置、JD、简历、匹配矩阵和初始计划快照。运行中不得回读可变化的 Job/Resume/Profile 代替快照。
-3. Planner 根据 JD 权重、简历声明风险、回答新增声明/矛盾、覆盖、最近主题、题量/追问预算和当前难度选择受控动作；模型不能直接改变状态或突破边界。
+2. Session 创建时确定性匹配 JD 与简历，并一次性保存 Profile、知识配置、JD、简历、匹配矩阵、初始计划、Competency/Rubric/锚点/角色策略快照（`interview_session.competency_snapshot`）。运行中不得回读可变化的 Job/Resume/Profile/能力配置代替快照。
+3. Planner v2 按可审计的信息增益启发式选择受控动作：`action_value = jd_weight × verification_uncertainty × expected_information_gain × resume_risk − repetition_penalty − time_cost − comparability_penalty`；must-have 能力必须先锚定（`question_kind=anchor`），低分或低置信锚点不算完成；模型不能直接改变状态或突破边界。因子与决策审计落盘，Replay 逐项解释。
 4. Query Builder 用 Planner 的 requirement/topic/action 构造查询。JD、简历和回答只决定“问什么”，不能作为技术事实来源。
-5. 复用 RAGFlow `dataset_api_service.search` 的混合检索、metadata filter 和 rerank。Evidence Validator 仅接受元数据完整、`verified=true`、`quality_score>=0.6` 且 topic/难度一致的证据。
-6. Question Generator 优先复用知识正文中的人工审阅参考要点；否则由独立 grounding validator 检查 reference/rubric 与证据重合、JD/topic/难度一致、历史重复和答案泄漏。无证据直接拒绝出题；代码题必须用参考解答跑通 visible/hidden tests 后才能发送。
-7. 每次回答同时进入 Judge 和 Answer State Extraction。后者只记录技术概念、新声明、项目事实、矛盾、rubric 覆盖、未验证边界与深挖分支。新声明只有在 Planner 明确持久化 `target_claim_fact`、候选人回答对应追问且该追问得分达标后，才能逐条升级为已验证事实；同 topic 的普通高分不会批量验证声明。
-8. 报告数值与 JD 验证矩阵均从持久化 round 确定性计算，LLM 不负责总分或验证状态。
+5. 复用 RAGFlow `dataset_api_service.search` 的混合检索、metadata filter 和 rerank。普通题 Evidence Validator 接受元数据完整、`verified=true`、`quality_score>=0.6` 且 topic/难度一致的证据；锚点题还必须同时命中会话冻结的 `anchor_group_id` 与 `question_id`。
+6. 锚点题直接读取审核过的固定题面与评分点，不经过 LLM 改写；缺少锚点证据时拒绝出题，不回退普通题。自适应题才由 Question Generator 结合 JD/简历生成，并经 grounding/leakage 校验。代码题必须用参考解答跑通 visible/hidden tests 后才能发送。
+7. 每次回答进入证据级三阶段 Judge：Evidence Extractor（精确引文 span/claims/matched·missing indicators + Candidate State 子结构）→ Rubric Scorer（仅用不可变 Rubric 快照 0-4 锚点 + 提取证据 + 代码结果）→ Consistency Validator（分数↔锚点↔证据↔verdict↔代码一致性；失败受控重试一次，仍失败→低置信标记，绝不伪造确定结论）。新声明只有在 Planner 明确持久化 `target_claim_fact`、候选人回答对应追问且该追问得分达标后，才能逐条升级为已验证事实。
+8. 报告数值、JD 验证矩阵与能力验证证据轨道均从持久化 round 确定性计算，LLM 不负责总分或验证状态。「未覆盖」能力独立显示且不计低分。
+
+职级使用同一套 0～4 分语义保持横向可比，达标线分别为 junior=2、mid=3、senior=4、staff=4；会话快照同时冻结职级期望与默认难度，Planner、Candidate State 和报告均使用同一达标线。
 
 检索和模型调用继续使用租户默认模型，因此 RAGFlow 已有的模型统计、日志和 Langfuse 上下文仍然生效。应用日志只记录 ID、状态、耗时、模型名、Judge 置信度和错误类型，不记录完整回答或源代码。
+
+### 1.1 项目深挖（Project Deep-Dive）
+
+项目经历是 Planner 的一级规划对象：约 70% 的题目围绕主项目深挖，其余 30% 由项目声明牵引出基础知识，同时保留固定锚点、RAG 证据契约、职级 Rubric、Judge 与可恢复执行链路。
+
+- **简历抽取 v2（`EXTRACTION_VERSION = cs-interview-resume-extraction-v2`）**。每个项目输出结构化声明：`project_id`/`claim_id` 由系统对简历内容确定性哈希生成（模型不生成 ID）；`evidence_span` 必须是简历原文的连续文本（容忍标点/空白漂移但绝不接受编造）；`claim_type` 限定为 `architecture|technology_choice|mechanism|reliability|data_design|interface|metric|testing`；`risk_flags` 由程序对「提升性能/高可用/防止重复」等模糊表述、无理由选型、仅正常链路、关键词堆叠、无基线指标做确定性检测，并与模型建议取并集。旧版 v1 抽取必须重新抽取后才能创建画像/会话（`resume_outdated_extraction`）。
+- **Project Attack Map（`build_project_attack_map`）**。会话创建时根据冻结的简历、JD 与 Competency 快照确定性生成，并随会话冻结（存于 `candidate_state.project_attack_map`，运行中只改状态不改结构）。优先选择与目标 JD 最相关的主项目；主项目覆盖 3～4 个有效维度，不机械遍历。冻结优先级综合 JD 权重 × 项目相关性 × 声明风险 × 验证不确定性 × 预期信息增益，再扣维度时间成本；风险驱动的维度增益会让「仅正常链路 → 优先故障边界」「可疑指标 → 优先指标验真」「无理由选型 → 优先替代方案」。相同输入必然得到相同 Attack Map。
+- **Planner**。`PlannerAction` 新增 `target_project_id`/`target_claim_id`/`project_dimension`/`project_followup_depth`，动作尽量复用现有枚举，仅新增 `verify_project_claim`。必须能力未锚定时项目候选被整体排除，绝不挤掉固定锚点；锚点完成后，程序按已完成主问题计算项目/基础题占比，并选择使下一步最接近 `PROJECT_QUESTION_SHARE_TARGET=0.7` 的候选类型；只有一类候选时自动回退，计数与选择误差写入 `decision_audit.budget.question_mix`。同一 claim 的追问计数跨维度累计，达到 `PROJECT_CLAIM_MAX_FOLLOWUPS=2` 后切换维度/声明。回答中的 `project_facts` 保留 `project_id`/`claim_id` 归属，直接触发下一轮项目深挖，不再被合并为普通 `newly_claimed_fact`；归属校验会丢弃跨项目的事实，禁止跨项目串联。
+- **RAG 出题**。项目声明只决定「验证什么」，技术事实、评分点与参考答案仍必须来自已验证的 RAG Evidence；`ResumeContext`/`ProjectContext` 始终视为不可信数据。自适应项目题明确引用简历声明（例如「你在 CS Interview Agent 中提到用 Operation/Event/Checkpoint 防止状态丢失，请解释一次 Worker 崩溃后的恢复过程」），固定锚点继续使用审核后的原题、不做项目个性化，无合格证据时拒绝出题，并防止泄露参考答案或一次捆绑多问。
+- **Judge 与 Memory**。Judge 除技术评分外更新当前目标声明的验证状态（`untested/partial/verified/disputed/contradiction/low_confidence`）。`verified` 必须同时满足职级 `required_score`、足够置信度（≥0.7）与项目声明相关证据（提取器归因到该 claim 的 `project_fact`）；只更新当前 `target_claim_id`，同主题高分不能验证其他声明。回答中的 mechanism/decision/tradeoff/failure_mode/metric_definition 关联回 `project_id`/`claim_id`；新声明只能先成为待验证事实，不能在同一轮直接 verified；矛盾使用稳定 `contradiction_id`，只有明确追问过的矛盾可被解决。
+- **Replay**。Planner 决策与项目声明状态均由不可变快照 + 已完成 round 确定性重放，`target_project_id`/`target_claim_id`/`project_dimension` 纳入决策身份比较（缺失字段归一化为空串，旧会话仍可重放）。
+- **前端与报告**。面试页展示当前项目、正在验证的声明、深挖维度与追问进度（不泄露 Planner 权重与内部评分点）。报告新增「项目声明验真矩阵」：项目 → 简历声明 → 深挖维度 → 验证状态 → 回答证据 → 相关问题，并明确区分技术能力评分与项目声明可信度——「回答技术题得分高」不等同于「项目真实性已验证」。
 
 ## 2. 数据模型
 
@@ -28,9 +42,10 @@
 | `interview_job` | JD 来源、原文、结构化要求和抽取版本 | tenant/user 作用域；paste/file |
 | `interview_profile` | Resume + Job 绑定、岗位、职级、题量、追问上限 | tenant/user 作用域；新建时两项都必须已抽取 |
 | `interview_knowledge_config` | 三知识库绑定和检索/质量快照 | 三个 dataset ID 在保存时验证为不同 |
-| `interview_session` | 状态、难度、Profile/JD/Resume/Match/Plan/CandidateState/知识快照 | `state_version` 乐观锁；业务运行只读快照 |
-| `interview_round` | 私有题目、证据版本、答案状态、Planner 动作与评估 | `(session_id, sequence)` 唯一；`(session_id, active_guard)` 唯一 |
-| `interview_report` | 确定性数值、技能验证和 JD 验证矩阵 | `session_id` 唯一 |
+| `interview_session` | 状态、难度、Profile/JD/Resume/Match/Plan/CandidateState/Competency·Rubric·锚点快照 | `state_version` 乐观锁；业务运行只读快照 |
+| `interview_round` | 私有题目、证据版本、答案状态、Planner 动作、question_kind/competency/锚点元数据、三阶段证据评估 | `(session_id, sequence)` 唯一；`(session_id, active_guard)` 唯一 |
+| `interview_report` | 确定性数值、技能验证、JD 验证矩阵、能力验证证据轨道和项目声明验真矩阵 | `session_id` 唯一 |
+| `interview_annotation_case` / `interview_annotation_review` / `interview_rubric_calibration` | Rubric 校准标注案例、多评审者打分、校准指标 | case_id 唯一；`(case_id, reviewer_id)` 唯一 |
 | `code_submission` | 代码、执行状态、可见/隐藏测试摘要 | tenant/user/session 作用域 |
 | `interview_request` | start/answer/code/abort 请求幂等结果 | `(session_id, request_id)` 唯一 |
 
@@ -52,7 +67,7 @@ preparing_question/evaluating -> failed
 
 Round 合法路径为 `preparing -> awaiting_answer -> evaluating -> awaiting_followup -> evaluating -> completed`。任一 session 同时只允许一个 `active_guard=active` 的 round。每个 session 状态更新带 compare-and-swap 版本条件并在事务中完成；相同 `request_id` 与相同 payload 重放持久化事件，不同 payload 返回 409。
 
-允许动作固定为 `follow_up_current_claim`、`verify_resume_claim`、`verify_jd_requirement`、`resolve_contradiction`、`switch_topic`、`ask_coding_question`、`finish_interview`。题量、追问上限、难度边界、重复惩罚和状态迁移全部由程序控制。难度只有 `beginner / medium / advanced`：最终分 0–1 降一级，2–3 保持，4 分且上一题最终分至少 3 才升一级；边界不越界。回答产生的新声明只能先进入 CandidateState，后续独立验证后才能成为 verified fact。
+允许动作固定为 `follow_up_current_claim`、`verify_resume_claim`、`verify_jd_requirement`、`verify_project_claim`、`resolve_contradiction`、`switch_topic`、`ask_coding_question`、`finish_interview`。题量、追问上限、难度边界、重复惩罚和状态迁移全部由程序控制。难度只有 `beginner / medium / advanced`：最终分 0–1 降一级，2–3 保持，4 分且上一题最终分至少 3 才升一级；边界不越界。回答产生的新声明只能先进入 CandidateState，后续独立验证后才能成为 verified fact。
 
 ## 4. 三知识库数据规范
 
@@ -65,6 +80,7 @@ Round 合法路径为 `preparing -> awaiting_answer -> evaluating -> awaiting_fo
   "topic": "database.mysql",
   "difficulty": "medium",
   "question_id": "mysql-index-001",
+  "anchor_group_id": "anchor-go_backend-database-mysql",
   "source": "原创内部培训材料",
   "source_date": "2026-01-01",
   "quality_score": 0.9,
@@ -76,6 +92,7 @@ Round 合法路径为 `preparing -> awaiting_answer -> evaluating -> awaiting_fo
 - 面经以单题或一个追问链为切片单位，额外记录公司、岗位、年份和轮次。
 - LeetCode 类文档在同一文档/切片邻域内保留题干、约束、标准解法、复杂度、可见样例和隐藏测试。不要导入未获许可的大型题库。
 - 八股文按一问一答组织，正文包含评分点、常见错误和可追问方向。
+- must-have 能力的固定题额外包含 `anchor_group_id`；知识库绑定校验要求 14 个审核锚点组全部存在，避免运行时静默退化为普通题。
 - `algorithm.core` 使用 `role=cs_general` 的跨岗位公共算法语料；其他 topic 仍按目标岗位精确过滤，避免为每个岗位复制同一道算法题。
 - 文档内容始终作为不可信数据包在 `<untrusted_data>` 中；其中修改 system/Judge 规则的文字会被清理。
 
@@ -110,6 +127,10 @@ uv run pytest test/unit_test/api/db/test_cs_interview_domain.py
 uv run pytest test/unit_test/api/db/test_cs_interview_agentic_domain.py
 uv run pytest test/unit_test/api/db/test_cs_interview_evaluation.py
 python tools/cs_interview_eval.py
+# Rubric 校准标注集校验与指标（Windows 下经 pytest 验证，Linux CI 可直接运行）
+python tools/cs_interview_calibration.py --check
+# 500 条 RAG 挑战查询人工审核与 resume_eligible 门禁（review JSONL 输入）
+python tools/cs_interview_rag_review.py review.jsonl --write
 # 生成并校验 34 面经 + 33 算法 + 33 八股的公开实测语料
 python tools/cs_interview_corpus_expand.py
 python tools/cs_interview_kb_seed.py --validate-only

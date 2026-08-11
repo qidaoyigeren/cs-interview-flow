@@ -48,7 +48,7 @@ MODELS = [
     InterviewReviewAction,
     InterviewOperation,
 ]
-NOW = datetime(2026, 8, 9, 12, 0, 0, tzinfo=UTC).replace(tzinfo=None)
+NOW = datetime.now(UTC).replace(tzinfo=None)
 
 
 def _timestamps():

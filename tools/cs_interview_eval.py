@@ -23,7 +23,9 @@ def _load_evaluator():
         package.__path__ = []
 
     base = REPOSITORY_ROOT / "api" / "apps" / "services" / "cs_interview"
-    for module_name in ("domain", "replay", "evaluation"):
+    # Keep this dependency order explicit so the tools stay runnable without
+    # importing api.apps.__init__ and the full Quart/search/native stack.
+    for module_name in ("domain", "replay", "competencies", "evaluation"):
         qualified_name = f"api.apps.services.cs_interview.{module_name}"
         spec = importlib.util.spec_from_file_location(qualified_name, base / f"{module_name}.py")
         if spec is None or spec.loader is None:

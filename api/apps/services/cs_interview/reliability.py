@@ -74,6 +74,11 @@ NON_RETRYABLE_ERROR_CODES = {
     "llm_call_budget_exhausted",
     "retrieval_budget_exhausted",
     "cost_unknown",
+    # Project deep-dive deterministic gates: these are handled locally (retry
+    # retrieval / downgrade to foundation), never by the operation retry loop.
+    "project_evidence_irrelevant",
+    "project_question_unbound",
+    "invalid_project_contract",
 }
 
 

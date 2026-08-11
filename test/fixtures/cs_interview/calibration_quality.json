@@ -1,0 +1,170 @@
+{
+  "schema_version": "cs-interview-annotation-v1",
+  "rubric_version": "cs-interview-rubric-v2",
+  "model_version": "deepseek-v3",
+  "prompt_version": "cs-interview-v1",
+  "review_status": "synthetic_ci_only",
+  "description": "Small synthetic calibration set for rubric validation and CI. It is NOT production accuracy data; it exists to exercise the calibration tooling and gate (insufficient_sample must be reported when n is small).",
+  "cases": [
+    {
+      "case_id": "cal-go-channel-001",
+      "role": "go_backend",
+      "competency_id": "go.runtime",
+      "anchor_group_id": "anchor-go_backend-go-runtime",
+      "question": "解释关闭后的 Go channel 的收发语义。",
+      "answer": "发送到已关闭的 channel 会 panic；接收会先取完缓冲值，然后返回零值与 ok=false。",
+      "code_result": null,
+      "rubric_version": "cs-interview-rubric-v2",
+      "agent_score": 3,
+      "agent_confidence": 0.82,
+      "agent_low_confidence": false,
+      "agent_followup": false,
+      "reviews": [
+        {"reviewer_id": "r1", "reviewer_score": 3, "reviewer_evidence_spans": ["发送到已关闭的 channel 会 panic"], "reviewer_reason": "覆盖发送 panic 与接收 ok=false，缺边界细节"},
+        {"reviewer_id": "r2", "reviewer_score": 3, "reviewer_evidence_spans": ["返回零值与 ok=false"], "reviewer_reason": "机制正确，权衡不足"},
+        {"reviewer_id": "r3", "reviewer_score": 2, "reviewer_evidence_spans": ["发送到已关闭的 channel 会 panic"], "reviewer_reason": "未提缓冲排空行为，评为 2 更稳妥"}
+      ],
+      "adjudicated_score": 3
+    },
+    {
+      "case_id": "cal-ai-rag-001",
+      "role": "ai_backend",
+      "competency_id": "ai.rag",
+      "anchor_group_id": "anchor-ai_backend-ai-rag",
+      "question": "如何保证 RAG 回答的引用一致性与低延迟？",
+      "answer": "检索时控制 top-k 和块大小，用 rerank 提升命中，回答时要求引用来源并校验一致性；延迟上可缓存高频查询。",
+      "code_result": null,
+      "rubric_version": "cs-interview-rubric-v2",
+      "agent_score": 4,
+      "agent_confidence": 0.9,
+      "agent_low_confidence": false,
+      "agent_followup": false,
+      "reviews": [
+        {"reviewer_id": "r1", "reviewer_score": 4, "reviewer_evidence_spans": ["用 rerank 提升命中"], "reviewer_reason": "覆盖机制、权衡与缓存成本"},
+        {"reviewer_id": "r2", "reviewer_score": 4, "reviewer_evidence_spans": ["要求引用来源并校验一致性"], "reviewer_reason": "边界与工程成本均有"},
+        {"reviewer_id": "r3", "reviewer_score": 3, "reviewer_evidence_spans": ["检索时控制 top-k 和块大小"], "reviewer_reason": "缺索引过期与权限边界"}
+      ],
+      "adjudicated_score": 4
+    },
+    {
+      "case_id": "cal-go-context-002",
+      "role": "go_backend",
+      "competency_id": "go.runtime",
+      "anchor_group_id": "anchor-go_backend-go-runtime",
+      "question": "用 context 取消一个 goroutine 的推荐方式？",
+      "answer": "把 context.Context 作为函数首参传递，在 select 里监听 Done()，超时用 WithTimeout。",
+      "code_result": null,
+      "rubric_version": "cs-interview-rubric-v2",
+      "agent_score": 2,
+      "agent_confidence": 0.6,
+      "agent_low_confidence": true,
+      "agent_followup": true,
+      "reviews": [
+        {"reviewer_id": "r1", "reviewer_score": 2, "reviewer_evidence_spans": ["在 select 里监听 Done()"], "reviewer_reason": "基础用法正确，缺泄漏场景"},
+        {"reviewer_id": "r2", "reviewer_score": 2, "reviewer_evidence_spans": ["把 context.Context 作为函数首参传递"], "reviewer_reason": "典型问题能处理"},
+        {"reviewer_id": "r3", "reviewer_score": 3, "reviewer_evidence_spans": ["超时用 WithTimeout"], "reviewer_reason": "可给 3，但没解释资源清理"}
+      ],
+      "adjudicated_score": 2
+    },
+    {
+      "case_id": "cal-mysql-001",
+      "role": "go_backend",
+      "competency_id": "database.mysql",
+      "anchor_group_id": "anchor-go_backend-database-mysql",
+      "question": "解释 MySQL 的隔离级别与脏读。",
+      "answer": "隔离级别从低到高有读未提交、读已提交、可重复读、串行化；读未提交会出现脏读，可重复读下 MySQL 默认加 MVCC 解决不可重复读。",
+      "code_result": null,
+      "rubric_version": "cs-interview-rubric-v2",
+      "agent_score": 3,
+      "agent_confidence": 0.85,
+      "agent_low_confidence": false,
+      "agent_followup": false,
+      "reviews": [
+        {"reviewer_id": "r1", "reviewer_score": 3, "reviewer_evidence_spans": ["读未提交会出现脏读"], "reviewer_reason": "机制清晰，权衡不足"},
+        {"reviewer_id": "r2", "reviewer_score": 3, "reviewer_evidence_spans": ["可重复读下 MySQL 默认加 MVCC"], "reviewer_reason": "场景与机制结合"},
+        {"reviewer_id": "r3", "reviewer_score": 2, "reviewer_evidence_spans": ["隔离级别从低到高"], "reviewer_reason": "缺串行化下锁的成本分析"}
+      ],
+      "adjudicated_score": 3
+    },
+    {
+      "case_id": "cal-ai-agent-002",
+      "role": "ai_backend",
+      "competency_id": "ai.agent",
+      "anchor_group_id": "anchor-ai_backend-ai-agent",
+      "question": "如何防止 Agent 工具循环失控？",
+      "answer": "设置最大步数与时间预算，工具调用前做权限校验，超预算强制终止并回退。",
+      "code_result": null,
+      "rubric_version": "cs-interview-rubric-v2",
+      "agent_score": 2,
+      "agent_confidence": 0.7,
+      "agent_low_confidence": false,
+      "agent_followup": false,
+      "reviews": [
+        {"reviewer_id": "r1", "reviewer_score": 2, "reviewer_evidence_spans": ["设置最大步数与时间预算"], "reviewer_reason": "能处理典型问题"},
+        {"reviewer_id": "r2", "reviewer_score": 3, "reviewer_evidence_spans": ["超预算强制终止并回退"], "reviewer_reason": "有回退机制可给 3"},
+        {"reviewer_id": "r3", "reviewer_score": 2, "reviewer_evidence_spans": ["工具调用前做权限校验"], "reviewer_reason": "缺可观测性与回放"}
+      ],
+      "adjudicated_score": 2
+    },
+    {
+      "case_id": "cal-mysql-002",
+      "role": "go_backend",
+      "competency_id": "database.mysql",
+      "anchor_group_id": "anchor-go_backend-database-mysql",
+      "question": "一个慢查询该怎么优化？",
+      "answer": "先 EXPLAIN 看执行计划，缺索引就加索引，避免 SELECT *，必要时拆表。",
+      "code_result": null,
+      "rubric_version": "cs-interview-rubric-v2",
+      "agent_score": 3,
+      "agent_confidence": 0.88,
+      "agent_low_confidence": false,
+      "agent_followup": false,
+      "reviews": [
+        {"reviewer_id": "r1", "reviewer_score": 3, "reviewer_evidence_spans": ["先 EXPLAIN 看执行计划"], "reviewer_reason": "诊断路径正确"},
+        {"reviewer_id": "r2", "reviewer_score": 3, "reviewer_evidence_spans": ["缺索引就加索引"], "reviewer_reason": "典型处理"},
+        {"reviewer_id": "r3", "reviewer_score": 4, "reviewer_evidence_spans": ["必要时拆表"], "reviewer_reason": "含权衡可给 4"}
+      ],
+      "adjudicated_score": 3
+    },
+    {
+      "case_id": "cal-ai-eval-003",
+      "role": "ai_backend",
+      "competency_id": "ai.evaluation",
+      "anchor_group_id": "anchor-ai_backend-ai-evaluation",
+      "question": "如何防止评测集数据泄漏？",
+      "answer": "按时间切分避免测试集混入训练分布，禁止用测试集调参，做相似度去重。",
+      "code_result": null,
+      "rubric_version": "cs-interview-rubric-v2",
+      "agent_score": 4,
+      "agent_confidence": 0.93,
+      "agent_low_confidence": false,
+      "agent_followup": false,
+      "reviews": [
+        {"reviewer_id": "r1", "reviewer_score": 4, "reviewer_evidence_spans": ["按时间切分"], "reviewer_reason": "边界清晰"},
+        {"reviewer_id": "r2", "reviewer_score": 3, "reviewer_evidence_spans": ["做相似度去重"], "reviewer_reason": "缺成本分析"},
+        {"reviewer_id": "r3", "reviewer_score": 4, "reviewer_evidence_spans": ["禁止用测试集调参"], "reviewer_reason": "含工程治理"}
+      ],
+      "adjudicated_score": 4
+    },
+    {
+      "case_id": "cal-go-goroutine-003",
+      "role": "go_backend",
+      "competency_id": "go.runtime",
+      "anchor_group_id": "anchor-go_backend-go-runtime",
+      "question": "goroutine 泄漏的常见原因？",
+      "answer": "channel 一直没人收、超时没触发、context 没取消都会导致 goroutine 卡住不退出。",
+      "code_result": null,
+      "rubric_version": "cs-interview-rubric-v2",
+      "agent_score": 2,
+      "agent_confidence": 0.55,
+      "agent_low_confidence": true,
+      "agent_followup": true,
+      "reviews": [
+        {"reviewer_id": "r1", "reviewer_score": 2, "reviewer_evidence_spans": ["channel 一直没人收"], "reviewer_reason": "能列常见原因"},
+        {"reviewer_id": "r2", "reviewer_score": 2, "reviewer_evidence_spans": ["context 没取消"], "reviewer_reason": "缺排查手段"},
+        {"reviewer_id": "r3", "reviewer_score": 1, "reviewer_evidence_spans": ["超时没触发"], "reviewer_reason": "更像枚举，不完整"}
+      ],
+      "adjudicated_score": 2
+    }
+  ]
+}

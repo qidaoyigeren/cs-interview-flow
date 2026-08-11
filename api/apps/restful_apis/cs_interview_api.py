@@ -13,8 +13,13 @@ from peewee import fn
 from quart import Response, jsonify, request
 
 from api.apps import current_user, login_required
+from api.apps.services.cs_interview.bootstrap_service import (
+    InterviewKnowledgeBootstrapService,
+    public_bootstrap,
+)
+from api.apps.services.cs_interview.competencies import ANCHOR_GROUPS, COMPETENCY_CATALOG, LEVEL_POLICIES, RUBRIC_VERSION
 from api.apps.services.cs_interview.domain import DomainError, SessionStatus, payload_hash, validate_answer, validate_code_request
-from api.apps.services.cs_interview.evaluation import evaluate_file
+from api.apps.services.cs_interview.evaluation import evaluate_calibration, evaluate_file
 from api.apps.services.cs_interview.experiment_service import (
     active_experiments_for,
     normalize_variant,
@@ -463,6 +468,36 @@ async def list_knowledge_datasets():
     return _ok(InterviewKnowledgeService.list_available(tenant_id))
 
 
+@manager.route("/cs-interview/knowledge/bootstrap", methods=["GET"])  # noqa: F821
+@login_required
+async def get_knowledge_bootstrap():
+    tenant_id, _ = _identity()
+    return _ok(public_bootstrap(InterviewKnowledgeBootstrapService.latest(tenant_id)))
+
+
+@manager.route("/cs-interview/knowledge/bootstrap", methods=["POST"])  # noqa: F821
+@login_required
+@domain_errors
+async def ensure_knowledge_bootstrap():
+    tenant_id, user_id = _identity()
+    _rate_limit(user_id)
+    bootstrap, existed = InterviewKnowledgeBootstrapService.ensure(tenant_id, user_id)
+    return _ok(
+        public_bootstrap(bootstrap),
+        status=200 if existed or bootstrap.status == "ready" else 202,
+    )
+
+
+@manager.route("/cs-interview/knowledge/bootstrap/retry", methods=["POST"])  # noqa: F821
+@login_required
+@domain_errors
+async def retry_knowledge_bootstrap():
+    tenant_id, user_id = _identity()
+    _rate_limit(user_id)
+    bootstrap = InterviewKnowledgeBootstrapService.retry(tenant_id, user_id)
+    return _ok(public_bootstrap(bootstrap), status=200 if bootstrap.status == "ready" else 202)
+
+
 @manager.route("/cs-interview/knowledge-config", methods=["GET"])  # noqa: F821
 @login_required
 @domain_errors
@@ -810,15 +845,19 @@ async def create_profile_from_resume(resume_id: str):
 @login_required
 @domain_errors
 async def patch_resume(resume_id: str):
+    from api.apps.services.cs_interview.domain import EXTRACTION_VERSION, validate_resume_extraction
     from api.apps.services.cs_interview.domain import utcnow as domain_utcnow
-    from api.apps.services.cs_interview.domain import validate_resume_extraction
+    from api.apps.services.cs_interview.resume_service import resume_text
 
     tenant_id, user_id = _identity()
     _rate_limit(user_id)
     resume = InterviewResumeService.get(resume_id, tenant_id, user_id)
     payload = await get_request_json()
     if isinstance(payload, dict) and isinstance(payload.get("extraction"), dict):
-        validated = validate_resume_extraction(payload["extraction"])
+        _indexed, lines = resume_text(resume)
+        source_text = "\n".join(lines)[:12000]
+        validated = validate_resume_extraction(payload["extraction"], source_text=source_text)
+        validated["extraction_version"] = EXTRACTION_VERSION
         InterviewResume.update(extraction=validated, extracted_at=domain_utcnow(), parse_status="parsed").where(
             (InterviewResume.id == resume.id) & (InterviewResume.tenant_id == tenant_id) & (InterviewResume.user_id == user_id)
         ).execute()
@@ -958,6 +997,100 @@ async def admin_quality_overview():
     return _ok(quality_overview(tenant_id=tenant_id, since_hours=since_hours))
 
 
+def _load_calibration_fixture() -> tuple[dict[str, Any] | None, dict[str, Any] | None, list[Any]]:
+    """Read the annotated calibration fixture through a sync helper (no async IO)."""
+    from api.db.db_models import InterviewAnnotationCase
+
+    fixture_path = os.getenv("CS_INTERVIEW_CALIBRATION_FIXTURE", "test/fixtures/cs_interview/calibration_quality.json")
+    fixture_result = None
+    fixture_metadata = None
+    if os.path.exists(fixture_path):
+        with open(fixture_path, encoding="utf-8") as source:
+            payload = json.load(source)
+        fixture_result = evaluate_calibration(payload).as_dict()
+        fixture_metadata = {
+            "source": os.path.basename(fixture_path),
+            "review_status": payload.get("review_status") or "unknown",
+            "description": payload.get("description") or "",
+        }
+    annotation_cases = list(
+        InterviewAnnotationCase.select()
+        .order_by(InterviewAnnotationCase.create_time.desc())
+        .limit(200)
+    )
+    return fixture_result, fixture_metadata, annotation_cases
+
+
+@manager.route("/cs-interview/admin/competencies", methods=["GET"])  # noqa: F821
+@login_required
+@domain_errors
+async def admin_competencies():
+    """Competency catalog, rubric version and anchor groups for operator review."""
+    require_ops_admin()
+    return _ok(
+        {
+            "rubric_version": RUBRIC_VERSION,
+            "anchor_group_count": len(ANCHOR_GROUPS),
+            "level_policies": {
+                level: {
+                    "required_score": policy.required_score,
+                    "minimum_high_confidence_evidence": policy.minimum_high_confidence_evidence,
+                    "default_difficulty": policy.default_difficulty,
+                    "expectation": policy.expectation,
+                }
+                for level, policy in LEVEL_POLICIES.items()
+            },
+            "roles": {
+                role: [
+                    {
+                        "competency_id": spec.competency_id,
+                        "name": spec.name,
+                        "weight": spec.weight,
+                        "must_have": spec.must_have,
+                        "anchor_question_policy": spec.anchor_question_policy,
+                        "score_anchor_levels": sorted(anchor.level for anchor in spec.score_anchors),
+                    }
+                    for spec in specs
+                ]
+                for role, specs in COMPETENCY_CATALOG.items()
+            },
+            "anchor_groups": [
+                {"anchor_group_id": group.anchor_group_id, "competency_id": group.competency_id, "difficulty": group.difficulty, "question_ids": list(group.question_ids)}
+                for group in ANCHOR_GROUPS.values()
+            ],
+        }
+    )
+
+
+@manager.route("/cs-interview/admin/calibration", methods=["GET"])  # noqa: F821
+@login_required
+@domain_errors
+async def admin_calibration():
+    """Rubric calibration metrics over the annotated set (never fabricated)."""
+    require_ops_admin()
+    fixture_result, fixture_metadata, annotation_cases = _load_calibration_fixture()
+    return _ok(
+        {
+            "fixture": fixture_result,
+            "fixture_source": (fixture_metadata or {}).get("source"),
+            "fixture_metadata": fixture_metadata,
+            "annotation_case_count": len(annotation_cases),
+            "annotation_cases": [
+                {
+                    "case_id": case.case_id,
+                    "role": case.role,
+                    "competency_id": case.competency_id,
+                    "rubric_version": case.rubric_version,
+                    "adjudicated_score": case.adjudicated_score,
+                    "reviewer_count": case.reviewer_count,
+                    "status": case.status,
+                }
+                for case in annotation_cases
+            ],
+        }
+    )
+
+
 @manager.route("/cs-interview/admin/sessions", methods=["GET"])  # noqa: F821
 @login_required
 @domain_errors
@@ -990,7 +1123,7 @@ async def admin_session_replay(session_id: str):
     if session is None:
         raise DomainError("session_not_found", "Session not found.", http_status=404)
     rounds = list(InterviewRound.select().where(InterviewRound.session_id == session_id).order_by(InterviewRound.sequence))
-    return _ok(replay_session(session, rounds, planner_version=planner_version))
+    return _ok(replay_session(session, rounds, planner_version=planner_version, emit_trace=True))
 
 
 @manager.route("/cs-interview/admin/questions", methods=["GET"])  # noqa: F821

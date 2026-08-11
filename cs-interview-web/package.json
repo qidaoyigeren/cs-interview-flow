@@ -1,0 +1,37 @@
+{
+  "name": "cs-interview-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "CS Interview Agent — 面向求职者的计算机专业模拟面试产品前端",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "lint": "oxlint src",
+    "type-check:ci": "tsc --noEmit && oxlint src"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "4.7.0",
+    "@tanstack/react-query": "5.90.14",
+    "dayjs": "1.11.21",
+    "lucide-react": "1.7.0",
+    "monaco-editor": "0.55.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router": "7.11.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "oxlint": "1.75.0",
+    "playwright-core": "^1.62.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "3.4.19",
+    "typescript": "5.9.3",
+    "vite": "7.3.0"
+  }
+}

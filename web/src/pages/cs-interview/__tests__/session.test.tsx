@@ -22,6 +22,8 @@ jest.mock('@/routes', () => ({
     CsInterviewAdminGovernance: '/cs-interview/admin/governance',
     CsInterviewAdminFeedback: '/cs-interview/admin/feedback',
     CsInterviewAdminExperiments: '/cs-interview/admin/experiments',
+    CsInterviewAdminCompetencies: '/cs-interview/admin/competencies',
+    CsInterviewAdminCalibration: '/cs-interview/admin/calibration',
   },
 }));
 jest.mock('@tanstack/react-query', () => ({
@@ -39,6 +41,12 @@ jest.mock('@/services/cs-interview-service', () => ({
     },
   ),
 }));
+// Mutable fixture read by the mocked useInterviewSession.  Declared with `var`
+// (hoisted, TDZ-free) because the jest.mock factory below runs at import time,
+// before the top-level initializer would execute.
+// eslint-disable-next-line no-var
+var mockActiveRound = {};
+
 jest.mock('@/hooks/use-cs-interview-request', () => ({
   CsInterviewKeys: {
     session: (id: string) => ['cs-interview', 'sessions', id],
@@ -54,23 +62,16 @@ jest.mock('@/hooks/use-cs-interview-request', () => ({
       completedQuestionCount: 1,
       currentRoundSequence: 2,
       startedAt: '2026-08-07T00:00:00Z',
-      activeRound: {
-        id: 'round-2',
-        sequence: 2,
-        status: 'awaiting_answer',
-        category: 'leetcode',
-        topic: 'algorithm.core',
-        difficulty: 'medium',
-        questionText: 'Find two indices whose values sum to the target.',
-        candidateAnswers: [],
-        followupQuestions: [],
-        followupCount: 0,
-        evidenceSources: [
-          { evidenceId: 'e1', documentName: 'Synthetic sample' },
-        ],
-        referenceAnswer: 'THIS MUST NEVER RENDER',
-        evaluationRubric: ['PRIVATE POINT'],
+      projectAttack: {
+        present: true,
+        projectId: 'proj-test',
+        projectName: 'CS面试Agent',
+        attackTargetCount: 6,
+        pendingTargetCount: 4,
+        verifiedClaimCount: 1,
+        claimFollowupLimit: 2,
       },
+      activeRound: mockActiveRound,
     },
     isLoading: false,
     isError: false,
@@ -82,6 +83,44 @@ jest.mock('@/hooks/use-cs-interview-request', () => ({
     abortSession: { mutateAsync: jest.fn(), isPending: false },
   }),
 }));
+
+const baseRound = {
+  id: 'round-2',
+  sequence: 2,
+  status: 'awaiting_answer',
+  difficulty: 'medium',
+  questionText: 'Find two indices whose values sum to the target.',
+  candidateAnswers: [],
+  followupQuestions: [],
+  followupCount: 0,
+  resumeProbe: {},
+  evidenceSources: [{ evidenceId: 'e1', documentName: 'Synthetic sample' }],
+  referenceAnswer: 'THIS MUST NEVER RENDER',
+  evaluationRubric: ['PRIVATE POINT'],
+};
+const leetcodeRound = {
+  ...baseRound,
+  category: 'leetcode',
+  topic: 'algorithm.core',
+};
+const projectDiveRound = {
+  ...baseRound,
+  category: 'interview_experience',
+  topic: 'backend.distributed',
+  questionCategory: 'project',
+  projectTarget: {
+    targetProjectId: 'proj-test',
+    targetClaimId: 'clm-reliable-delivery',
+    projectDimension: 'failure',
+    projectFollowupDepth: 1,
+    claimText: '通过 Redis Lua 租约、ACK Deadline 和 Kafka 实现可靠投递',
+    projectName: 'CS面试Agent',
+    claimType: 'reliability',
+    verificationStatus: 'partial',
+    attemptCount: 1,
+    followupLimit: 2,
+  },
+};
 
 const mockSubmitInterviewAnswer = jest.mocked(submitInterviewAnswer);
 jest.mock('react-i18next', () => ({
@@ -101,6 +140,7 @@ describe('CS interview session recovery', () => {
 
   beforeEach(() => {
     mockSubmitInterviewAnswer.mockClear();
+    mockActiveRound = leetcodeRound;
   });
 
   it('renders the persisted active round and code mode without hidden fields', () => {
@@ -154,6 +194,57 @@ describe('CS interview session recovery', () => {
         expect.any(Function),
       ),
     );
+  });
+
+  it('renders the project deep-dive panel without leaking planner internals', () => {
+    mockActiveRound = projectDiveRound;
+    render(
+      <MemoryRouter initialEntries={['/cs-interview/session/session-1']}>
+        <RouterRoutes>
+          <Route
+            path="/cs-interview/session/:id"
+            element={<InterviewSessionPage />}
+          />
+        </RouterRoutes>
+      </MemoryRouter>,
+    );
+    expect(screen.getByText('csInterview.session.projectDive')).toBeInTheDocument();
+    expect(screen.getByText('CS面试Agent')).toBeInTheDocument();
+    // Internal planner weights / scoring points must never reach the page.
+    expect(screen.queryByText('priority')).not.toBeInTheDocument();
+    expect(screen.queryByText('decision_audit')).not.toBeInTheDocument();
+  });
+
+  it('never labels a foundation round as a project deep-dive', () => {
+    mockActiveRound = {
+      ...baseRound,
+      category: 'interview_experience',
+      topic: 'backend.distributed',
+      questionCategory: 'foundation',
+      projectDiveDowngraded: true,
+      projectTarget: undefined,
+    };
+    render(
+      <MemoryRouter initialEntries={['/cs-interview/session/session-1']}>
+        <RouterRoutes>
+          <Route
+            path="/cs-interview/session/:id"
+            element={<InterviewSessionPage />}
+          />
+        </RouterRoutes>
+      </MemoryRouter>,
+    );
+    // Even though the session has an attack map, a foundation round must show
+    // the foundation panel and never the project deep-dive panel.
+    expect(
+      screen.queryByText('csInterview.session.projectDive'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('csInterview.session.foundationVerify'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('csInterview.session.foundationDowngraded'),
+    ).toBeInTheDocument();
   });
 
   it('renders a disconnected state and preserves an idempotent retry action', async () => {

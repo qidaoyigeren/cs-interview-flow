@@ -8,11 +8,13 @@ import {
   ClipboardCheck,
   Database,
   FileText,
+  Gauge,
   ListChecks,
   MessageSquareWarning,
   Radio,
   Settings2,
   ShieldCheck,
+  Target,
 } from 'lucide-react';
 import { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -27,12 +29,45 @@ const ShellLinks = [
 ];
 
 const AdminLinks = [
-  { to: Routes.CsInterviewAdminQuality, key: 'adminQuality', icon: ShieldCheck },
-  { to: Routes.CsInterviewAdminSessions, key: 'adminSessions', icon: ListChecks },
-  { to: Routes.CsInterviewAdminGovernance, key: 'adminGovernance', icon: BookOpenCheck },
-  { to: Routes.CsInterviewAdminFeedback, key: 'adminFeedback', icon: MessageSquareWarning },
-  { to: Routes.CsInterviewAdminExperiments, key: 'adminExperiments', icon: ClipboardCheck },
+  {
+    to: Routes.CsInterviewAdminQuality,
+    key: 'adminQuality',
+    icon: ShieldCheck,
+  },
+  {
+    to: Routes.CsInterviewAdminSessions,
+    key: 'adminSessions',
+    icon: ListChecks,
+  },
+  {
+    to: Routes.CsInterviewAdminGovernance,
+    key: 'adminGovernance',
+    icon: BookOpenCheck,
+  },
+  {
+    to: Routes.CsInterviewAdminFeedback,
+    key: 'adminFeedback',
+    icon: MessageSquareWarning,
+  },
+  {
+    to: Routes.CsInterviewAdminCompetencies,
+    key: 'adminCompetencies',
+    icon: Target,
+  },
+  {
+    to: Routes.CsInterviewAdminCalibration,
+    key: 'adminCalibration',
+    icon: Gauge,
+  },
+  {
+    to: Routes.CsInterviewAdminExperiments,
+    key: 'adminExperiments',
+    icon: ClipboardCheck,
+  },
 ];
+
+export const NativeSelectThemeClass =
+  'text-text-primary [&>option]:bg-bg-base [&>option]:text-text-primary';
 
 export function InterviewShell({ children }: PropsWithChildren) {
   const { t } = useTranslation();

@@ -431,10 +431,22 @@ def test_planner_decision_audit_records_candidates_and_rewards():
     assert audit["reason_branch"] == "planner"
     assert "candidates" in audit and len(audit["candidates"]) == 2
     first = audit["candidates"][0]
-    assert {"jd_weight", "risk_multiplier", "contradiction_bonus", "new_claim_bonus", "untested_bonus", "repeat_penalty", "attempt_penalty", "rank_score"} <= set(first)
+    assert {
+        "jd_weight",
+        "verification_uncertainty",
+        "expected_information_gain",
+        "resume_risk",
+        "repetition_penalty",
+        "time_cost",
+        "comparability_penalty",
+        "action_value",
+    } <= set(first)
     assert audit["selected"]["requirement_id"] == action.target_requirement_id
     assert audit["budget"]["remaining_question_budget"] == 2
     assert audit["input"]["plan_hash"] and audit["input"]["candidate_state_hash"]
+    # PlannerAction carries the factor breakdown for replay interpretation.
+    assert action.action_factors["action_value"] == first["action_value"]
+    assert action.question_kind in {"anchor", "adaptive", "coding"}
 
 
 def test_planner_audit_reports_unattempted_guard_eliminations():

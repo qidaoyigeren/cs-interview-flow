@@ -1,5 +1,8 @@
 import { Button } from '@/components/ui/button';
-import { useInterviewSessions } from '@/hooks/use-cs-interview-request';
+import {
+  useInterviewKnowledgeBootstrap,
+  useInterviewSessions,
+} from '@/hooks/use-cs-interview-request';
 import { Routes } from '@/routes';
 import dayjs from 'dayjs';
 import { ArrowRight, History, Target } from 'lucide-react';
@@ -16,6 +19,7 @@ import {
 
 export default function CsInterviewHome() {
   const { t } = useTranslation();
+  useInterviewKnowledgeBootstrap();
   const { data: sessions = [], isLoading } = useInterviewSessions();
   const completed = sessions.filter((item) => item.status === 'completed');
   const average = completed.length

@@ -14,8 +14,8 @@ def test_synthetic_offline_fixture_is_computed_and_meets_gate():
         "report_cases": 1,
         "visibility_cases": 1,
         "agentic_cases": 50,
-        "agentic_requirements": 48,
-        "agentic_resume_claims": 25,
+        "agentic_requirements": 44,
+        "agentic_resume_claims": 19,
     }
     assert result.metrics["retrieval_recall_at_5"] == 1.0
     assert result.metrics["question_duplicate_ratio"] == 0
@@ -26,6 +26,15 @@ def test_synthetic_offline_fixture_is_computed_and_meets_gate():
     assert result.thresholds["jd_requirement_question_coverage"]["passed"]
     assert result.thresholds["resume_claim_verification_rate"]["passed"]
     assert result.thresholds["replay_determinism_ratio"]["passed"]
+    # Project deep-dive metrics must pass on the project scenarios.
+    assert result.thresholds["project_claim_coverage"]["passed"]
+    assert result.thresholds["project_claim_verification_accuracy"]["passed"]
+    assert result.thresholds["project_followup_relevance"]["passed"]
+    assert result.thresholds["metric_verification_accuracy"]["passed"]
+    assert result.thresholds["cross_project_leakage"]["passed"]
+    assert result.thresholds["project_replay_consistency"]["passed"]
+    assert result.thresholds["project_claim_verification_accuracy"]["sample_count"] == 7
+    assert result.thresholds["project_claim_verification_accuracy"]["ci"]["point"] == 1.0
     # Threshold rows carry the sample count and a Wilson CI.
     assert result.thresholds["retrieval_recall_at_5"]["sample_count"] == 6
     assert result.thresholds["retrieval_recall_at_5"]["ci"]["low"] <= 1.0 <= result.thresholds["retrieval_recall_at_5"]["ci"]["high"]

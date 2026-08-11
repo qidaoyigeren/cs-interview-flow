@@ -199,7 +199,13 @@ async def extract_job(adapter: Any, tenant_id: str, job: InterviewJob, *, force:
         },
         ensure_ascii=False,
     )
-    output, _ = await adapter.chat(tenant_id, JOB_EXTRACTION_SYSTEM_PROMPT, user, temperature=0.0)
+    output, _ = await adapter.chat(
+        tenant_id,
+        JOB_EXTRACTION_SYSTEM_PROMPT,
+        user,
+        temperature=0.0,
+        response_format={"type": "json_object"},
+    )
     extraction = validate_job_extraction(strict_json_object(output, "invalid_job_extraction"), job.source_text)
     InterviewJob.update(
         extraction=extraction,

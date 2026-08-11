@@ -3,17 +3,46 @@ export type InterviewCategory = 'interview_experience' | 'leetcode' | 'baguwen';
 
 export type ClaimedLevel = 'fluent' | 'experienced' | 'proficient' | 'familiar' | 'beginner';
 
+export type ClaimType =
+  | 'architecture'
+  | 'technology_choice'
+  | 'mechanism'
+  | 'reliability'
+  | 'data_design'
+  | 'interface'
+  | 'metric'
+  | 'testing';
+
+export type ClaimRiskFlag =
+  | 'vague_metric'
+  | 'unexplained_choice'
+  | 'happy_path_only'
+  | 'keyword_stacking'
+  | 'missing_validation';
+
 export interface ClaimedSkill {
   skill: string;
   claimedLevel: ClaimedLevel;
   topics: string[];
 }
 
+export interface ResumeProjectClaim {
+  claimId: string;
+  claimType: ClaimType;
+  text: string;
+  evidenceSpan: string;
+  topicIds: string[];
+  skills: string[];
+  riskFlags: ClaimRiskFlag[];
+}
+
 export interface ResumeProject {
+  projectId?: string;
   name: string;
   role: string;
   summary: string;
   skills: string[];
+  claims?: ResumeProjectClaim[];
 }
 
 export interface ResumeExtraction {
@@ -38,6 +67,7 @@ export interface InterviewResume {
   chunkCount: number;
   extraction?: ResumeExtraction;
   extractedAt?: string;
+  needsExtraction?: boolean;
   createdAt: string;
   updatedAt: string;
   preview?: {
@@ -151,6 +181,39 @@ export interface InterviewDatasetOption {
   documentCount: number;
   chunkCount: number;
   embeddingModel: string;
+  readOnly?: boolean;
+  updatedAt: string;
+}
+
+export type KnowledgeBootstrapStatus =
+  | 'pending'
+  | 'binding'
+  | 'running'
+  | 'retry_wait'
+  | 'ready'
+  | 'failed';
+
+export interface KnowledgeBootstrapProgress {
+  total: number;
+  imported: number;
+  parsed: number;
+  chunks: number;
+}
+
+export interface InterviewKnowledgeBootstrap {
+  id: string;
+  corpusVersion: string;
+  status: KnowledgeBootstrapStatus;
+  currentStage: string;
+  progress: Record<string, KnowledgeBootstrapProgress>;
+  datasetIds: Record<string, string>;
+  attemptCount: number;
+  maxAttempts: number;
+  errorCode?: string;
+  errorMessage?: string;
+  startedAt?: string;
+  completedAt?: string;
+  createdAt: string;
   updatedAt: string;
 }
 
@@ -174,6 +237,8 @@ export interface InterviewRound {
   category: InterviewCategory;
   topic: string;
   questionType: 'theory' | 'scenario' | 'coding';
+  questionKind?: 'anchor' | 'adaptive' | 'coding';
+  competencyId?: string;
   difficulty: InterviewDifficulty;
   questionText: string;
   candidateAnswers: CandidateAnswer[];
@@ -187,9 +252,33 @@ export interface InterviewRound {
   followupCount: number;
   codeSubmissionId?: string;
   resumeProbe?: {
-    skills: string[];
+    skills?: string[];
     project?: { name: string; role?: string };
+    claim?: {
+      claimId?: string;
+      claimType?: string;
+      dimension?: string;
+      text?: string;
+    };
   };
+  projectTarget?: {
+    targetProjectId?: string;
+    targetClaimId?: string;
+    projectDimension?: string;
+    projectFollowupDepth?: number;
+    claimText?: string;
+    projectName?: string;
+    claimType?: string;
+    verificationStatus?: ProjectClaimVerificationStatus;
+    attemptCount?: number;
+    followupLimit?: number;
+  };
+  /** Deterministic frontend classification: 'project' | 'foundation' | 'anchor' | 'coding'. */
+  questionCategory?: 'project' | 'foundation' | 'anchor' | 'coding';
+  /** True when a project claim's evidence was missing and the round degraded to a foundation question. */
+  projectDiveDowngraded?: boolean;
+  /** When a foundation question was pulled by the most recent project's technology. */
+  pulledByProject?: { topicId?: string; projectName?: string };
   selectedAction?: string;
   targetRequirementId?: string;
   targetRequirement?: JDRequirement;
@@ -245,6 +334,74 @@ export interface JDVerificationItem {
   unmapped: boolean;
 }
 
+export type CompetencyStatus =
+  | 'verified'
+  | 'partial'
+  | 'insufficient_evidence'
+  | 'contradiction'
+  | 'uncovered';
+
+export interface CompetencyEvidenceTrackItem {
+  kind:
+    | 'jd_requirement'
+    | 'resume_claim'
+    | 'anchor_question'
+    | 'adaptive_question'
+    | 'answer_evidence';
+  text?: string;
+  roundId?: string;
+  questionText?: string;
+  questionKind?: string;
+  score?: number | null;
+  confidence?: number | null;
+  lowConfidence?: boolean;
+  spans?: Array<{ spanId: string; text: string }>;
+}
+
+export interface CompetencyVerificationItem {
+  competencyId: string;
+  name: string;
+  weight: number;
+  mustHave: boolean;
+  status: CompetencyStatus;
+  score: number | null;
+  bestScore: number | null;
+  lowConfidence: boolean;
+  anchorDone: boolean;
+  testedRoundCount: number;
+  conclusion: string;
+  evidenceTrack: CompetencyEvidenceTrackItem[];
+}
+
+export type ProjectClaimVerificationStatus =
+  | 'untested'
+  | 'partial'
+  | 'verified'
+  | 'disputed'
+  | 'contradiction'
+  | 'low_confidence';
+
+export interface ProjectClaimVerificationItem {
+  projectId: string;
+  projectName: string;
+  claimId: string;
+  claimText: string;
+  claimType: string;
+  evidenceSpan: string;
+  dimensions: Array<{
+    dimension: string;
+    status: ProjectClaimVerificationStatus;
+    attemptCount: number;
+    followupDepth: number;
+    answeredEvidence: Array<{ fact: string; factKind: string; evidenceSpan: string }>;
+    relatedQuestionIds: string[];
+  }>;
+  verificationStatus: ProjectClaimVerificationStatus;
+  score: number | null;
+  testedRoundCount: number;
+  conclusion: string;
+}
+
 export interface InterviewReport {
   id: string;
   sessionId: string;
@@ -272,6 +429,8 @@ export interface InterviewReport {
   };
   skillVerification?: SkillVerificationItem[];
   jdVerificationMatrix: JDVerificationItem[];
+  competencyVerification?: CompetencyVerificationItem[];
+  projectClaimVerification?: ProjectClaimVerificationItem[];
   reportMarkdown: string;
   reportVersion: string;
 }
@@ -293,6 +452,15 @@ export interface InterviewSession {
     id?: string;
     name?: string;
     unmappedRequirementIds: string[];
+  };
+  projectAttack?: {
+    present: boolean;
+    projectId?: string;
+    projectName?: string;
+    attackTargetCount?: number;
+    pendingTargetCount?: number;
+    verifiedClaimCount?: number;
+    claimFollowupLimit?: number;
   };
   startedAt?: string;
   completedAt?: string;
@@ -420,13 +588,31 @@ export interface InterviewPlannerDecision {
   selectedAction?: string;
   targetRequirementId?: string;
   targetTopic?: string;
+  questionKind?: string;
+  competencyId?: string;
+  actionFactors?: Record<string, number | string>;
   reason?: string;
   decisionAudit?: Record<string, any>;
+}
+
+export interface InterviewEvidenceAudit {
+  answerSequence?: number;
+  score?: number;
+  matchedAnchor?: number;
+  confidence?: number;
+  lowConfidence?: boolean;
+  consistencyPassed?: boolean;
+  evidenceSpanIds?: string[];
+  spanTexts?: string[];
 }
 
 export interface InterviewAuditRound {
   sequence: number;
   topic: string;
+  competencyId?: string;
+  questionKind?: string;
+  anchorGroupId?: string;
+  rubricVersion?: string;
   category: string;
   difficulty: string;
   questionId: string;
@@ -437,6 +623,7 @@ export interface InterviewAuditRound {
   modelVersion?: string;
   promptVersion?: string;
   plannerActions: InterviewPlannerDecision[];
+  evidenceEvaluation?: InterviewEvidenceAudit[];
   answerSummary: string;
 }
 
@@ -500,4 +687,76 @@ export interface InterviewExperimentView {
   status: string;
   trafficPercentage: number;
   createdBy?: string;
+}
+
+export interface CalibrationMetricView {
+  name: string;
+  value: number;
+  sampleCount: number;
+  insufficient: boolean;
+}
+
+export interface CalibrationView {
+  fixture?: {
+    metrics: Record<string, number>;
+    sampleCounts: Record<string, number>;
+    insufficient: Record<string, boolean>;
+    confusionMatrix: Record<string, Record<string, number>>;
+    perCompetency: Record<
+      string,
+      {
+        caseCount: number;
+        agentHumanExactRatio: number;
+        insufficient: boolean;
+      }
+    >;
+    versions: Record<string, string>;
+  };
+  fixtureSource?: string | null;
+  fixtureMetadata?: {
+    source?: string;
+    reviewStatus?: 'synthetic_ci_only' | 'human_reviewed' | string;
+    description?: string;
+  } | null;
+  annotationCaseCount: number;
+  annotationCases: Array<{
+    caseId: string;
+    role: string;
+    competencyId: string;
+    rubricVersion: string;
+    adjudicatedScore?: number;
+    reviewerCount: number;
+    status: string;
+  }>;
+}
+
+export interface CompetencyCatalogView {
+  rubricVersion: string;
+  anchorGroupCount: number;
+  levelPolicies: Record<
+    string,
+    {
+      requiredScore: number;
+      minimumHighConfidenceEvidence: number;
+      defaultDifficulty: string;
+      expectation: string;
+    }
+  >;
+  roles: Record<
+    string,
+    Array<{
+      competencyId: string;
+      name: string;
+      weight: number;
+      mustHave: boolean;
+      anchorQuestionPolicy: string;
+      scoreAnchorLevels: number[];
+    }>
+  >;
+  anchorGroups: Array<{
+    anchorGroupId: string;
+    competencyId: string;
+    difficulty: string;
+    questionIds: string[];
+  }>;
 }

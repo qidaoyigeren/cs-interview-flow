@@ -17,6 +17,10 @@ export function validateInterviewConfiguration(
   if (profile.maxFollowups < 0 || profile.maxFollowups > 5) {
     errors.push('maxFollowups');
   }
+  const excludedTopics = new Set(profile.excludedTopics);
+  if (profile.focusTopics.some((topic) => excludedTopics.has(topic))) {
+    errors.push('topicConflict');
+  }
   if (!knowledge?.enabled) errors.push('knowledge');
   const ids = knowledge
     ? [

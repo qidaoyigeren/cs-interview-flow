@@ -66,7 +66,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 4,
@@ -152,7 +155,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 4,
@@ -238,7 +244,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -328,7 +337,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -396,7 +408,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -723,7 +738,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -791,7 +809,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 0,
@@ -913,7 +934,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -1003,7 +1027,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -1016,15 +1043,15 @@
         "remaining_question_budget": 2,
         "current_difficulty": "beginner"
       },
-      "expected_action": "switch_topic",
+      "expected_action": "verify_jd_requirement",
       "question": {
-        "target_requirement_id": "cw-1",
-        "topic": "go.runtime",
-        "question_text": "Explain a production trade-off involving go.runtime.",
+        "target_requirement_id": "cw-2",
+        "topic": "database.mysql",
+        "question_text": "Explain a production trade-off involving database.mysql.",
         "evidence": [
           {
-            "evidence_id": "ev-go.runtime",
-            "content": "A reviewed production guide for go.runtime explains trade-offs, failure modes, and verification steps."
+            "evidence_id": "ev-database.mysql",
+            "content": "A reviewed production guide for database.mysql explains trade-offs, failure modes, and verification steps."
           }
         ],
         "candidate_response": {
@@ -1162,7 +1189,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -1293,7 +1323,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -1362,7 +1395,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -1466,7 +1502,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -1562,7 +1601,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -1676,7 +1718,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -1710,15 +1755,15 @@
         },
         "max_followups": 2
       },
-      "expected_action": "verify_resume_claim",
+      "expected_action": "verify_jd_requirement",
       "question": {
-        "target_requirement_id": "afc-1",
-        "topic": "go.runtime",
-        "question_text": "Explain a production trade-off involving go.runtime.",
+        "target_requirement_id": "afc-2",
+        "topic": "database.mysql",
+        "question_text": "Explain a production trade-off involving database.mysql.",
         "evidence": [
           {
-            "evidence_id": "ev-go.runtime",
-            "content": "A reviewed production guide for go.runtime explains trade-offs, failure modes, and verification steps."
+            "evidence_id": "ev-database.mysql",
+            "content": "A reviewed production guide for database.mysql explains trade-offs, failure modes, and verification steps."
           }
         ],
         "candidate_response": {
@@ -1790,7 +1835,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -2015,7 +2063,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -2112,7 +2163,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 3,
@@ -2174,6 +2228,1640 @@
       ]
     },
     {
+      "id": "project-rag-deep-dive",
+      "description": "RAG/Agent 项目机制声明触发项目深挖",
+      "requirements": [
+        {
+          "requirement_id": "req-rag",
+          "category": "must_have",
+          "topic_ids": [
+            "ai.rag"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-e844822029ee7be8",
+          "dimension": "tradeoff"
+        },
+        "project_id": "proj-e90d0e1f9594e3",
+        "project_name": "CS面试Agent"
+      },
+      "planner": {
+        "phase": "initial",
+        "plan": [
+          {
+            "requirement_id": "req-rag",
+            "topic_id": "ai.rag",
+            "priority": 1.0,
+            "objective": "Verify project-rag-deep-dive",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "ai.rag",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-e90d0e1f9594e3::clm-e844822029ee7be8::tradeoff",
+              "project_id": "proj-e90d0e1f9594e3",
+              "project_name": "CS面试Agent",
+              "claim_id": "clm-e844822029ee7be8",
+              "claim_type": "mechanism",
+              "claim_text": "采用Operation/Event/Checkpoint机制防止状态丢失",
+              "dimension": "tradeoff",
+              "topic_id": "ai.rag",
+              "jd_requirement_id": "req-rag",
+              "priority": 0.45125,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-e90d0e1f9594e3::clm-e844822029ee7be8::implementation",
+              "project_id": "proj-e90d0e1f9594e3",
+              "project_name": "CS面试Agent",
+              "claim_id": "clm-e844822029ee7be8",
+              "claim_type": "mechanism",
+              "claim_text": "采用Operation/Event/Checkpoint机制防止状态丢失",
+              "dimension": "implementation",
+              "topic_id": "ai.rag",
+              "jd_requirement_id": "req-rag",
+              "priority": 0.42375,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-e90d0e1f9594e3::clm-e844822029ee7be8::failure",
+              "project_id": "proj-e90d0e1f9594e3",
+              "project_name": "CS面试Agent",
+              "claim_id": "clm-e844822029ee7be8",
+              "claim_type": "mechanism",
+              "claim_text": "采用Operation/Event/Checkpoint机制防止状态丢失",
+              "dimension": "failure",
+              "topic_id": "ai.rag",
+              "jd_requirement_id": "req-rag",
+              "priority": 0.27375,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-e90d0e1f9594e3::clm-e844822029ee7be8::tradeoff": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-e90d0e1f9594e3::clm-e844822029ee7be8::implementation": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-e90d0e1f9594e3::clm-e844822029ee7be8::failure": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 6,
+        "current_difficulty": "medium"
+      },
+      "expected_action": "verify_project_claim",
+      "question": {
+        "target_requirement_id": "req-rag",
+        "topic": "ai.rag",
+        "question_text": "Explain a production trade-off involving ai.rag.",
+        "evidence": [
+          {
+            "evidence_id": "ev-ai.rag",
+            "content": "A reviewed production guide for ai.rag explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-rag-deep-dive"
+      ]
+    },
+    {
+      "id": "project-go-failure",
+      "description": "Go 后端并发声明（仅正常链路）触发故障边界追问",
+      "requirements": [
+        {
+          "requirement_id": "req-go",
+          "category": "must_have",
+          "topic_ids": [
+            "go.runtime"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-2fe86ff638db2382",
+          "dimension": "failure"
+        },
+        "project_id": "proj-4c5fe897616eb4",
+        "project_name": "交易网关"
+      },
+      "planner": {
+        "phase": "initial",
+        "plan": [
+          {
+            "requirement_id": "req-go",
+            "topic_id": "go.runtime",
+            "priority": 1.0,
+            "objective": "Verify project-go-failure",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "go.runtime",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-4c5fe897616eb4::clm-2fe86ff638db2382::failure",
+              "project_id": "proj-4c5fe897616eb4",
+              "project_name": "交易网关",
+              "claim_id": "clm-2fe86ff638db2382",
+              "claim_type": "mechanism",
+              "claim_text": "使用 Goroutine 池处理高并发订单请求",
+              "dimension": "failure",
+              "topic_id": "go.runtime",
+              "jd_requirement_id": "req-go",
+              "priority": 0.618,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-4c5fe897616eb4::clm-2fe86ff638db2382::implementation",
+              "project_id": "proj-4c5fe897616eb4",
+              "project_name": "交易网关",
+              "claim_id": "clm-2fe86ff638db2382",
+              "claim_type": "mechanism",
+              "claim_text": "使用 Goroutine 池处理高并发订单请求",
+              "dimension": "implementation",
+              "topic_id": "go.runtime",
+              "jd_requirement_id": "req-go",
+              "priority": 0.5385,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-4c5fe897616eb4::clm-2fe86ff638db2382::tradeoff",
+              "project_id": "proj-4c5fe897616eb4",
+              "project_name": "交易网关",
+              "claim_id": "clm-2fe86ff638db2382",
+              "claim_type": "mechanism",
+              "claim_text": "使用 Goroutine 池处理高并发订单请求",
+              "dimension": "tradeoff",
+              "topic_id": "go.runtime",
+              "jd_requirement_id": "req-go",
+              "priority": 0.4385,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-4c5fe897616eb4::clm-2fe86ff638db2382::failure": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-4c5fe897616eb4::clm-2fe86ff638db2382::implementation": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-4c5fe897616eb4::clm-2fe86ff638db2382::tradeoff": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 6,
+        "current_difficulty": "medium"
+      },
+      "expected_action": "verify_project_claim",
+      "question": {
+        "target_requirement_id": "req-go",
+        "topic": "go.runtime",
+        "question_text": "Explain a production trade-off involving go.runtime.",
+        "evidence": [
+          {
+            "evidence_id": "ev-go.runtime",
+            "content": "A reviewed production guide for go.runtime explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-go-failure"
+      ]
+    },
+    {
+      "id": "project-redis-mysql-tradeoff",
+      "description": "Redis/MySQL 项目技术选型触发替代方案权衡",
+      "requirements": [
+        {
+          "requirement_id": "req-redis",
+          "category": "must_have",
+          "topic_ids": [
+            "backend.distributed"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-eb2decd36b615727",
+          "dimension": "selection"
+        },
+        "project_id": "proj-240cba28e57e14",
+        "project_name": "订单中心"
+      },
+      "planner": {
+        "phase": "initial",
+        "plan": [
+          {
+            "requirement_id": "req-redis",
+            "topic_id": "backend.distributed",
+            "priority": 1.0,
+            "objective": "Verify project-redis-mysql-tradeoff",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "backend.distributed",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-240cba28e57e14::clm-eb2decd36b615727::selection",
+              "project_id": "proj-240cba28e57e14",
+              "project_name": "订单中心",
+              "claim_id": "clm-eb2decd36b615727",
+              "claim_type": "technology_choice",
+              "claim_text": "选用 Redis 缓存热点数据",
+              "dimension": "selection",
+              "topic_id": "backend.distributed",
+              "jd_requirement_id": "req-redis",
+              "priority": 0.50125,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-240cba28e57e14::clm-eb2decd36b615727::tradeoff",
+              "project_id": "proj-240cba28e57e14",
+              "project_name": "订单中心",
+              "claim_id": "clm-eb2decd36b615727",
+              "claim_type": "technology_choice",
+              "claim_text": "选用 Redis 缓存热点数据",
+              "dimension": "tradeoff",
+              "topic_id": "backend.distributed",
+              "jd_requirement_id": "req-redis",
+              "priority": 0.45125,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-240cba28e57e14::clm-860fb36f923656f4::metric",
+              "project_id": "proj-240cba28e57e14",
+              "project_name": "订单中心",
+              "claim_id": "clm-860fb36f923656f4",
+              "claim_type": "metric",
+              "claim_text": "缓存命中率从85%提升到99%",
+              "dimension": "metric",
+              "topic_id": "backend.distributed",
+              "jd_requirement_id": "req-redis",
+              "priority": 0.17075,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-240cba28e57e14::clm-eb2decd36b615727::selection": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-240cba28e57e14::clm-eb2decd36b615727::tradeoff": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-240cba28e57e14::clm-860fb36f923656f4::metric": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 6,
+        "current_difficulty": "medium"
+      },
+      "expected_action": "verify_project_claim",
+      "question": {
+        "target_requirement_id": "req-redis",
+        "topic": "backend.distributed",
+        "question_text": "Explain a production trade-off involving backend.distributed.",
+        "evidence": [
+          {
+            "evidence_id": "ev-backend.distributed",
+            "content": "A reviewed production guide for backend.distributed explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-redis-mysql-tradeoff"
+      ]
+    },
+    {
+      "id": "project-no-metrics",
+      "description": "没有量化数据的项目仍可深挖但不出指标题",
+      "requirements": [
+        {
+          "requirement_id": "req-risk",
+          "category": "must_have",
+          "topic_ids": [
+            "backend.distributed"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-35bbb899d5e41c0a",
+          "dimension": "failure"
+        },
+        "project_id": "proj-2f3b04afcf28bf",
+        "project_name": "风控平台"
+      },
+      "planner": {
+        "phase": "initial",
+        "plan": [
+          {
+            "requirement_id": "req-risk",
+            "topic_id": "backend.distributed",
+            "priority": 1.0,
+            "objective": "Verify project-no-metrics",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "backend.distributed",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-2f3b04afcf28bf::clm-35bbb899d5e41c0a::failure",
+              "project_id": "proj-2f3b04afcf28bf",
+              "project_name": "风控平台",
+              "claim_id": "clm-35bbb899d5e41c0a",
+              "claim_type": "mechanism",
+              "claim_text": "基于规则引擎实现实时风控拦截",
+              "dimension": "failure",
+              "topic_id": "backend.distributed",
+              "jd_requirement_id": "req-risk",
+              "priority": 0.618,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-2f3b04afcf28bf::clm-35bbb899d5e41c0a::implementation",
+              "project_id": "proj-2f3b04afcf28bf",
+              "project_name": "风控平台",
+              "claim_id": "clm-35bbb899d5e41c0a",
+              "claim_type": "mechanism",
+              "claim_text": "基于规则引擎实现实时风控拦截",
+              "dimension": "implementation",
+              "topic_id": "backend.distributed",
+              "jd_requirement_id": "req-risk",
+              "priority": 0.5385,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-2f3b04afcf28bf::clm-35bbb899d5e41c0a::tradeoff",
+              "project_id": "proj-2f3b04afcf28bf",
+              "project_name": "风控平台",
+              "claim_id": "clm-35bbb899d5e41c0a",
+              "claim_type": "mechanism",
+              "claim_text": "基于规则引擎实现实时风控拦截",
+              "dimension": "tradeoff",
+              "topic_id": "backend.distributed",
+              "jd_requirement_id": "req-risk",
+              "priority": 0.4385,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-2f3b04afcf28bf::clm-35bbb899d5e41c0a::failure": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-2f3b04afcf28bf::clm-35bbb899d5e41c0a::implementation": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-2f3b04afcf28bf::clm-35bbb899d5e41c0a::tradeoff": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 6,
+        "current_difficulty": "medium"
+      },
+      "expected_action": "verify_project_claim",
+      "question": {
+        "target_requirement_id": "req-risk",
+        "topic": "backend.distributed",
+        "question_text": "Explain a production trade-off involving backend.distributed.",
+        "evidence": [
+          {
+            "evidence_id": "ev-backend.distributed",
+            "content": "A reviewed production guide for backend.distributed explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-no-metrics"
+      ]
+    },
+    {
+      "id": "project-suspicious-metrics",
+      "description": "包含可疑百分比的项目触发指标验真",
+      "requirements": [
+        {
+          "requirement_id": "req-rec",
+          "category": "must_have",
+          "topic_ids": [
+            "ai.evaluation"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-d741c405653cc7e4",
+          "dimension": "metric"
+        },
+        "project_id": "proj-0fc33ea26de416",
+        "project_name": "推荐系统"
+      },
+      "planner": {
+        "phase": "initial",
+        "plan": [
+          {
+            "requirement_id": "req-rec",
+            "topic_id": "ai.evaluation",
+            "priority": 1.0,
+            "objective": "Verify project-suspicious-metrics",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "ai.evaluation",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-0fc33ea26de416::clm-d741c405653cc7e4::metric",
+              "project_id": "proj-0fc33ea26de416",
+              "project_name": "推荐系统",
+              "claim_id": "clm-d741c405653cc7e4",
+              "claim_type": "metric",
+              "claim_text": "大幅提升了推荐转化率",
+              "dimension": "metric",
+              "topic_id": "ai.evaluation",
+              "jd_requirement_id": "req-rec",
+              "priority": 0.668,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-0fc33ea26de416::clm-d741c405653cc7e4::metric": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 6,
+        "current_difficulty": "medium"
+      },
+      "expected_action": "verify_project_claim",
+      "question": {
+        "target_requirement_id": "req-rec",
+        "topic": "ai.evaluation",
+        "question_text": "Explain a production trade-off involving ai.evaluation.",
+        "evidence": [
+          {
+            "evidence_id": "ev-ai.evaluation",
+            "content": "A reviewed production guide for ai.evaluation explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-suspicious-metrics"
+      ]
+    },
+    {
+      "id": "project-keyword-stacking",
+      "description": "技术关键词堆叠但职责不清的项目",
+      "requirements": [
+        {
+          "requirement_id": "req-data",
+          "category": "must_have",
+          "topic_ids": [
+            "backend.distributed"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-54cd80f3ce85c4ec",
+          "dimension": "implementation"
+        },
+        "project_id": "proj-221f27ac82d9dd",
+        "project_name": "数据平台"
+      },
+      "planner": {
+        "phase": "initial",
+        "plan": [
+          {
+            "requirement_id": "req-data",
+            "topic_id": "backend.distributed",
+            "priority": 1.0,
+            "objective": "Verify project-keyword-stacking",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "backend.distributed",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-221f27ac82d9dd::clm-54cd80f3ce85c4ec::implementation",
+              "project_id": "proj-221f27ac82d9dd",
+              "project_name": "数据平台",
+              "claim_id": "clm-54cd80f3ce85c4ec",
+              "claim_type": "architecture",
+              "claim_text": "使用Spark、Kafka、Flink、Hive构建数据平台",
+              "dimension": "implementation",
+              "topic_id": "backend.distributed",
+              "jd_requirement_id": "req-data",
+              "priority": 0.42375,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-221f27ac82d9dd::clm-54cd80f3ce85c4ec::interface",
+              "project_id": "proj-221f27ac82d9dd",
+              "project_name": "数据平台",
+              "claim_id": "clm-54cd80f3ce85c4ec",
+              "claim_type": "architecture",
+              "claim_text": "使用Spark、Kafka、Flink、Hive构建数据平台",
+              "dimension": "interface",
+              "topic_id": "backend.distributed",
+              "jd_requirement_id": "req-data",
+              "priority": 0.42375,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-221f27ac82d9dd::clm-54cd80f3ce85c4ec::tradeoff",
+              "project_id": "proj-221f27ac82d9dd",
+              "project_name": "数据平台",
+              "claim_id": "clm-54cd80f3ce85c4ec",
+              "claim_type": "architecture",
+              "claim_text": "使用Spark、Kafka、Flink、Hive构建数据平台",
+              "dimension": "tradeoff",
+              "topic_id": "backend.distributed",
+              "jd_requirement_id": "req-data",
+              "priority": 0.32375,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-221f27ac82d9dd::clm-54cd80f3ce85c4ec::implementation": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-221f27ac82d9dd::clm-54cd80f3ce85c4ec::interface": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-221f27ac82d9dd::clm-54cd80f3ce85c4ec::tradeoff": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 6,
+        "current_difficulty": "medium"
+      },
+      "expected_action": "verify_project_claim",
+      "question": {
+        "target_requirement_id": "req-data",
+        "topic": "backend.distributed",
+        "question_text": "Explain a production trade-off involving backend.distributed.",
+        "evidence": [
+          {
+            "evidence_id": "ev-backend.distributed",
+            "content": "A reviewed production guide for backend.distributed explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-keyword-stacking"
+      ]
+    },
+    {
+      "id": "project-contradiction",
+      "description": "回答与简历声明互相矛盾时先澄清矛盾",
+      "requirements": [
+        {
+          "requirement_id": "project-contradiction-req",
+          "category": "must_have",
+          "topic_ids": [
+            "ai.rag"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-e844822029ee7be8",
+          "dimension": "tradeoff"
+        },
+        "project_id": "proj-e90d0e1f9594e3",
+        "project_name": "CS面试Agent"
+      },
+      "planner": {
+        "phase": "after_answer",
+        "plan": [
+          {
+            "requirement_id": "project-contradiction-req",
+            "topic_id": "ai.rag",
+            "priority": 1.0,
+            "objective": "验证项目声明",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "ai.rag",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-e90d0e1f9594e3::clm-e844822029ee7be8::tradeoff",
+              "project_id": "proj-e90d0e1f9594e3",
+              "project_name": "CS面试Agent",
+              "claim_id": "clm-e844822029ee7be8",
+              "claim_type": "mechanism",
+              "claim_text": "采用Operation/Event/Checkpoint机制防止状态丢失",
+              "dimension": "tradeoff",
+              "topic_id": "ai.rag",
+              "jd_requirement_id": "req-rag",
+              "priority": 0.45125,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-e90d0e1f9594e3::clm-e844822029ee7be8::implementation",
+              "project_id": "proj-e90d0e1f9594e3",
+              "project_name": "CS面试Agent",
+              "claim_id": "clm-e844822029ee7be8",
+              "claim_type": "mechanism",
+              "claim_text": "采用Operation/Event/Checkpoint机制防止状态丢失",
+              "dimension": "implementation",
+              "topic_id": "ai.rag",
+              "jd_requirement_id": "req-rag",
+              "priority": 0.42375,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-e90d0e1f9594e3::clm-e844822029ee7be8::failure",
+              "project_id": "proj-e90d0e1f9594e3",
+              "project_name": "CS面试Agent",
+              "claim_id": "clm-e844822029ee7be8",
+              "claim_type": "mechanism",
+              "claim_text": "采用Operation/Event/Checkpoint机制防止状态丢失",
+              "dimension": "failure",
+              "topic_id": "ai.rag",
+              "jd_requirement_id": "req-rag",
+              "priority": 0.27375,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-e90d0e1f9594e3::clm-e844822029ee7be8::tradeoff": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-e90d0e1f9594e3::clm-e844822029ee7be8::implementation": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-e90d0e1f9594e3::clm-e844822029ee7be8::failure": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 5,
+        "current_difficulty": "medium",
+        "round": {
+          "topic": "ai.rag",
+          "competency_id": "ai.rag",
+          "target_requirement_id": "project-contradiction-req",
+          "question_type": "theory",
+          "followup_count": 0,
+          "planner_actions": [
+            {
+              "selected_action": "verify_project_claim",
+              "target_project_id": "proj-e90d0e1f9594e3",
+              "target_claim_id": "clm-e844822029ee7be8",
+              "project_dimension": "tradeoff",
+              "project_followup_depth": 0,
+              "supporting_state": {
+                "target_claim_fact": "采用Operation/Event/Checkpoint机制防止状态丢失"
+              }
+            }
+          ]
+        },
+        "judge_output": {
+          "score": 2,
+          "verdict": "partial",
+          "covered_points": [
+            "p1"
+          ],
+          "missing_points": [],
+          "factual_errors": [],
+          "needs_followup": false,
+          "followup_focus": "",
+          "weak_point": "",
+          "feedback": "feedback",
+          "evaluation_summary": "summary",
+          "confidence": 0.9
+        },
+        "answer_state": {
+          "newly_claimed_facts": [],
+          "project_facts": [],
+          "contradictions": [
+            {
+              "contradiction_id": "ctd-project-contradiction",
+              "statement": "我们没有做任何恢复机制",
+              "conflicts_with": "采用Operation/Event/Checkpoint机制防止状态丢失",
+              "topic_ids": [
+                "ai.rag"
+              ],
+              "evidence_span": "我们没有做任何恢复机制"
+            }
+          ],
+          "covered_rubric_points": [],
+          "unverified_boundaries": [],
+          "deep_dive_branches": []
+        },
+        "max_followups": 2
+      },
+      "expected_action": "resolve_contradiction",
+      "question": {
+        "target_requirement_id": "project-contradiction-req",
+        "topic": "ai.rag",
+        "question_text": "Explain a production trade-off involving ai.rag.",
+        "evidence": [
+          {
+            "evidence_id": "ev-ai.rag",
+            "content": "A reviewed production guide for ai.rag explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-contradiction"
+      ]
+    },
+    {
+      "id": "project-after-deep-dive",
+      "description": "项目回答提出新机制触发下一轮深挖",
+      "requirements": [
+        {
+          "requirement_id": "project-after-deep-dive-req",
+          "category": "must_have",
+          "topic_ids": [
+            "ai.rag"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-e844822029ee7be8",
+          "dimension": "tradeoff"
+        },
+        "project_id": "proj-e90d0e1f9594e3",
+        "project_name": "CS面试Agent"
+      },
+      "planner": {
+        "phase": "after_answer",
+        "plan": [
+          {
+            "requirement_id": "project-after-deep-dive-req",
+            "topic_id": "ai.rag",
+            "priority": 1.0,
+            "objective": "验证项目声明",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "ai.rag",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-e90d0e1f9594e3::clm-e844822029ee7be8::tradeoff",
+              "project_id": "proj-e90d0e1f9594e3",
+              "project_name": "CS面试Agent",
+              "claim_id": "clm-e844822029ee7be8",
+              "claim_type": "mechanism",
+              "claim_text": "采用Operation/Event/Checkpoint机制防止状态丢失",
+              "dimension": "tradeoff",
+              "topic_id": "ai.rag",
+              "jd_requirement_id": "req-rag",
+              "priority": 0.45125,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-e90d0e1f9594e3::clm-e844822029ee7be8::implementation",
+              "project_id": "proj-e90d0e1f9594e3",
+              "project_name": "CS面试Agent",
+              "claim_id": "clm-e844822029ee7be8",
+              "claim_type": "mechanism",
+              "claim_text": "采用Operation/Event/Checkpoint机制防止状态丢失",
+              "dimension": "implementation",
+              "topic_id": "ai.rag",
+              "jd_requirement_id": "req-rag",
+              "priority": 0.42375,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-e90d0e1f9594e3::clm-e844822029ee7be8::failure",
+              "project_id": "proj-e90d0e1f9594e3",
+              "project_name": "CS面试Agent",
+              "claim_id": "clm-e844822029ee7be8",
+              "claim_type": "mechanism",
+              "claim_text": "采用Operation/Event/Checkpoint机制防止状态丢失",
+              "dimension": "failure",
+              "topic_id": "ai.rag",
+              "jd_requirement_id": "req-rag",
+              "priority": 0.27375,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-e90d0e1f9594e3::clm-e844822029ee7be8::tradeoff": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-e90d0e1f9594e3::clm-e844822029ee7be8::implementation": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-e90d0e1f9594e3::clm-e844822029ee7be8::failure": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 5,
+        "current_difficulty": "medium",
+        "round": {
+          "topic": "ai.rag",
+          "competency_id": "ai.rag",
+          "target_requirement_id": "project-after-deep-dive-req",
+          "question_type": "theory",
+          "followup_count": 0,
+          "planner_actions": [
+            {
+              "selected_action": "verify_project_claim",
+              "target_project_id": "proj-e90d0e1f9594e3",
+              "target_claim_id": "clm-e844822029ee7be8",
+              "project_dimension": "tradeoff",
+              "project_followup_depth": 0,
+              "supporting_state": {
+                "target_claim_fact": "采用Operation/Event/Checkpoint机制防止状态丢失"
+              }
+            }
+          ]
+        },
+        "judge_output": {
+          "score": 3,
+          "verdict": "partial",
+          "covered_points": [
+            "p1"
+          ],
+          "missing_points": [],
+          "factual_errors": [],
+          "needs_followup": false,
+          "followup_focus": "",
+          "weak_point": "",
+          "feedback": "feedback",
+          "evaluation_summary": "summary",
+          "confidence": 0.9
+        },
+        "answer_state": {
+          "newly_claimed_facts": [],
+          "project_facts": [
+            {
+              "fact": "Worker 崩溃后通过 Checkpoint 重放恢复",
+              "fact_kind": "failure_mode",
+              "project_id": "proj-e90d0e1f9594e3",
+              "claim_id": "clm-e844822029ee7be8",
+              "topic_ids": [
+                "ai.rag"
+              ],
+              "evidence_span": "Worker 崩溃后通过 Checkpoint 重放恢复"
+            }
+          ],
+          "contradictions": [],
+          "covered_rubric_points": [],
+          "unverified_boundaries": [],
+          "deep_dive_branches": []
+        },
+        "max_followups": 2
+      },
+      "expected_action": "follow_up_current_claim",
+      "question": {
+        "target_requirement_id": "project-after-deep-dive-req",
+        "topic": "ai.rag",
+        "question_text": "Explain a production trade-off involving ai.rag.",
+        "evidence": [
+          {
+            "evidence_id": "ev-ai.rag",
+            "content": "A reviewed production guide for ai.rag explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-after-deep-dive"
+      ]
+    },
+    {
+      "id": "project-after-go-failure-mode",
+      "description": "Go 项目回答提出故障边界触发故障深挖",
+      "requirements": [
+        {
+          "requirement_id": "project-after-go-failure-mode-req",
+          "category": "must_have",
+          "topic_ids": [
+            "go.runtime"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-c694598d75d67e18",
+          "dimension": "failure"
+        },
+        "project_id": "proj-43bf7bb88e859c",
+        "project_name": "支付服务"
+      },
+      "planner": {
+        "phase": "after_answer",
+        "plan": [
+          {
+            "requirement_id": "project-after-go-failure-mode-req",
+            "topic_id": "go.runtime",
+            "priority": 1.0,
+            "objective": "验证项目声明",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "go.runtime",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-43bf7bb88e859c::clm-c694598d75d67e18::failure",
+              "project_id": "proj-43bf7bb88e859c",
+              "project_name": "支付服务",
+              "claim_id": "clm-c694598d75d67e18",
+              "claim_type": "reliability",
+              "claim_text": "通过超时与重试保证支付接口可用",
+              "dimension": "failure",
+              "topic_id": "go.runtime",
+              "jd_requirement_id": "req-go-pay",
+              "priority": 0.618,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            },
+            {
+              "target_id": "proj-43bf7bb88e859c::clm-c694598d75d67e18::implementation",
+              "project_id": "proj-43bf7bb88e859c",
+              "project_name": "支付服务",
+              "claim_id": "clm-c694598d75d67e18",
+              "claim_type": "reliability",
+              "claim_text": "通过超时与重试保证支付接口可用",
+              "dimension": "implementation",
+              "topic_id": "go.runtime",
+              "jd_requirement_id": "req-go-pay",
+              "priority": 0.5385,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-43bf7bb88e859c::clm-c694598d75d67e18::failure": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            },
+            "proj-43bf7bb88e859c::clm-c694598d75d67e18::implementation": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 5,
+        "current_difficulty": "medium",
+        "round": {
+          "topic": "go.runtime",
+          "competency_id": "go.runtime",
+          "target_requirement_id": "project-after-go-failure-mode-req",
+          "question_type": "theory",
+          "followup_count": 0,
+          "planner_actions": [
+            {
+              "selected_action": "verify_project_claim",
+              "target_project_id": "proj-43bf7bb88e859c",
+              "target_claim_id": "clm-c694598d75d67e18",
+              "project_dimension": "failure",
+              "project_followup_depth": 0,
+              "supporting_state": {
+                "target_claim_fact": "通过超时与重试保证支付接口可用"
+              }
+            }
+          ]
+        },
+        "judge_output": {
+          "score": 3,
+          "verdict": "partial",
+          "covered_points": [
+            "p1"
+          ],
+          "missing_points": [],
+          "factual_errors": [],
+          "needs_followup": false,
+          "followup_focus": "",
+          "weak_point": "",
+          "feedback": "feedback",
+          "evaluation_summary": "summary",
+          "confidence": 0.9
+        },
+        "answer_state": {
+          "newly_claimed_facts": [],
+          "project_facts": [
+            {
+              "fact": "超时后进入降级兜底",
+              "fact_kind": "failure_mode",
+              "project_id": "proj-43bf7bb88e859c",
+              "claim_id": "clm-c694598d75d67e18",
+              "topic_ids": [
+                "go.runtime"
+              ],
+              "evidence_span": "超时后进入降级兜底"
+            }
+          ],
+          "contradictions": [],
+          "covered_rubric_points": [],
+          "unverified_boundaries": [],
+          "deep_dive_branches": []
+        },
+        "max_followups": 2
+      },
+      "expected_action": "follow_up_current_claim",
+      "question": {
+        "target_requirement_id": "project-after-go-failure-mode-req",
+        "topic": "go.runtime",
+        "question_text": "Explain a production trade-off involving go.runtime.",
+        "evidence": [
+          {
+            "evidence_id": "ev-go.runtime",
+            "content": "A reviewed production guide for go.runtime explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-after-go-failure-mode"
+      ]
+    },
+    {
+      "id": "project-after-metric-definition",
+      "description": "项目回答澄清指标口径触发指标验真",
+      "requirements": [
+        {
+          "requirement_id": "project-after-metric-definition-req",
+          "category": "must_have",
+          "topic_ids": [
+            "ai.evaluation"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-2159ecd30b9c5fe0",
+          "dimension": "metric"
+        },
+        "project_id": "proj-0fc33ea26de416",
+        "project_name": "推荐系统"
+      },
+      "planner": {
+        "phase": "after_answer",
+        "plan": [
+          {
+            "requirement_id": "project-after-metric-definition-req",
+            "topic_id": "ai.evaluation",
+            "priority": 1.0,
+            "objective": "验证项目声明",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "ai.evaluation",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-0fc33ea26de416::clm-2159ecd30b9c5fe0::metric",
+              "project_id": "proj-0fc33ea26de416",
+              "project_name": "推荐系统",
+              "claim_id": "clm-2159ecd30b9c5fe0",
+              "claim_type": "metric",
+              "claim_text": "点击率提升显著",
+              "dimension": "metric",
+              "topic_id": "ai.evaluation",
+              "jd_requirement_id": "req-rec-metric",
+              "priority": 0.668,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-0fc33ea26de416::clm-2159ecd30b9c5fe0::metric": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 5,
+        "current_difficulty": "medium",
+        "round": {
+          "topic": "ai.evaluation",
+          "competency_id": "ai.evaluation",
+          "target_requirement_id": "project-after-metric-definition-req",
+          "question_type": "theory",
+          "followup_count": 0,
+          "planner_actions": [
+            {
+              "selected_action": "verify_project_claim",
+              "target_project_id": "proj-0fc33ea26de416",
+              "target_claim_id": "clm-2159ecd30b9c5fe0",
+              "project_dimension": "metric",
+              "project_followup_depth": 0,
+              "supporting_state": {
+                "target_claim_fact": "点击率提升显著"
+              }
+            }
+          ]
+        },
+        "judge_output": {
+          "score": 3,
+          "verdict": "partial",
+          "covered_points": [
+            "p1"
+          ],
+          "missing_points": [],
+          "factual_errors": [],
+          "needs_followup": false,
+          "followup_focus": "",
+          "weak_point": "",
+          "feedback": "feedback",
+          "evaluation_summary": "summary",
+          "confidence": 0.9
+        },
+        "answer_state": {
+          "newly_claimed_facts": [],
+          "project_facts": [
+            {
+              "fact": "样本量为30天线上流量",
+              "fact_kind": "metric_definition",
+              "project_id": "proj-0fc33ea26de416",
+              "claim_id": "clm-2159ecd30b9c5fe0",
+              "topic_ids": [
+                "ai.evaluation"
+              ],
+              "evidence_span": "样本量为30天线上流量"
+            }
+          ],
+          "contradictions": [],
+          "covered_rubric_points": [],
+          "unverified_boundaries": [],
+          "deep_dive_branches": []
+        },
+        "max_followups": 2
+      },
+      "expected_action": "follow_up_current_claim",
+      "question": {
+        "target_requirement_id": "project-after-metric-definition-req",
+        "topic": "ai.evaluation",
+        "question_text": "Explain a production trade-off involving ai.evaluation.",
+        "evidence": [
+          {
+            "evidence_id": "ev-ai.evaluation",
+            "content": "A reviewed production guide for ai.evaluation explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-after-metric-definition"
+      ]
+    },
+    {
+      "id": "project-metric-only",
+      "description": "仅有模糊指标的推荐项目触发指标验真",
+      "requirements": [
+        {
+          "requirement_id": "req-search",
+          "category": "must_have",
+          "topic_ids": [
+            "ai.evaluation"
+          ]
+        }
+      ],
+      "resume_claims": [],
+      "project": {
+        "expected_target": {
+          "claim_id": "clm-6b67c992594e91c8",
+          "dimension": "metric"
+        },
+        "project_id": "proj-5def969b7269a8",
+        "project_name": "搜索排序"
+      },
+      "planner": {
+        "phase": "initial",
+        "plan": [
+          {
+            "requirement_id": "req-search",
+            "topic_id": "ai.evaluation",
+            "priority": 1.0,
+            "objective": "Verify project-metric-only",
+            "preferred_question_type": "theory",
+            "target_difficulty": "medium",
+            "verification_strategy": "verify_resume_claim",
+            "status": "pending",
+            "attempt_count": 0,
+            "competency_id": "ai.evaluation",
+            "must_have": false
+          }
+        ],
+        "candidate_state": {
+          "newly_claimed_facts": [],
+          "verified_facts": [],
+          "disputed_facts": [],
+          "contradictions": [],
+          "weak_points": [],
+          "strong_points": [],
+          "unanswered_hypotheses": [],
+          "covered_requirement_ids": [],
+          "next_action_reason": "",
+          "project_attack_map": [
+            {
+              "target_id": "proj-5def969b7269a8::clm-6b67c992594e91c8::metric",
+              "project_id": "proj-5def969b7269a8",
+              "project_name": "搜索排序",
+              "claim_id": "clm-6b67c992594e91c8",
+              "claim_type": "metric",
+              "claim_text": "整体排序效果提升明显",
+              "dimension": "metric",
+              "topic_id": "ai.evaluation",
+              "jd_requirement_id": "req-search",
+              "priority": 0.668,
+              "status": "pending",
+              "attempt_count": 0,
+              "followup_depth": 0
+            }
+          ],
+          "project_facts": [],
+          "project_claim_state": {
+            "proj-5def969b7269a8::clm-6b67c992594e91c8::metric": {
+              "status": "untested",
+              "attempt_count": 0,
+              "followup_depth": 0,
+              "answered_evidence": [],
+              "related_question_ids": []
+            }
+          }
+        },
+        "rounds": [],
+        "remaining_question_budget": 6,
+        "current_difficulty": "medium"
+      },
+      "expected_action": "verify_project_claim",
+      "question": {
+        "target_requirement_id": "req-search",
+        "topic": "ai.evaluation",
+        "question_text": "Explain a production trade-off involving ai.evaluation.",
+        "evidence": [
+          {
+            "evidence_id": "ev-ai.evaluation",
+            "content": "A reviewed production guide for ai.evaluation explains trade-offs, failure modes, and verification steps."
+          }
+        ],
+        "candidate_response": {
+          "questionText": "How would you apply this skill in practice?"
+        }
+      },
+      "forbidden_fragments": [
+        "private reference for project-metric-only"
+      ]
+    },
+    {
       "id": "generated-1-go-runtime",
       "description": "Generated scenario for go.runtime with verify_jd_requirement",
       "requirements": [
@@ -2228,7 +3916,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 1,
@@ -2296,7 +3987,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -2362,7 +4056,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 1,
@@ -2424,7 +4121,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -2496,7 +4196,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -2562,7 +4265,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -2634,7 +4340,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [],
         "remaining_question_budget": 1,
@@ -2696,7 +4405,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -2762,7 +4474,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -2834,7 +4549,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -2906,7 +4624,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -2990,7 +4711,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -3000,15 +4724,15 @@
         "remaining_question_budget": 1,
         "current_difficulty": "medium"
       },
-      "expected_action": "verify_jd_requirement",
+      "expected_action": "switch_topic",
       "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "ml.fundamentals",
-        "question_text": "Explain a production trade-off involving ml.fundamentals.",
+        "target_requirement_id": "gen-2",
+        "topic": "go.runtime",
+        "question_text": "Explain a production trade-off involving go.runtime.",
         "evidence": [
           {
-            "evidence_id": "ev-ml.fundamentals",
-            "content": "A reviewed production guide for ml.fundamentals explains trade-offs, failure modes, and verification steps."
+            "evidence_id": "ev-go.runtime",
+            "content": "A reviewed production guide for go.runtime explains trade-offs, failure modes, and verification steps."
           }
         ],
         "candidate_response": {
@@ -3074,7 +4798,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -3084,15 +4811,15 @@
         "remaining_question_budget": 3,
         "current_difficulty": "medium"
       },
-      "expected_action": "verify_jd_requirement",
+      "expected_action": "switch_topic",
       "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "ai.rag",
-        "question_text": "Explain a production trade-off involving ai.rag.",
+        "target_requirement_id": "gen-2",
+        "topic": "database.mysql",
+        "question_text": "Explain a production trade-off involving database.mysql.",
         "evidence": [
           {
-            "evidence_id": "ev-ai.rag",
-            "content": "A reviewed production guide for ai.rag explains trade-offs, failure modes, and verification steps."
+            "evidence_id": "ev-database.mysql",
+            "content": "A reviewed production guide for database.mysql explains trade-offs, failure modes, and verification steps."
           }
         ],
         "candidate_response": {
@@ -3146,7 +4873,10 @@
           "strong_points": [],
           "unanswered_hypotheses": [],
           "covered_requirement_ids": [],
-          "next_action_reason": ""
+          "next_action_reason": "",
+          "project_attack_map": [],
+          "project_facts": [],
+          "project_claim_state": {}
         },
         "rounds": [
           {
@@ -3174,768 +4904,40 @@
       "forbidden_fragments": [
         "private reference for generated-14-database-mysql"
       ]
+    }
+  ],
+  "project_fact_cases": [
+    {
+      "answer": "状态通过事件回放恢复",
+      "project_facts": [
+        {
+          "fact": "状态通过事件回放恢复",
+          "fact_kind": "mechanism",
+          "project_id": "proj-aaaaaaaaaaaaaa",
+          "claim_id": "clm-bbbbbbbbbbbbbbbb",
+          "evidence_span": "状态通过事件回放恢复"
+        }
+      ],
+      "known_claims": {
+        "clm-bbbbbbbbbbbbbbbb": "proj-cccccccccccccc"
+      },
+      "cross_project": true
     },
     {
-      "id": "generated-15-backend-distributed",
-      "description": "Generated scenario for backend.distributed with verify_resume_claim",
-      "requirements": [
+      "answer": "本地缓存用于热点",
+      "project_facts": [
         {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "backend.distributed"
-          ]
+          "fact": "本地缓存用于热点",
+          "fact_kind": "decision",
+          "project_id": "proj-aaaaaaaaaaaaaa",
+          "claim_id": "clm-aaaaaaaaaaaaaaaa",
+          "evidence_span": "本地缓存用于热点"
         }
       ],
-      "resume_claims": [
-        {
-          "claim_id": "gen-1-claim",
-          "requirement_id": "gen-1",
-          "topic_id": "backend.distributed"
-        }
-      ],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "backend.distributed",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_resume_claim",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [],
-        "remaining_question_budget": 1,
-        "current_difficulty": "medium"
+      "known_claims": {
+        "clm-aaaaaaaaaaaaaaaa": "proj-aaaaaaaaaaaaaa"
       },
-      "expected_action": "verify_resume_claim",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "backend.distributed",
-        "question_text": "Explain a production trade-off involving backend.distributed.",
-        "evidence": [
-          {
-            "evidence_id": "ev-backend.distributed",
-            "content": "A reviewed production guide for backend.distributed explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-15-backend-distributed"
-      ]
-    },
-    {
-      "id": "generated-16-ml-fundamentals",
-      "description": "Generated scenario for ml.fundamentals with verify_resume_claim",
-      "requirements": [
-        {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "ml.fundamentals"
-          ]
-        },
-        {
-          "requirement_id": "gen-2",
-          "category": "responsibility",
-          "topic_ids": [
-            "go.runtime"
-          ]
-        }
-      ],
-      "resume_claims": [
-        {
-          "claim_id": "gen-1-claim",
-          "requirement_id": "gen-1",
-          "topic_id": "ml.fundamentals"
-        }
-      ],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "ml.fundamentals",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_resume_claim",
-            "status": "pending",
-            "attempt_count": 0
-          },
-          {
-            "requirement_id": "gen-2",
-            "topic_id": "go.runtime",
-            "priority": 1.0,
-            "objective": "Verify gen-2",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_jd_requirement",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [],
-        "remaining_question_budget": 3,
-        "current_difficulty": "medium"
-      },
-      "expected_action": "verify_resume_claim",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "ml.fundamentals",
-        "question_text": "Explain a production trade-off involving ml.fundamentals.",
-        "evidence": [
-          {
-            "evidence_id": "ev-ml.fundamentals",
-            "content": "A reviewed production guide for ml.fundamentals explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-16-ml-fundamentals"
-      ]
-    },
-    {
-      "id": "generated-17-ai-agent",
-      "description": "Generated scenario for ai.agent with verify_jd_requirement",
-      "requirements": [
-        {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "ai.agent"
-          ]
-        }
-      ],
-      "resume_claims": [],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "ai.agent",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_jd_requirement",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [],
-        "remaining_question_budget": 2,
-        "current_difficulty": "medium"
-      },
-      "expected_action": "verify_jd_requirement",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "ai.agent",
-        "question_text": "Explain a production trade-off involving ai.agent.",
-        "evidence": [
-          {
-            "evidence_id": "ev-ai.agent",
-            "content": "A reviewed production guide for ai.agent explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-17-ai-agent"
-      ]
-    },
-    {
-      "id": "generated-18-ml-fundamentals",
-      "description": "Generated scenario for ml.fundamentals with verify_jd_requirement",
-      "requirements": [
-        {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "ml.fundamentals"
-          ]
-        }
-      ],
-      "resume_claims": [],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "ml.fundamentals",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_jd_requirement",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [
-          {
-            "topic": "ml.fundamentals"
-          }
-        ],
-        "remaining_question_budget": 1,
-        "current_difficulty": "medium"
-      },
-      "expected_action": "verify_jd_requirement",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "ml.fundamentals",
-        "question_text": "Explain a production trade-off involving ml.fundamentals.",
-        "evidence": [
-          {
-            "evidence_id": "ev-ml.fundamentals",
-            "content": "A reviewed production guide for ml.fundamentals explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-18-ml-fundamentals"
-      ]
-    },
-    {
-      "id": "generated-19-database-mysql",
-      "description": "Generated scenario for database.mysql with verify_jd_requirement",
-      "requirements": [
-        {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "database.mysql"
-          ]
-        },
-        {
-          "requirement_id": "gen-2",
-          "category": "responsibility",
-          "topic_ids": [
-            "backend.distributed"
-          ]
-        }
-      ],
-      "resume_claims": [],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "database.mysql",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_jd_requirement",
-            "status": "pending",
-            "attempt_count": 0
-          },
-          {
-            "requirement_id": "gen-2",
-            "topic_id": "backend.distributed",
-            "priority": 1.0,
-            "objective": "Verify gen-2",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_jd_requirement",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [],
-        "remaining_question_budget": 1,
-        "current_difficulty": "medium"
-      },
-      "expected_action": "verify_jd_requirement",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "database.mysql",
-        "question_text": "Explain a production trade-off involving database.mysql.",
-        "evidence": [
-          {
-            "evidence_id": "ev-database.mysql",
-            "content": "A reviewed production guide for database.mysql explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-19-database-mysql"
-      ]
-    },
-    {
-      "id": "generated-20-ml-fundamentals",
-      "description": "Generated scenario for ml.fundamentals with verify_jd_requirement",
-      "requirements": [
-        {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "ml.fundamentals"
-          ]
-        }
-      ],
-      "resume_claims": [],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "ml.fundamentals",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_jd_requirement",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [],
-        "remaining_question_budget": 3,
-        "current_difficulty": "medium"
-      },
-      "expected_action": "verify_jd_requirement",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "ml.fundamentals",
-        "question_text": "Explain a production trade-off involving ml.fundamentals.",
-        "evidence": [
-          {
-            "evidence_id": "ev-ml.fundamentals",
-            "content": "A reviewed production guide for ml.fundamentals explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-20-ml-fundamentals"
-      ]
-    },
-    {
-      "id": "generated-21-go-runtime",
-      "description": "Generated scenario for go.runtime with verify_resume_claim",
-      "requirements": [
-        {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "go.runtime"
-          ]
-        }
-      ],
-      "resume_claims": [
-        {
-          "claim_id": "gen-1-claim",
-          "requirement_id": "gen-1",
-          "topic_id": "go.runtime"
-        }
-      ],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "go.runtime",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_resume_claim",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [
-          {
-            "topic": "go.runtime"
-          }
-        ],
-        "remaining_question_budget": 2,
-        "current_difficulty": "medium"
-      },
-      "expected_action": "verify_resume_claim",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "go.runtime",
-        "question_text": "Explain a production trade-off involving go.runtime.",
-        "evidence": [
-          {
-            "evidence_id": "ev-go.runtime",
-            "content": "A reviewed production guide for go.runtime explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-21-go-runtime"
-      ]
-    },
-    {
-      "id": "generated-22-ai-rag",
-      "description": "Generated scenario for ai.rag with verify_resume_claim",
-      "requirements": [
-        {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "ai.rag"
-          ]
-        }
-      ],
-      "resume_claims": [
-        {
-          "claim_id": "gen-1-claim",
-          "requirement_id": "gen-1",
-          "topic_id": "ai.rag"
-        }
-      ],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "ai.rag",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_resume_claim",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [],
-        "remaining_question_budget": 3,
-        "current_difficulty": "medium"
-      },
-      "expected_action": "verify_resume_claim",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "ai.rag",
-        "question_text": "Explain a production trade-off involving ai.rag.",
-        "evidence": [
-          {
-            "evidence_id": "ev-ai.rag",
-            "content": "A reviewed production guide for ai.rag explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-22-ai-rag"
-      ]
-    },
-    {
-      "id": "generated-23-backend-distributed",
-      "description": "Generated scenario for backend.distributed with verify_resume_claim",
-      "requirements": [
-        {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "backend.distributed"
-          ]
-        }
-      ],
-      "resume_claims": [
-        {
-          "claim_id": "gen-1-claim",
-          "requirement_id": "gen-1",
-          "topic_id": "backend.distributed"
-        }
-      ],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "backend.distributed",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_resume_claim",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [],
-        "remaining_question_budget": 2,
-        "current_difficulty": "medium"
-      },
-      "expected_action": "verify_resume_claim",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "backend.distributed",
-        "question_text": "Explain a production trade-off involving backend.distributed.",
-        "evidence": [
-          {
-            "evidence_id": "ev-backend.distributed",
-            "content": "A reviewed production guide for backend.distributed explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-23-backend-distributed"
-      ]
-    },
-    {
-      "id": "generated-24-go-runtime",
-      "description": "Generated scenario for go.runtime with verify_jd_requirement",
-      "requirements": [
-        {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "go.runtime"
-          ]
-        }
-      ],
-      "resume_claims": [],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "go.runtime",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_jd_requirement",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [],
-        "remaining_question_budget": 2,
-        "current_difficulty": "medium"
-      },
-      "expected_action": "verify_jd_requirement",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "go.runtime",
-        "question_text": "Explain a production trade-off involving go.runtime.",
-        "evidence": [
-          {
-            "evidence_id": "ev-go.runtime",
-            "content": "A reviewed production guide for go.runtime explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-24-go-runtime"
-      ]
-    },
-    {
-      "id": "generated-25-database-mysql",
-      "description": "Generated scenario for database.mysql with verify_resume_claim",
-      "requirements": [
-        {
-          "requirement_id": "gen-1",
-          "category": "must_have",
-          "topic_ids": [
-            "database.mysql"
-          ]
-        }
-      ],
-      "resume_claims": [
-        {
-          "claim_id": "gen-1-claim",
-          "requirement_id": "gen-1",
-          "topic_id": "database.mysql"
-        }
-      ],
-      "planner": {
-        "phase": "initial",
-        "plan": [
-          {
-            "requirement_id": "gen-1",
-            "topic_id": "database.mysql",
-            "priority": 2.0,
-            "objective": "Verify gen-1",
-            "preferred_question_type": "theory",
-            "target_difficulty": "medium",
-            "verification_strategy": "verify_resume_claim",
-            "status": "pending",
-            "attempt_count": 0
-          }
-        ],
-        "candidate_state": {
-          "newly_claimed_facts": [],
-          "verified_facts": [],
-          "disputed_facts": [],
-          "contradictions": [],
-          "weak_points": [],
-          "strong_points": [],
-          "unanswered_hypotheses": [],
-          "covered_requirement_ids": [],
-          "next_action_reason": ""
-        },
-        "rounds": [],
-        "remaining_question_budget": 3,
-        "current_difficulty": "medium"
-      },
-      "expected_action": "verify_resume_claim",
-      "question": {
-        "target_requirement_id": "gen-1",
-        "topic": "database.mysql",
-        "question_text": "Explain a production trade-off involving database.mysql.",
-        "evidence": [
-          {
-            "evidence_id": "ev-database.mysql",
-            "content": "A reviewed production guide for database.mysql explains trade-offs, failure modes, and verification steps."
-          }
-        ],
-        "candidate_response": {
-          "questionText": "How would you apply this skill in practice?"
-        }
-      },
-      "forbidden_fragments": [
-        "private reference for generated-25-database-mysql"
-      ]
+      "cross_project": false
     }
   ]
 }

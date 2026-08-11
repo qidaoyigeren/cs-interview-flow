@@ -6,6 +6,8 @@ from peewee import IntegrityError, SqliteDatabase
 
 from api.db.db_models import (
     CodeSubmission,
+    InterviewAnnotationCase,
+    InterviewAnnotationReview,
     InterviewAuditLog,
     InterviewDeletionRequest,
     InterviewEvaluationMetric,
@@ -14,12 +16,14 @@ from api.db.db_models import (
     InterviewExperiment,
     InterviewExperimentAssignment,
     InterviewFeedback,
+    InterviewKnowledgeBootstrap,
     InterviewModelCall,
     InterviewOperation,
     InterviewOperationCheckpoint,
     InterviewPricingVersion,
     InterviewRequest,
     InterviewReviewAction,
+    InterviewRubricCalibration,
     InterviewTraceEvent,
 )
 
@@ -38,8 +42,12 @@ MODELS = (
     InterviewExperiment,
     InterviewExperimentAssignment,
     InterviewFeedback,
+    InterviewKnowledgeBootstrap,
     InterviewReviewAction,
     InterviewPricingVersion,
+    InterviewAnnotationCase,
+    InterviewAnnotationReview,
+    InterviewRubricCalibration,
 )
 
 
@@ -79,6 +87,18 @@ def test_beta_tables_and_idempotency_indexes_create_on_existing_database(tmp_pat
         assert assignment_indexes[("experiment_id", "session_id")] is True
         feedback_indexes = {tuple(index.columns) for index in database.get_indexes("interview_feedback")}
         assert ("tenant_id", "create_time") in feedback_indexes
+
+        annotation_review_indexes = {tuple(index.columns): index.unique for index in database.get_indexes("interview_annotation_review")}
+        assert annotation_review_indexes[("case_id", "reviewer_id_hash")] is True
+        annotation_case_indexes = {tuple(index.columns) for index in database.get_indexes("interview_annotation_case")}
+        assert ("case_id",) in annotation_case_indexes
+        calibration_indexes = {tuple(index.columns) for index in database.get_indexes("interview_rubric_calibration")}
+        assert ("rubric_version", "competency_id", "metric") in calibration_indexes
+        bootstrap_indexes = {
+            tuple(index.columns): index.unique
+            for index in database.get_indexes("interview_knowledge_bootstrap")
+        }
+        assert bootstrap_indexes[("tenant_id", "corpus_version")] is True
 
         common = {
             "tenant_id": "tenant-1",

@@ -55,6 +55,22 @@ def _targeted_claim_facts(action: dict[str, Any]) -> list[str]:
     return []
 
 
+def _project_target(action: dict[str, Any], round_data: dict[str, Any]) -> dict[str, Any] | None:
+    """Rebuild the (project, claim, dimension) target from the stored action."""
+    project_id = str(action.get("target_project_id") or "")
+    claim_id = str(action.get("target_claim_id") or "")
+    if not project_id or not claim_id:
+        return None
+    return {
+        "project_id": project_id,
+        "claim_id": claim_id,
+        "dimension": str(action.get("project_dimension") or ""),
+        "claim_text": str((action.get("supporting_state") or {}).get("target_claim_fact") or "")[:500],
+        "followup_depth": int(action.get("project_followup_depth") or 0),
+        "question_id": str(round_data.get("question_id") or ""),
+    }
+
+
 def _resolved_contradiction_ids(action: dict[str, Any]) -> list[str]:
     if action.get("selected_action") == PlannerActionKind.RESOLVE_CONTRADICTION.value:
         cid = str(
@@ -72,6 +88,9 @@ def _stored_identity(original: dict[str, Any]) -> dict[str, Any]:
         "target_requirement_id": original.get("target_requirement_id"),
         "target_topic": original.get("target_topic"),
         "target_contradiction_id": str(original.get("target_contradiction_id") or ""),
+        "target_project_id": str(original.get("target_project_id") or ""),
+        "target_claim_id": str(original.get("target_claim_id") or ""),
+        "project_dimension": str(original.get("project_dimension") or ""),
     }
 
 
@@ -81,6 +100,9 @@ def _replayed_identity(action: PlannerAction) -> dict[str, Any]:
         "target_requirement_id": action.target_requirement_id,
         "target_topic": action.target_topic,
         "target_contradiction_id": action.target_contradiction_id,
+        "target_project_id": str(action.target_project_id or ""),
+        "target_claim_id": str(action.target_claim_id or ""),
+        "project_dimension": str(action.project_dimension or ""),
     }
 
 
@@ -111,6 +133,7 @@ def replay_planner_decision(
     stored_action: dict[str, Any],
     remaining_question_budget: int,
     current_difficulty: str,
+    competency_snapshot: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Replay one planner checkpoint using the same production dispatcher."""
     replayed = choose_planner_action_versioned(
@@ -120,6 +143,7 @@ def replay_planner_decision(
         deepcopy(history),
         remaining_question_budget=remaining_question_budget,
         current_difficulty=current_difficulty,
+        competency_snapshot=deepcopy(competency_snapshot),
     )
     return _compare("question", 0, stored_action, replayed)
 
@@ -129,7 +153,7 @@ def replay_session(
     rounds: list[Any],
     *,
     planner_version: str = "latest",
-    emit_trace: bool = True,
+    emit_trace: bool = False,
 ) -> dict[str, Any]:
     """Re-run the planner over a session's immutable inputs and compare."""
     resolved_version = str(session.planner_version) if planner_version in {None, "", "latest"} else str(planner_version)
@@ -143,11 +167,13 @@ def replay_session(
             "deterministic_count": 0,
             "total_count": 0,
             "deterministic_ratio": 0.0,
+            "final_project_claim_state": {},
         }
 
     profile = dict(session.profile_snapshot or {})
     plan = [dict(item) for item in (session.initial_interview_plan or [])]
     candidate_state = dict(session.initial_candidate_state or {})
+    competency_snapshot = dict(getattr(session, "competency_snapshot", None) or {})
     history: list[dict[str, Any]] = []
     difficulty = str(profile.get("initial_difficulty") or "medium")
     max_questions = int(session.max_questions or 0)
@@ -173,10 +199,14 @@ def replay_session(
                 history,
                 remaining_question_budget=remaining_before,
                 current_difficulty=difficulty,
+                competency_snapshot=competency_snapshot,
             )
             decisions.append(_compare("question", round_sequence, original_question, replayed_question))
 
         requirement_id = round_data.get("target_requirement_id")
+        competency_id = str(round_data.get("competency_id") or round_data.get("topic") or "")
+        rubric = ((competency_snapshot or {}).get("rubrics") or {}).get(competency_id) or {}
+        required_score = max(2, min(4, int(rubric.get("required_score") or 3)))
         answers = list(round_data.get("candidate_answers") or [])
         for answer_index, answer in enumerate(answers):
             evaluation = answer.get("evaluation")
@@ -194,10 +224,12 @@ def replay_session(
                 requirement_id=requirement_id,
                 target_topic=str(round_data.get("topic") or ""),
                 completed=True,
+                required_score=required_score,
                 targeted_claim_facts=_targeted_claim_facts(prompting_action),
                 resolved_contradiction_ids=resolved_ids,
+                project_target=_project_target(prompting_action, round_data),
             )
-            provisional_plan = update_interview_plan(plan, requirement_id, score=judge.score, completed=True)
+            provisional_plan = update_interview_plan(plan, requirement_id, score=judge.score, completed=True, required_score=required_score)
             previous_score = history[-1].get("score") if history else None
             next_difficulty = compute_next_difficulty(difficulty, judge.score, previous_score)
             round_at_answer = {
@@ -216,6 +248,7 @@ def replay_session(
                 remaining_question_budget=max_questions - len(history) - 1,
                 max_followups=max_followups,
                 current_difficulty=next_difficulty,
+                competency_snapshot=competency_snapshot,
             )
             original_action = actions[answer_index + 1]
             decisions.append(
@@ -239,10 +272,12 @@ def replay_session(
                     requirement_id=requirement_id,
                     target_topic=str(round_data.get("topic") or ""),
                     completed=False,
+                    required_score=required_score,
                     resolved_contradiction_ids=resolved_ids,
+                    project_target=_project_target(prompting_action, round_data),
                 )
                 candidate_state["next_action_reason"] = str(original_action.get("reason") or "")
-                plan = update_interview_plan(plan, requirement_id, score=None, completed=False)
+                plan = update_interview_plan(plan, requirement_id, score=None, completed=False, required_score=required_score)
                 continue
 
             provisional_state["next_action_reason"] = str(original_action.get("reason") or "")
@@ -279,4 +314,5 @@ def replay_session(
         "deterministic_count": deterministic_count,
         "total_count": total,
         "deterministic_ratio": round(deterministic_count / total, 4) if total else 0.0,
+        "final_project_claim_state": deepcopy(candidate_state.get("project_claim_state") or {}),
     }
