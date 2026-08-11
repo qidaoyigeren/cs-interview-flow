@@ -267,3 +267,8 @@ internal/deepdoc/parser/docx/tool/
 internal/ingestion/task/tool/generate_dataflow_golden.py
 internal/ingestion/task/tool/README.md
 internal/cpp/cmake-build-release
+
+# CS Interview local build artifacts / temp working dirs (not for commit)
+/tmp/
+/web/dist-before-select-fix/
+/web/dist-select-fix/
